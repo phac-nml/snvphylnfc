@@ -48,6 +48,13 @@ include { FREEBAYES_VCF_TO_BCF } from '../modules/local/freebayesvcftobcf/main'
 include { MPILEUP              } from '../modules/local/mpileup/main'
 include { BGZIP_MPILEUP_VCF    } from '../modules/local/bgzipmpileupvcf/main'
 include { BCFTOOLS_CALL        } from '../modules/local/bcftoolscall/main'
+include { CONSOLIDATE_BCFS     } from '../modules/local/consolidatebcfs/main'
+include { CONSOLIDATE_FILTERED_DENSITY } from '../modules/local/consolidatefiltereddensity/main'
+include { GENERATE_LINE_2      } from '../modules/local/generateline2/main'
+include { VCF2SNV_ALIGNMENT    } from '../modules/local/vcf2snvalignment/main'
+include { FILTER_STATS         } from '../modules/local/filterstats/main'
+include { PHYML                } from '../modules/local/phyml/main'
+include { MAKE_SNV             } from '../modules/local/makesnv/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -144,6 +151,53 @@ workflow SNVPHYL {
         BGZIP_MPILEUP_VCF.out.mpileup_zipped
     )
     ch_versions = ch_versions.mix(BCFTOOLS_CALL.out.versions)
+
+    //Joining channels of multiple outputs
+    combined_ch = BCFTOOLS_CALL.out.mpileup_bcf.join(FREEBAYES_VCF_TO_BCF.out.filtered_bcf)
+    //11. consolidate variant calling files process takes 2 input channels as arguments
+    CONSOLIDATE_BCFS(
+        combined_ch
+    )
+    ch_versions = ch_versions.mix(CONSOLIDATE_BCFS.out.versions)
+
+    // Concat filtered densities to make new invalid_postions
+    CONSOLIDATE_FILTERED_DENSITY(
+        CONSOLIDATE_BCFS.out.filtered_densities.collect(), FIND_REPEATS.out.repeats_bed_file
+    )
+    ch_versions = ch_versions.mix(CONSOLIDATE_FILTERED_DENSITY.out.versions)
+
+    // Making string that looks like... this is needed for the next process
+    //--consolidate_vcf 2021JQ-00457-WAPHL-M5130-211029=2021JQ-00457-WAPHL-M5130-211029_consolidated.bcf --consolidate_vcf 2021JQ-00459-WAPHL-M5130-211029=2021JQ-00459-WAPHL-M5130-211029_consolidated.bcf --consolidate_vcf 2021JQ-00460-WAPHL-M5130-211029=2021JQ-00460-WAPHL-M5130-211029_consolidated.bcf
+    GENERATE_LINE_2(
+        CONSOLIDATE_BCFS.out.consolidated_bcfs.collect()
+    )
+    //ch_versions = ch_versions.mix(GENERATE_LINE_2.out.versions)
+
+    // Get line out of file we just made that has the --consolidate_vcf line...
+    //13. consolidate variant calling files process takes 2 input channels as arguments
+    VCF2SNV_ALIGNMENT(
+        GENERATE_LINE_2.out.consolidation_line.splitText(), CONSOLIDATE_BCFS.out.consolidated_bcfs.collect(), CONSOLIDATE_FILTERED_DENSITY.out.new_invalid_positions, params.refgenome, CONSOLIDATE_BCFS.out.consolidated_bcf_index.collect()
+    )
+    ch_versions = ch_versions.mix(VCF2SNV_ALIGNMENT.out.versions)
+
+    //14. Filter Stats
+    FILTER_STATS(
+        VCF2SNV_ALIGNMENT.out.snvTable
+    )
+    ch_versions = ch_versions.mix(FILTER_STATS.out.versions)
+
+    //15. Using phyml to build tree process takes 1 input channel as an argument
+    PHYML(
+        VCF2SNV_ALIGNMENT.out.snvAlignment
+    )
+    ch_versions = ch_versions.mix(PHYML.out.versions)
+
+    //16. Make SNVMatix.tsv
+    MAKE_SNV(
+        VCF2SNV_ALIGNMENT.out.snvAlignment
+    )
+    ch_versions = ch_versions.mix(MAKE_SNV.out.versions)
+
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')

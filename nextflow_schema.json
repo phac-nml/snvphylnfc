@@ -210,6 +210,14 @@
         "refgenome": {
             "type": "string",
             "default": "/home/eric/projects/snvphylnfc/assets/reference.fasta"
+        },
+        "window_size": {
+            "type": "integer",
+            "default": 11
+        },
+        "density_threshold": {
+            "type": "integer",
+            "default": 2
         }
     }
 }
