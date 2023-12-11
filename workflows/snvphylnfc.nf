@@ -37,6 +37,7 @@ include { IRIDA_NEXT_OUTPUT    } from '../modules/local/iridanextoutput/main'
 include { GENERATE_SUMMARY     } from '../modules/local/generatesummary/main'
 include { INDEXING             } from '../modules/local/indexing/main'
 include { FIND_REPEATS         } from '../modules/local/findrepeats/main'
+include { SMALT_MAP            } from '../modules/local/smaltmap/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -77,6 +78,11 @@ workflow SNVPHYL {
         params.refgenome
     )
     ch_versions = ch_versions.mix(FIND_REPEATS.out.versions)
+
+    SMALT_MAP(
+        input, INDEXING.out.ref_fai, INDEXING.out.ref_sma, INDEXING.out.ref_smi
+    )
+    ch_versions = ch_versions.mix(SMALT_MAP.out.versions)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
