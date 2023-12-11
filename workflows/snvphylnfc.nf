@@ -45,6 +45,9 @@ include { FREEBAYES            } from '../modules/local/freebayes/main'
 include { FILTER_FREEBAYES     } from '../modules/local/filterfreebayes/main'
 include { BGZIP_FREEBAYES_VCF  } from '../modules/local/bgzipfreebayesvcf/main'
 include { FREEBAYES_VCF_TO_BCF } from '../modules/local/freebayesvcftobcf/main'
+include { MPILEUP              } from '../modules/local/mpileup/main'
+include { BGZIP_MPILEUP_VCF    } from '../modules/local/bgzipmpileupvcf/main'
+include { BCFTOOLS_CALL        } from '../modules/local/bcftoolscall/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -126,6 +129,21 @@ workflow SNVPHYL {
         BGZIP_FREEBAYES_VCF.out.filtered_zipped_vcf
     )
     ch_versions = ch_versions.mix(FREEBAYES_VCF_TO_BCF.out.versions)
+
+    MPILEUP(
+        SORT_INDEX_BAMS.out.sorted_bams_and_sampleID, params.refgenome
+    )
+    ch_versions = ch_versions.mix(MPILEUP.out.versions)
+
+    BGZIP_MPILEUP_VCF(
+        MPILEUP.out.mpileup
+    )
+    ch_versions = ch_versions.mix(BGZIP_MPILEUP_VCF.out.versions)
+
+    BCFTOOLS_CALL(
+        BGZIP_MPILEUP_VCF.out.mpileup_zipped
+    )
+    ch_versions = ch_versions.mix(BCFTOOLS_CALL.out.versions)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
