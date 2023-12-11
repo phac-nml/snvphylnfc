@@ -42,6 +42,9 @@ include { SORT_INDEX_BAMS      } from '../modules/local/sortindexbams/main'
 include { GENERATE_LINE_1      } from '../modules/local/generateline1/main'
 include { VERIFYING_MAP_Q      } from '../modules/local/verifyingmapq/main'
 include { FREEBAYES            } from '../modules/local/freebayes/main'
+include { FILTER_FREEBAYES     } from '../modules/local/filterfreebayes/main'
+include { BGZIP_FREEBAYES_VCF  } from '../modules/local/bgzipfreebayesvcf/main'
+include { FREEBAYES_VCF_TO_BCF } from '../modules/local/freebayesvcftobcf/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -107,6 +110,22 @@ workflow SNVPHYL {
         SORT_INDEX_BAMS.out.sorted_bams_and_sampleID, params.refgenome
     )
     ch_versions = ch_versions.mix(FREEBAYES.out.versions)
+
+    FILTER_FREEBAYES(
+        FREEBAYES.out.vcf_files
+    )
+    ch_versions = ch_versions.mix(FILTER_FREEBAYES.out.versions)
+
+    // TODO: Is there a better way of doing this? In the last step?
+    BGZIP_FREEBAYES_VCF(
+        FILTER_FREEBAYES.out.filtered_vcf
+    )
+    ch_versions = ch_versions.mix(BGZIP_FREEBAYES_VCF.out.versions)
+
+    FREEBAYES_VCF_TO_BCF(
+        BGZIP_FREEBAYES_VCF.out.filtered_zipped_vcf
+    )
+    ch_versions = ch_versions.mix(FREEBAYES_VCF_TO_BCF.out.versions)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
