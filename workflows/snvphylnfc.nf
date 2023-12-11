@@ -38,6 +38,8 @@ include { GENERATE_SUMMARY     } from '../modules/local/generatesummary/main'
 include { INDEXING             } from '../modules/local/indexing/main'
 include { FIND_REPEATS         } from '../modules/local/findrepeats/main'
 include { SMALT_MAP            } from '../modules/local/smaltmap/main'
+include { SORT_INDEX_BAMS      } from '../modules/local/sortindexbams/main'
+include { GENERATE_LINE_1      } from '../modules/local/generateline1/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -83,6 +85,16 @@ workflow SNVPHYL {
         input, INDEXING.out.ref_fai, INDEXING.out.ref_sma, INDEXING.out.ref_smi
     )
     ch_versions = ch_versions.mix(SMALT_MAP.out.versions)
+
+    SORT_INDEX_BAMS(
+        SMALT_MAP.out.bams
+    )
+    ch_versions = ch_versions.mix(SORT_INDEX_BAMS.out.versions)
+
+    // TODO: Review this module further (purpose, version, code injection, container, etc.)
+    GENERATE_LINE_1(
+        SORT_INDEX_BAMS.out.sorted_bams.collect()
+    )
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
