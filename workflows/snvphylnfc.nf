@@ -40,6 +40,8 @@ include { FIND_REPEATS         } from '../modules/local/findrepeats/main'
 include { SMALT_MAP            } from '../modules/local/smaltmap/main'
 include { SORT_INDEX_BAMS      } from '../modules/local/sortindexbams/main'
 include { GENERATE_LINE_1      } from '../modules/local/generateline1/main'
+include { VERIFYING_MAP_Q      } from '../modules/local/verifyingmapq/main'
+include { FREEBAYES            } from '../modules/local/freebayes/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -95,6 +97,16 @@ workflow SNVPHYL {
     GENERATE_LINE_1(
         SORT_INDEX_BAMS.out.sorted_bams.collect()
     )
+
+    VERIFYING_MAP_Q(
+        SORT_INDEX_BAMS.out.sorted_bams.collect(), GENERATE_LINE_1.out.bam_lines_file.splitText()
+    )
+    ch_versions = ch_versions.mix(VERIFYING_MAP_Q.out.versions)
+
+    FREEBAYES(
+        SORT_INDEX_BAMS.out.sorted_bams_and_sampleID, params.refgenome
+    )
+    ch_versions = ch_versions.mix(FREEBAYES.out.versions)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
