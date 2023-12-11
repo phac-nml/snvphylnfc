@@ -34,8 +34,9 @@ include { INPUT_CHECK          } from '../subworkflows/local/input_check'
 include { GENERATE_SAMPLE_JSON } from '../modules/local/generatesamplejson/main'
 include { SIMPLIFY_IRIDA_JSON  } from '../modules/local/simplifyiridajson/main'
 include { IRIDA_NEXT_OUTPUT    } from '../modules/local/iridanextoutput/main'
-include { ASSEMBLY_STUB        } from '../modules/local/assemblystub/main'
 include { GENERATE_SUMMARY     } from '../modules/local/generatesummary/main'
+include { INDEXING             } from '../modules/local/indexing/main'
+include { FIND_REPEATS         } from '../modules/local/findrepeats/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -67,34 +68,15 @@ workflow SNVPHYL {
                fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ]) :
                tuple(meta, [ file(fastq_1) ])}
 
-    ASSEMBLY_STUB (
-        input
+    INDEXING(
+        params.refgenome
     )
-    ch_versions = ch_versions.mix(ASSEMBLY_STUB.out.versions)
+    ch_versions = ch_versions.mix(INDEXING.out.versions)
 
-    // A channel of tuples of ({meta}, [read[0], read[1]], assembly)
-    ch_tuple_read_assembly = input.join(ASSEMBLY_STUB.out.assembly)
-
-    GENERATE_SAMPLE_JSON (
-        ch_tuple_read_assembly
+    FIND_REPEATS(
+        params.refgenome
     )
-    ch_versions = ch_versions.mix(GENERATE_SAMPLE_JSON.out.versions)
-
-    GENERATE_SUMMARY (
-        ch_tuple_read_assembly.collect{ [it] }
-    )
-    ch_versions = ch_versions.mix(GENERATE_SUMMARY.out.versions)
-
-    SIMPLIFY_IRIDA_JSON (
-        GENERATE_SAMPLE_JSON.out.json
-    )
-    ch_versions = ch_versions.mix(SIMPLIFY_IRIDA_JSON.out.versions)
-    ch_simplified_jsons = SIMPLIFY_IRIDA_JSON.out.simple_json.map { meta, data -> data }.collect() // Collect JSONs
-
-    IRIDA_NEXT_OUTPUT (
-        samples_data=ch_simplified_jsons
-    )
-    ch_versions = ch_versions.mix(IRIDA_NEXT_OUTPUT.out.versions)
+    ch_versions = ch_versions.mix(FIND_REPEATS.out.versions)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')

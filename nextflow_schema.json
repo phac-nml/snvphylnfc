@@ -206,5 +206,10 @@
             "$ref": "#/definitions/generic_options"
         }
     ],
-    "properties": {}
+    "properties": {
+        "refgenome": {
+            "type": "string",
+            "default": "/home/eric/projects/snvphylnfc/assets/reference.fasta"
+        }
+    }
 }
