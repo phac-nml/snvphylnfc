@@ -1,4 +1,4 @@
 sample,fastq_1,fastq_2
-SAMPLE1,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/amplicon/sample1_R1.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/amplicon/sample1_R2.fastq.gz
-SAMPLE2,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/amplicon/sample2_R1.fastq.gz,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/amplicon/sample2_R2.fastq.gz
-SAMPLE3,https://raw.githubusercontent.com/nf-core/test-datasets/viralrecon/illumina/amplicon/sample1_R1.fastq.gz,
+SAMPLE1,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/a_1.fastq,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/a_2.fastq
+SAMPLE2,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/b_1.fastq,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/b_2.fastq
+SAMPLE3,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/c_1.fastq,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/c_2.fastq
