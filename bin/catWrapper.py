@@ -1,5 +1,14 @@
 #!/usr/bin/env python
-#By, Guruprasad Ananda.
+"""
+This source file was developed by Guruprasad Ananda and was included in a
+nf-core pipeline for SNVPhyl developed by Jill Hagey as a work of the United
+States Government, which was distributed as a work within the public domain
+under the Apache Software License version 2.
+
+This source file has been adapted to work within our pipeline.
+
+Please refer to the README for more information.
+"""
 
 import sys, os
 
