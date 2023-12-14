@@ -1,4 +1,12 @@
-/* CONSOLIDATED_ALL */
+/*
+This source file is adapted from a nf-core pipeline for SNVPhyl developed by
+Jill Hagey as a work of the United States Government, which was distributed as
+a work within the public domain under the Apache Software License version 2.
+
+This source file has been adapted to work within our pipeline.
+
+Please refer to the README for more information.
+*/
 process CONSOLIDATE_FILTERED_DENSITY {
     label 'process_low'
     container = 'quay.io/jvhagey/phoenix:base_v1.0.0'
