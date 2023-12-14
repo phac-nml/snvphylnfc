@@ -1,7 +1,7 @@
 /* Generate a line for the next process */
 process GENERATE_LINE_1 {
     label 'process_low'
-    container 'quay.io/jvhagey/phoenix:base_v1.0.0'
+    container 'docker.io/python:3.9.17'
 
     input:
     path(sorted_bams)
