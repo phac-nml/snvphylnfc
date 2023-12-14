@@ -1,4 +1,16 @@
 /*
+This source file includes source from a nf-core pipeline for SNVPhyl developed
+by Jill Hagey as a work of the United States Government, which was distributed
+as a work within the public domain under the Apache Software License version 2.
+
+The work by Jill Hagey has been adapted such that we utilize the modules and
+module calls in the original source work, but make changes such the pipeline
+functions according to our desired specifications and outcomes.
+
+Please refer to the README for more information.
+*/
+
+/*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
     PRINT PARAMS SUMMARY
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
