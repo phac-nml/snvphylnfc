@@ -9,7 +9,7 @@ Please refer to the README for more information.
 */
 process CONSOLIDATE_FILTERED_DENSITY {
     label 'process_low'
-    container = 'quay.io/jvhagey/phoenix:base_v1.0.0'
+    container = 'docker.io/python:3.9.17'
 
     input:
     path(filtered_densities)
