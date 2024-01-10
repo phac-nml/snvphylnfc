@@ -2,7 +2,7 @@
 
 # SNVPhyl nf-core Pipeline
 
-This is the in-development nf-core-based pipeline for SNVPhyl. 
+This is the in-development nf-core-based pipeline for SNVPhyl.
 
 # Legal
 
