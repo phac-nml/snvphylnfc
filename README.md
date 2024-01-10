@@ -2,9 +2,11 @@
 
 # SNVPhyl nf-core Pipeline
 
-This is the in-development nf-core-based pipeline for SNVPhyl.
+This is an [nf-core](https://nf-co.re/)-based pipeline for the [SNVPhyl](https://snvphyl.readthedocs.io) pipeline. The SNVPhyl (Single Nucleotide Variant PHYLogenomics) pipeline is a pipeline for identifying Single Nucleotide Variants (SNV) within a collection of microbial genomes and constructing a phylogenetic tree.
 
+## Installation
 
+You will need to install [Nextflow](https://www.nextflow.io/docs/latest/getstarted.html#installation) and 
 
 # Legal
 
