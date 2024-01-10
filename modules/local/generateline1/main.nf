@@ -21,7 +21,7 @@ process GENERATE_LINE_1 {
     shell:
     '''
     #! /bin/bash -l
-    count=0 
+    count=0
     for f in *_sorted.bam
     do
     ((count++))
