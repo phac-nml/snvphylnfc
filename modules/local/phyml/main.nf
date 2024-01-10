@@ -9,8 +9,7 @@ Please refer to the README for more information.
 */
 process PHYML {
     label 'process_low'
-    //container = "staphb/phyml:3.3.20220408"
-    container = "https://depot.galaxyproject.org/singularity/phyml:3.3.20211231--hee9e358_0"
+    container = "quay.io/biocontainers/phyml:3.3.20211231--hee9e358_0"
 
     input:
     path(snvAlignment_phy)

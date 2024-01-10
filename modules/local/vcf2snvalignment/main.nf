@@ -15,10 +15,10 @@ process VCF2SNV_ALIGNMENT {
 
     input:
     val(consolidate_bcfs)
-     path(bcf)
-     path(new_invalid_positions)
-     path(refgenome)
-     path(consolidated_bcf_index)
+    path(bcf)
+    path(new_invalid_positions)
+    path(refgenome)
+    path(consolidated_bcf_index)
 
     output:
     path('snvAlignment.phy'), emit: snvAlignment
@@ -28,7 +28,7 @@ process VCF2SNV_ALIGNMENT {
 
     script:
     """
-    vcf2snv_alignment.pl --reference reference --invalid-pos ${new_invalid_positions} --format fasta --format phylip --numcpus 4 --output-base snvalign --fasta ${refgenome} ${consolidate_bcfs} 
+    vcf2snv_alignment.pl --reference reference --invalid-pos ${new_invalid_positions} --format fasta --format phylip --numcpus 4 --output-base snvalign --fasta ${refgenome} ${consolidate_bcfs}
     mv snvalign-positions.tsv snvTable.tsv
     mv snvalign-stats.csv vcf2core.tsv
     if [[ -f snvalign.phy ]]; then
