@@ -56,4 +56,4 @@ jobs:
 
       - name: Nextflow run with test profile
         run: |
-          nextflow run ${GITHUB_WORKSPACE} -profile test,singularity --outdir ./results
+          nextflow run ${GITHUB_WORKSPACE} -profile test,docker --outdir ./results
