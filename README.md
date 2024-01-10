@@ -4,8 +4,6 @@
 
 This is the in-development nf-core-based pipeline for SNVPhyl.
 
-
-
 # Legal
 
 ## SNVPhyl NF-Core Pipeline
