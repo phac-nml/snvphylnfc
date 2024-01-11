@@ -61,17 +61,25 @@
                     "description": "Used during BCF consolidation.",
                     "fa_icon": "fas fa-desktop"
                 },
-                "coverage_cutoff": {
+                "min_coverage_depth": {
                     "type": "integer",
                     "default": 5,
                     "fa_icon": "fas fa-desktop",
                     "description": "The minimum depth of coverage for a VCF to be accepted."
                 },
-                "min_mean_mapping": {
+                "min_mean_mapping_quality": {
                     "type": "integer",
                     "default": 30,
                     "fa_icon": "fas fa-desktop",
                     "description": "The minimum mean mapping quality."
+                },
+                "min_mapping_percent_cov": {
+                    "type": "integer",
+                    "default": 80,
+                    "description": "The minimum mapping percent coverage.",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "fa_icon": "fas fa-desktop"
                 },
                 "snv_abundance_ratio": {
                     "type": "number",
