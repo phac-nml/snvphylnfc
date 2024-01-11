@@ -4,7 +4,7 @@
 
 This is an [nf-core](https://nf-co.re/)-based pipeline for the [SNVPhyl](https://snvphyl.readthedocs.io) pipeline. The SNVPhyl (Single Nucleotide Variant PHYLogenomics) pipeline is a pipeline for identifying Single Nucleotide Variants (SNV) within a collection of microbial genomes and constructing a phylogenetic tree.
 
-# Installation
+## Installation
 
 You will need to install [Nextflow](https://www.nextflow.io/docs/latest/getstarted.html#installation) and likely either [Docker](https://docs.docker.com/get-docker/) or [Singularity](https://docs.sylabs.io/guides/latest/user-guide/quick_start.html).
 
@@ -14,7 +14,7 @@ If you are only running the pipeline, you do NOT need to install [nf-core](https
 git clone git@github.com:phac-nml/snvphylnfc.git
 ```
 
-# Running the Pipeline
+## Running the Pipeline
 
 Navigate to the top-level directory of the pipeline. The pipeline is run as follows:
 
@@ -22,10 +22,10 @@ Navigate to the top-level directory of the pipeline. The pipeline is run as foll
 nextflow run main.nf -profile [PROFILE] --input [SAMPLESHEET.csv] --refgenome [REFERENCE.fasta] --outdir [OUTPUT_DIRECTORY]
 ```
 
-- [PROFILE] is either `docker` or `singularity`.
-- [SAMPLESHEET.csv] is a CSV-formatted samplesheet describing the sequence ID and read locations. See [this example file](https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/samplesheet.csv) to see the formatting.
-- [REFERENCE.fasta] is a FASTA-formatted reference sequence.
-- [OUTPUT_DIRECTORY] is the directory location to write all of the pipeline output.
+- `[PROFILE]` is either `docker` or `singularity`.
+- `[SAMPLESHEET.csv]` is a CSV-formatted samplesheet describing the sequence ID and read locations. See [this example file](https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/samplesheet.csv) to see the formatting.
+- `[REFERENCE.fasta]` is a FASTA-formatted reference sequence.
+- `[OUTPUT_DIRECTORY]` is the directory location to write all of the pipeline output.
 
 As an example, you should be able to run the following command without needing to download any data, as the necessary files will be downloaded automatically:
 
@@ -33,9 +33,9 @@ As an example, you should be able to run the following command without needing t
 nextflow run main.nf -profile singularity --input https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/samplesheet.csv --refgenome https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/samplesheet.csv --outdir results
 ```
 
-# Legal
+## Legal
 
-## SNVPhyl NF-Core Pipeline
+### SNVPhyl NF-Core Pipeline
 
 Copyright 2023 Government of Canada
 
@@ -50,7 +50,7 @@ under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
 CONDITIONS OF ANY KIND, either express or implied. See the License for the
 specific language governing permissions and limitations under the License.
 
-## Derivative Work
+### Derivative Work
 
 This pipeline includes source code from a [nf-core pipeline for SNVPhyl](https://github.com/DHQP/SNVPhyl_Nextflow) developed by Jill Hagey as a work of the United States Government that was not subject to domestic copyright protection under 17 USC § 105. This work by the United States Government is in the public domain within the United States, and copyright and related rights for the work worldwide are waived through the CC0 1.0 Universal public domain dedication.
 
