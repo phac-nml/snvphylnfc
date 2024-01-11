@@ -30,7 +30,7 @@ process CONSOLIDATE_BCFS {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        snvphyl-tools:
+        snvphyl-tools: 1.8.2
         bcftools: \$( bcftools --version |& sed '1!d; s/^.*bcftools //' )
     END_VERSIONS
     """
