@@ -60,6 +60,24 @@
                     "default": 2,
                     "description": "Used during BCF consolidation.",
                     "fa_icon": "fas fa-desktop"
+                },
+                "coverage_cutoff": {
+                    "type": "integer",
+                    "default": 5,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The minimum depth of coverage for a VCF to be accepted."
+                },
+                "min_mean_mapping": {
+                    "type": "integer",
+                    "default": 30,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The minimum mean mapping quality."
+                },
+                "snv_abundance_ratio": {
+                    "type": "number",
+                    "default": 0.75,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The SNV abundance ratio."
                 }
             },
             "fa_icon": "fas fa-terminal"

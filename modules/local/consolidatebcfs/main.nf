@@ -25,7 +25,7 @@ process CONSOLIDATE_BCFS {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    consolidate_vcfs.pl --coverage-cutoff 5 --min-mean-mapping 30 --snv-abundance-ratio 0.75 --vcfsplit ${freebayes_filtered_bcf} --mpileup ${mpileup_bcf} --filtered-density-out ${prefix}_filtered_density.txt --window-size ${params.window_size} --density-threshold ${params.density_threshold} -o ${prefix}_consolidated.bcf > ${prefix}_consolidated.vcf
+    consolidate_vcfs.pl --coverage-cutoff ${params.coverage_cutoff} --min-mean-mapping ${params.min_mean_mapping} --snv-abundance-ratio ${params.snv_abundance_ratio} --vcfsplit ${freebayes_filtered_bcf} --mpileup ${mpileup_bcf} --filtered-density-out ${prefix}_filtered_density.txt --window-size ${params.window_size} --density-threshold ${params.density_threshold} -o ${prefix}_consolidated.bcf > ${prefix}_consolidated.vcf
     bcftools index -f ${prefix}_consolidated.bcf
 
     cat <<-END_VERSIONS > versions.yml
