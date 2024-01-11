@@ -23,7 +23,7 @@ process BCFTOOLS_CALL {
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     bcftools index -f ${mpileup_vcf_gz}
-    bcftools call --ploidy 1 --threads ${$task.cpus} --output ${prefix}_mpileup.bcf --output-type b --consensus-caller ${mpileup_vcf_gz}
+    bcftools call --ploidy 1 --threads ${task.cpus} --output ${prefix}_mpileup.bcf --output-type b --consensus-caller ${mpileup_vcf_gz}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
