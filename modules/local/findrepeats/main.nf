@@ -21,7 +21,7 @@ process FIND_REPEATS {
 
     script:
     """
-    find-repeats.pl ${refgenome} --min-length 150 --min-pid 90 > invalid_positions.bed
+    find-repeats.pl ${refgenome} --min-length ${params.min_repeat_length} --min-pid ${params.min_repeat_pid} > invalid_positions.bed
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

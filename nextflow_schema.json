@@ -78,6 +78,18 @@
                     "default": 0.75,
                     "fa_icon": "fas fa-desktop",
                     "description": "The SNV abundance ratio."
+                },
+                "min_repeat_length": {
+                    "type": "integer",
+                    "default": 150,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The minimum length when identifying repeats."
+                },
+                "min_repeat_pid": {
+                    "type": "integer",
+                    "default": 90,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The minimum percent identity when identifying repeats."
                 }
             },
             "fa_icon": "fas fa-terminal"
