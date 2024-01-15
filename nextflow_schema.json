@@ -32,7 +32,9 @@
                 "refgenome": {
                     "type": "string",
                     "description": "The file path to the FASTA-format reference genome to use.",
-                    "fa_icon": "fas fa-file"
+                    "fa_icon": "fas fa-file",
+                    "pattern": "^\\S+\\.(fa|fas|fasta)$",
+                    "format": "file-path"
                 },
                 "email": {
                     "type": "string",
