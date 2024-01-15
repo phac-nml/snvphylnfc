@@ -43,10 +43,6 @@ WorkflowSnvphylnfc.initialise(params, log)
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK          } from '../subworkflows/local/input_check'
-include { GENERATE_SAMPLE_JSON } from '../modules/local/generatesamplejson/main'
-include { SIMPLIFY_IRIDA_JSON  } from '../modules/local/simplifyiridajson/main'
-include { IRIDA_NEXT_OUTPUT    } from '../modules/local/iridanextoutput/main'
-include { GENERATE_SUMMARY     } from '../modules/local/generatesummary/main'
 include { INDEXING             } from '../modules/local/indexing/main'
 include { FIND_REPEATS         } from '../modules/local/findrepeats/main'
 include { SMALT_MAP            } from '../modules/local/smaltmap/main'
