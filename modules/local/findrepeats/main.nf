@@ -25,7 +25,7 @@ process FIND_REPEATS {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        snvphyl-tools:
+        snvphyl-tools: 1.8.2
         perl: \$(perl --version | grep "This is perl" | sed 's/.*(\\(.*\\))/\\1/' | cut -d " " -f1)
     """
 }
