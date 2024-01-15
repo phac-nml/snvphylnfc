@@ -53,25 +53,29 @@
                     "type": "integer",
                     "default": 11,
                     "description": "Used during BCF consolidation.",
-                    "fa_icon": "fas fa-desktop"
+                    "fa_icon": "fas fa-desktop",
+                    "minimum": 1
                 },
                 "density_threshold": {
                     "type": "integer",
                     "default": 2,
                     "description": "Used during BCF consolidation.",
-                    "fa_icon": "fas fa-desktop"
+                    "fa_icon": "fas fa-desktop",
+                    "minimum": 1
                 },
                 "min_coverage_depth": {
                     "type": "integer",
                     "default": 5,
                     "fa_icon": "fas fa-desktop",
-                    "description": "The minimum depth of coverage for a VCF to be accepted."
+                    "description": "The minimum depth of coverage for a VCF to be accepted.",
+                    "minimum": 1
                 },
                 "min_mean_mapping_quality": {
                     "type": "integer",
                     "default": 30,
                     "fa_icon": "fas fa-desktop",
-                    "description": "The minimum mean mapping quality."
+                    "description": "The minimum mean mapping quality.",
+                    "minimum": 1
                 },
                 "min_mapping_percent_cov": {
                     "type": "integer",
@@ -85,19 +89,24 @@
                     "type": "number",
                     "default": 0.75,
                     "fa_icon": "fas fa-desktop",
-                    "description": "The SNV abundance ratio."
+                    "description": "The SNV abundance ratio.",
+                    "minimum": 0,
+                    "maximum": 1
                 },
                 "min_repeat_length": {
                     "type": "integer",
                     "default": 150,
                     "fa_icon": "fas fa-desktop",
-                    "description": "The minimum length when identifying repeats."
+                    "description": "The minimum length when identifying repeats.",
+                    "minimum": 1
                 },
                 "min_repeat_pid": {
                     "type": "integer",
                     "default": 90,
                     "fa_icon": "fas fa-desktop",
-                    "description": "The minimum percent identity when identifying repeats."
+                    "description": "The minimum percent identity when identifying repeats.",
+                    "minimum": 0,
+                    "maximum": 100
                 }
             },
             "fa_icon": "fas fa-terminal"
