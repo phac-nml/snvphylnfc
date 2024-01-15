@@ -22,7 +22,7 @@ process VERIFYING_MAP_Q {
 
     script:
     """
-    verify_mapping_quality.pl -c 4 --min-depth ${params.min_coverage_depth} --min-map ${params.min_mapping_percent_cov} --output mappingQuality.txt ${bam_line}
+    verify_mapping_quality.pl -c ${task.cpus} --min-depth ${params.min_coverage_depth} --min-map ${params.min_mapping_percent_cov} --output mappingQuality.txt ${bam_line}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
