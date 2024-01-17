@@ -57,7 +57,6 @@ include { BGZIP_MPILEUP_VCF    } from '../modules/local/bgzipmpileupvcf/main'
 include { BCFTOOLS_CALL        } from '../modules/local/bcftoolscall/main'
 include { CONSOLIDATE_BCFS     } from '../modules/local/consolidatebcfs/main'
 include { CONSOLIDATE_FILTERED_DENSITY } from '../modules/local/consolidatefiltereddensity/main'
-include { GENERATE_LINE_2      } from '../modules/local/generateline2/main'
 include { VCF2SNV_ALIGNMENT    } from '../modules/local/vcf2snvalignment/main'
 include { FILTER_STATS         } from '../modules/local/filterstats/main'
 include { PHYML                } from '../modules/local/phyml/main'
@@ -168,17 +167,9 @@ workflow SNVPHYL {
     )
     ch_versions = ch_versions.mix(CONSOLIDATE_FILTERED_DENSITY.out.versions)
 
-    // Making string that looks like... this is needed for the next process
-    //--consolidate_vcf 2021JQ-00457-WAPHL-M5130-211029=2021JQ-00457-WAPHL-M5130-211029_consolidated.bcf --consolidate_vcf 2021JQ-00459-WAPHL-M5130-211029=2021JQ-00459-WAPHL-M5130-211029_consolidated.bcf --consolidate_vcf 2021JQ-00460-WAPHL-M5130-211029=2021JQ-00460-WAPHL-M5130-211029_consolidated.bcf
-    GENERATE_LINE_2(
-        CONSOLIDATE_BCFS.out.consolidated_bcfs.collect()
-    )
-    //ch_versions = ch_versions.mix(GENERATE_LINE_2.out.versions)
-
-    // Get line out of file we just made that has the --consolidate_vcf line...
     //13. consolidate variant calling files process takes 2 input channels as arguments
     VCF2SNV_ALIGNMENT(
-        GENERATE_LINE_2.out.consolidation_line.splitText(), CONSOLIDATE_BCFS.out.consolidated_bcfs.collect(), CONSOLIDATE_FILTERED_DENSITY.out.new_invalid_positions, params.refgenome, CONSOLIDATE_BCFS.out.consolidated_bcf_index.collect()
+        CONSOLIDATE_BCFS.out.consolidated_bcfs.collect(), CONSOLIDATE_FILTERED_DENSITY.out.new_invalid_positions, params.refgenome, CONSOLIDATE_BCFS.out.consolidated_bcf_index.collect()
     )
     ch_versions = ch_versions.mix(VCF2SNV_ALIGNMENT.out.versions)
 

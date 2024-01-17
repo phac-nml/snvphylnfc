@@ -14,7 +14,6 @@ process VCF2SNV_ALIGNMENT {
     container = "staphb/snvphyl-tools:1.8.2"
 
     input:
-    val(consolidate_bcfs)
     path(bcf)
     path(new_invalid_positions)
     path(refgenome)
@@ -27,8 +26,14 @@ process VCF2SNV_ALIGNMENT {
     path("versions.yml"),     emit: versions
 
     script:
+    def bcf_line = ""
+
+    for (int i = 0; i < bcf.size(); i++) {
+        bcf_line += "--consolidate_vcf v${i+1}=${bcf[i]} "
+    }
+
     """
-    vcf2snv_alignment.pl --reference reference --invalid-pos ${new_invalid_positions} --format fasta --format phylip --numcpus 4 --output-base snvalign --fasta ${refgenome} ${consolidate_bcfs}
+    vcf2snv_alignment.pl --reference reference --invalid-pos ${new_invalid_positions} --format fasta --format phylip --numcpus 4 --output-base snvalign --fasta ${refgenome} ${bcf_line}
     mv snvalign-positions.tsv snvTable.tsv
     mv snvalign-stats.csv vcf2core.tsv
     if [[ -f snvalign.phy ]]; then
