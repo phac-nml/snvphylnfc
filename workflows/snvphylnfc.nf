@@ -47,7 +47,6 @@ include { INDEXING             } from '../modules/local/indexing/main'
 include { FIND_REPEATS         } from '../modules/local/findrepeats/main'
 include { SMALT_MAP            } from '../modules/local/smaltmap/main'
 include { SORT_INDEX_BAMS      } from '../modules/local/sortindexbams/main'
-include { GENERATE_LINE_1      } from '../modules/local/generateline1/main'
 include { VERIFYING_MAP_Q      } from '../modules/local/verifyingmapq/main'
 include { FREEBAYES            } from '../modules/local/freebayes/main'
 include { FILTER_FREEBAYES     } from '../modules/local/filterfreebayes/main'
@@ -114,13 +113,8 @@ workflow SNVPHYL {
     )
     ch_versions = ch_versions.mix(SORT_INDEX_BAMS.out.versions)
 
-    // TODO: Review this module further (purpose, version, code injection, container, etc.)
-    GENERATE_LINE_1(
-        SORT_INDEX_BAMS.out.sorted_bams.collect()
-    )
-
     VERIFYING_MAP_Q(
-        SORT_INDEX_BAMS.out.sorted_bams.collect(), GENERATE_LINE_1.out.bam_lines_file.splitText()
+        SORT_INDEX_BAMS.out.sorted_bams.collect()
     )
     ch_versions = ch_versions.mix(VERIFYING_MAP_Q.out.versions)
 

@@ -14,13 +14,18 @@ process VERIFYING_MAP_Q {
 
     input:
     path(sorted_bams)
-    val(bam_line)
 
     output:
     path("mappingQuality.txt"), emit: mapping_quality
     path("versions.yml"),       emit: versions
 
     script:
+    def bam_line = ""
+
+    for (int i = 0; i <sorted_bams.size(); i++) {
+        bam_line += "--bam bam${i+1}=${sorted_bams[i]} "
+    }
+
     """
     verify_mapping_quality.pl -c ${task.cpus} --min-depth ${params.min_coverage_depth} --min-map ${params.min_mapping_percent_cov} --output mappingQuality.txt ${bam_line}
 
