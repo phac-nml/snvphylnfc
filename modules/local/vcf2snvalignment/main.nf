@@ -14,7 +14,7 @@ process VCF2SNV_ALIGNMENT {
     container = "staphb/snvphyl-tools:1.8.2"
 
     input:
-    path(bcf)
+    val(bcfs)
     path(new_invalid_positions)
     path(refgenome)
     path(consolidated_bcf_index)
@@ -28,8 +28,8 @@ process VCF2SNV_ALIGNMENT {
     script:
     def bcf_line = ""
 
-    for (int i = 0; i < bcf.size(); i++) {
-        bcf_line += "--consolidate_vcf v${i+1}=${bcf[i]} "
+    for (int i = 0; i < bcfs.size(); i++) {
+        bcf_line += "--consolidate_vcf ${bcfs[i][0].id}=${bcfs[i][1]} "
     }
 
     """

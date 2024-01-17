@@ -169,7 +169,7 @@ workflow SNVPHYL {
 
     //13. consolidate variant calling files process takes 2 input channels as arguments
     VCF2SNV_ALIGNMENT(
-        CONSOLIDATE_BCFS.out.consolidated_bcfs.collect(), CONSOLIDATE_FILTERED_DENSITY.out.new_invalid_positions, params.refgenome, CONSOLIDATE_BCFS.out.consolidated_bcf_index.collect()
+        CONSOLIDATE_BCFS.out.consolidated_bcfs.toList(), CONSOLIDATE_FILTERED_DENSITY.out.new_invalid_positions, params.refgenome, CONSOLIDATE_BCFS.out.consolidated_bcf_index.collect()
     )
     ch_versions = ch_versions.mix(VCF2SNV_ALIGNMENT.out.versions)
 
