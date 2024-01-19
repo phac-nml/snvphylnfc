@@ -56,7 +56,6 @@ include { MPILEUP              } from '../modules/local/mpileup/main'
 include { BGZIP_MPILEUP_VCF    } from '../modules/local/bgzipmpileupvcf/main'
 include { BCFTOOLS_CALL        } from '../modules/local/bcftoolscall/main'
 include { CONSOLIDATE_BCFS     } from '../modules/local/consolidatebcfs/main'
-include { CONSOLIDATE_FILTERED_DENSITY } from '../modules/local/consolidatefiltereddensity/main'
 include { VCF2SNV_ALIGNMENT    } from '../modules/local/vcf2snvalignment/main'
 include { FILTER_STATS         } from '../modules/local/filterstats/main'
 include { PHYML                } from '../modules/local/phyml/main'
@@ -72,6 +71,7 @@ include { MAKE_SNV             } from '../modules/local/makesnv/main'
 // MODULE: Installed directly from nf-core/modules
 //
 include { CUSTOM_DUMPSOFTWAREVERSIONS } from '../modules/nf-core/custom/dumpsoftwareversions/main'
+include { CAT_CAT                     } from '../modules/nf-core/cat/cat/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -162,14 +162,17 @@ workflow SNVPHYL {
     ch_versions = ch_versions.mix(CONSOLIDATE_BCFS.out.versions)
 
     // Concat filtered densities to make new invalid_postions
-    CONSOLIDATE_FILTERED_DENSITY(
-        CONSOLIDATE_BCFS.out.filtered_densities.collect(), FIND_REPEATS.out.repeats_bed_file
-    )
-    ch_versions = ch_versions.mix(CONSOLIDATE_FILTERED_DENSITY.out.versions)
+    invalid_positions = CONSOLIDATE_BCFS.out.filtered_densities
+        .concat(FIND_REPEATS.out.repeats_bed_file)
+        .collect().map{it -> [[id: 'invalid_positions'], it]}
+
+    CAT_CAT(invalid_positions)
+
+    invalid_positions_file = CAT_CAT.out.file_out.map{meta, filepath -> filepath}
 
     //13. consolidate variant calling files process takes 2 input channels as arguments
     VCF2SNV_ALIGNMENT(
-        CONSOLIDATE_BCFS.out.consolidated_bcfs.toList(), CONSOLIDATE_FILTERED_DENSITY.out.new_invalid_positions, params.refgenome, CONSOLIDATE_BCFS.out.consolidated_bcf_index.collect()
+        CONSOLIDATE_BCFS.out.consolidated_bcfs.toList(), invalid_positions_file, params.refgenome, CONSOLIDATE_BCFS.out.consolidated_bcf_index.collect()
     )
     ch_versions = ch_versions.mix(VCF2SNV_ALIGNMENT.out.versions)
 
