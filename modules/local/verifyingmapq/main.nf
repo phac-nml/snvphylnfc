@@ -22,8 +22,8 @@ process VERIFYING_MAP_Q {
     script:
     def bam_line = ""
 
-    for (int i = 0; i <sorted_bams.size(); i++) {
-        bam_line += "--bam bam${i+1}=${sorted_bams[i]} "
+    for (int i = 0; i < sorted_bams.size(); i++) {
+        bam_line += "--bam ${sorted_bams[i].getName()}=${sorted_bams[i]} "
     }
 
     """
