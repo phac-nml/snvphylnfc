@@ -38,8 +38,7 @@ process VCF2SNV_ALIGNMENT {
     mv snvalign-stats.csv vcf2core.tsv
     if [[ -f snvalign.phy ]]; then
         mv snvalign.phy snvAlignment.phy
-        sed -i "s/'//" snvAlignment.phy
-        sed -i "s/'//" snvAlignment.phy
+        sed -i "s/'//g" snvAlignment.phy
     else
         touch snvAlignment.phy
     fi
