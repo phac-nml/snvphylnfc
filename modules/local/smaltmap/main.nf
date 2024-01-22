@@ -24,7 +24,7 @@ process SMALT_MAP {
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def smalt_map_command = reads[1] ? "smalt map -f bam -n 4 -l pe -i 1000 -j 20 -r 1 -y 0.5 -o ${prefix}.bam \${REFNAME} ${reads[0]} ${reads[1]}": "smalt map -f bam -n 4 -r 1 -y 0.5 -o ${prefix}.bam \${REFNAME} ${reads[0]}"
+    def smalt_map_command = reads[1] ? "smalt map -f bam -n ${task.cpus} -l pe -i 1000 -j 20 -r 1 -y 0.5 -o ${prefix}.bam \${REFNAME} ${reads[0]} ${reads[1]}": "smalt map -f bam -n 4 -r 1 -y 0.5 -o ${prefix}.bam \${REFNAME} ${reads[0]}"
     """
     REFNAME=\$(basename ${ref_sma} .sma)
     ${smalt_map_command}

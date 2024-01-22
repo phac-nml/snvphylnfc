@@ -33,7 +33,7 @@ process VCF2SNV_ALIGNMENT {
     }
 
     """
-    vcf2snv_alignment.pl --reference reference --invalid-pos ${new_invalid_positions} --format fasta --format phylip --numcpus 4 --output-base snvalign --fasta ${refgenome} ${bcf_line}
+    vcf2snv_alignment.pl --reference reference --invalid-pos ${new_invalid_positions} --format fasta --format phylip --numcpus ${task.cpus} --output-base snvalign --fasta ${refgenome} ${bcf_line}
     mv snvalign-positions.tsv snvTable.tsv
     mv snvalign-stats.csv vcf2core.tsv
     if [[ -f snvalign.phy ]]; then
