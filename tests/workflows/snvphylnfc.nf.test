@@ -50,7 +50,18 @@ nextflow_workflow {
             assert lines.contains("SAMPLE1\t1\t1\t0\t0\t")
             assert lines.contains("SAMPLE2\t0\t2\t1\t1\t")
             assert lines.contains("SAMPLE3\t2\t0\t1\t1\t")
-                        
+
+            // check IRIDA Next JSON file
+            lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
+            
+            assert lines.contains("\"path\": \"make/snvMatrix.tsv\"")
+            assert lines.contains("\"path\": \"filter/filterStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTreeStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTree.newick\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvTable.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/vcf2core.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvAlignment.phy\"")
+            assert lines.contains("\"path\": \"verifying/mappingQuality.txt\"")
         }
 
     }
