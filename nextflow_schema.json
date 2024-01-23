@@ -29,6 +29,13 @@
                     "description": "The output directory where the results will be saved. You have to use absolute paths to storage on Cloud infrastructure.",
                     "fa_icon": "fas fa-folder-open"
                 },
+                "refgenome": {
+                    "type": "string",
+                    "description": "The file path to the FASTA-format reference genome to use.",
+                    "fa_icon": "fas fa-file",
+                    "pattern": "^\\S+\\.(fa|fas|fasta)$",
+                    "format": "file-path"
+                },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
@@ -37,6 +44,74 @@
                     "pattern": "^([a-zA-Z0-9_\\-\\.]+)@([a-zA-Z0-9_\\-\\.]+)\\.([a-zA-Z]{2,5})$"
                 }
             }
+        },
+        "snvphyl_pipeline_parameters": {
+            "title": "SNVPhyl pipeline parameters",
+            "type": "object",
+            "description": "Parameters to configure specific pipeline behaviour.",
+            "default": "",
+            "properties": {
+                "window_size": {
+                    "type": "integer",
+                    "default": 11,
+                    "description": "Used during BCF consolidation.",
+                    "fa_icon": "fas fa-desktop",
+                    "minimum": 1
+                },
+                "density_threshold": {
+                    "type": "integer",
+                    "default": 2,
+                    "description": "Used during BCF consolidation.",
+                    "fa_icon": "fas fa-desktop",
+                    "minimum": 1
+                },
+                "min_coverage_depth": {
+                    "type": "integer",
+                    "default": 5,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The minimum depth of coverage for a VCF to be accepted.",
+                    "minimum": 1
+                },
+                "min_mean_mapping_quality": {
+                    "type": "integer",
+                    "default": 30,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The minimum mean mapping quality.",
+                    "minimum": 1
+                },
+                "min_mapping_percent_cov": {
+                    "type": "integer",
+                    "default": 80,
+                    "description": "The minimum mapping percent coverage.",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "fa_icon": "fas fa-desktop"
+                },
+                "snv_abundance_ratio": {
+                    "type": "number",
+                    "default": 0.75,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The SNV abundance ratio.",
+                    "minimum": 0,
+                    "maximum": 1
+                },
+                "min_repeat_length": {
+                    "type": "integer",
+                    "default": 150,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The minimum length when identifying repeats.",
+                    "minimum": 1
+                },
+                "min_repeat_pid": {
+                    "type": "integer",
+                    "default": 90,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The minimum percent identity when identifying repeats.",
+                    "minimum": 0,
+                    "maximum": 100
+                }
+            },
+            "fa_icon": "fas fa-terminal"
         },
         "institutional_config_options": {
             "title": "Institutional config options",
@@ -197,6 +272,9 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
+            "$ref": "#/definitions/snvphyl_pipeline_parameters"
+        },
+        {
             "$ref": "#/definitions/institutional_config_options"
         },
         {
@@ -205,6 +283,5 @@
         {
             "$ref": "#/definitions/generic_options"
         }
-    ],
-    "properties": {}
+    ]
 }
