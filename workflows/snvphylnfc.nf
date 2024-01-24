@@ -169,10 +169,19 @@ workflow SNVPHYL {
     CAT_CAT(invalid_positions)
 
     invalid_positions_file = CAT_CAT.out.file_out.map{meta, filepath -> filepath}
+    consolidated_bcfs = CONSOLIDATE_BCFS.out.consolidated_bcfs.toSortedList{a, b -> a[0].id <=> b[0].id}
 
-    //13. consolidate variant calling files process takes 2 input channels as arguments
+    // consolidated_bcfs is a list of [meta, filepath] tuples
+    // .map{} iterates onces, because there is only one item (one list) in the channel
+    // .collect{} transforms each item in the list with the operation
+    // which ultimately unzips the tuples
+    consolidated_bcfs_metas = consolidated_bcfs.map{ it.collect { it[0] } }
+    consolidated_bcfs_paths = consolidated_bcfs.map{ it.collect { it[1] } }
+
+    //13. consolidate variant calling files
     VCF2SNV_ALIGNMENT(
-        CONSOLIDATE_BCFS.out.consolidated_bcfs.toList(), invalid_positions_file, params.refgenome, CONSOLIDATE_BCFS.out.consolidated_bcf_index.collect()
+        consolidated_bcfs_metas, consolidated_bcfs_paths, invalid_positions_file, params.refgenome,
+        CONSOLIDATE_BCFS.out.consolidated_bcf_index.collect()
     )
     ch_versions = ch_versions.mix(VCF2SNV_ALIGNMENT.out.versions)
 
