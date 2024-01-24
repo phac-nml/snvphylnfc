@@ -14,7 +14,7 @@ process VCF2SNV_ALIGNMENT {
     container = "staphb/snvphyl-tools:1.8.2"
 
     input:
-    val(bcfs)
+    path(bcfs)
     path(new_invalid_positions)
     path(refgenome)
     path(consolidated_bcf_index)
