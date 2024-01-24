@@ -14,8 +14,8 @@ process VCF2SNV_ALIGNMENT {
     container = "staphb/snvphyl-tools:1.8.2"
 
     input:
-    val(bcf_metas)  // list of metas
-    path(bcf_paths) // list of paths
+    val(bcf_metas)   // list of metas
+    path(bcf_paths)  // list of paths
     path(new_invalid_positions)
     path(refgenome)
     path(consolidated_bcf_index)

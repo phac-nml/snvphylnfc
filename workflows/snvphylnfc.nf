@@ -175,8 +175,8 @@ workflow SNVPHYL {
     // .map{} iterates onces, because there is only one item (one list) in the channel
     // .collect{} transforms each item in the list with the operation
     // which ultimately unzips the tuples
-    consolidated_bcfs_metas = consolidated_bcfs.map{ it.collect { it[0] } }
-    consolidated_bcfs_paths = consolidated_bcfs.map{ it.collect { it[1] } }
+    consolidated_bcfs_metas = consolidated_bcfs.collect{ it.collect { it[0] } }
+    consolidated_bcfs_paths = consolidated_bcfs.collect{ it.collect { it[1] } }
 
     //13. consolidate variant calling files
     VCF2SNV_ALIGNMENT(
