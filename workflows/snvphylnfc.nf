@@ -172,9 +172,8 @@ workflow SNVPHYL {
     consolidated_bcfs = CONSOLIDATE_BCFS.out.consolidated_bcfs.toSortedList{a, b -> a[0].id <=> b[0].id}
 
     // consolidated_bcfs is a list of [meta, filepath] tuples
-    // .map{} iterates onces, because there is only one item (one list) in the channel
-    // .collect{} transforms each item in the list with the operation
-    // which ultimately unzips the tuples
+    // the first .collect{} iterates once, because there is only one item (one list) in the channel
+    // the second .collect{} transforms each item in the list with the operation
     consolidated_bcfs_metas = consolidated_bcfs.collect{ it.collect { it[0] } }
     consolidated_bcfs_paths = consolidated_bcfs.collect{ it.collect { it[1] } }
 
