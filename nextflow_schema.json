@@ -36,6 +36,12 @@
                     "pattern": "^\\S+\\.(fa|fas|fasta)$",
                     "format": "file-path"
                 },
+                "reference_sample_name": {
+                    "type": "string",
+                    "fa_icon": "fas fa-file",
+                    "description": "The sample ID from which to use the associated FASTA-format assembly as a reference.",
+                    "pattern": "^\\S+$"
+                },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",

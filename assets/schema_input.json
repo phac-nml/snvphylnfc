@@ -31,6 +31,19 @@
                         "maxLength": 0
                     }
                 ]
+            },
+            "assembly": {
+                "errorMessage": "Assembly file associated with this sample and must have the extension: '.fa', '.fasta', '.fa.gz' or '.fasta.gz'",
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "pattern": "^\\S+\\.f(ast)?a(\\.gz)?$"
+                    },
+                    {
+                        "type": "string",
+                        "maxLength": 0
+                    }
+                ]
             }
         },
         "required": ["sample", "fastq_1"]
