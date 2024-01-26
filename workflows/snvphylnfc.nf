@@ -43,6 +43,7 @@ WorkflowSnvphylnfc.initialise(params, log)
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK          } from '../subworkflows/local/input_check'
+include { SELECT_REFERENCE     } from '../modules/local/selectreference/main'
 include { INDEXING             } from '../modules/local/indexing/main'
 include { FIND_REPEATS         } from '../modules/local/findrepeats/main'
 include { SMALT_MAP            } from '../modules/local/smaltmap/main'
@@ -96,11 +97,15 @@ workflow SNVPHYL {
     // A channel of read tuples (meta, [fastq_1, fastq_2*]):
     reads = input.map { meta, reads, assembly -> tuple(meta, reads) }
 
-    // A [meta.id: assembly (URI path)] map:
-    sample_assemblies = input.toList().collectEntries { meta, reads, assembly -> [meta.id, assembly] }
+    // A channel of samples mapped to their associated assemblies (if they exist):
+    sample_assemblies = input.toList().collectEntries { meta, reads, assembly -> [meta.id, assembly ? assembly : null] }
+    sample_assemblies.view()
 
-    // Select the reference genome:
-    reference_genome = select_reference(params.refgenome, params.reference_sample_name, sample_assemblies)
+    reference_genome = SELECT_REFERENCE(
+        params, sample_assemblies 
+    )
+
+    reference_genome.ifEmpty { error("Unable to select a reference!") }
 
     INDEXING(
         reference_genome
@@ -216,30 +221,7 @@ workflow SNVPHYL {
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
-}
 
-/*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-    SELECT REFERENCE
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-*/
-
-def select_reference(refgenome, reference_sample_name, sample_assemblies) {
-    reference_genome = null
-
-    // A "--refgenome" parameter was provided:
-    // Use the passed parameter.
-    if( refgenome != null ) {
-        reference_genome = refgenome
-    }
-    // A "--reference_sample_name" parameter was provided and the key exists in the assemblies map:
-    // Use the value (the assembly path) associated with the key (the sample name).
-    else if (reference_sample_name != null &&
-             sample_assemblies.containsKey(reference_sample_name)) {
-        reference_genome = sample_assemblies[reference_sample_name]
-    }
-
-    return reference_genome
 }
 
 /*

@@ -17,6 +17,7 @@
             "fastq_1": {
                 "type": "string",
                 "pattern": "^\\S+\\.f(ast)?q(\\.gz)?$",
+                "format": "file-path",
                 "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have the extension: '.fq', '.fastq', '.fq.gz' or '.fastq.gz'"
             },
             "fastq_2": {
@@ -24,6 +25,7 @@
                 "anyOf": [
                     {
                         "type": "string",
+                        "format": "file-path",
                         "pattern": "^\\S+\\.f(ast)?q(\\.gz)?$"
                     },
                     {
@@ -37,6 +39,7 @@
                 "anyOf": [
                     {
                         "type": "string",
+                        "format": "file-path",
                         "pattern": "^\\S+\\.f(ast)?a(\\.gz)?$"
                     },
                     {
