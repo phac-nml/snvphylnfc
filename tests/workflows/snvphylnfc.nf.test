@@ -4,12 +4,74 @@ nextflow_workflow {
     script "workflows/snvphylnfc.nf"
     workflow "SNVPHYL"
 
-    test("basic integration test") {
+    test("selecting reference by refgenome") {
 
         when {
             params {
                 input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/samplesheet.csv"
                 refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/reference.fasta"
+                outdir = "results"
+            }
+            workflow {}
+        }
+
+        then {
+            assert workflow.success
+            assert path("$launchDir/results").exists()
+
+            def lines = []
+
+            // check FILTER_STATS output
+            lines = path("$launchDir/results/filter/filterStats.txt").readLines()
+
+            assert lines.contains("Number of sites used to generate phylogeny: 2")
+            assert lines.contains("Total number of sites identified: 2")
+            assert lines.contains("Number of sites filtered: 0")
+
+            // check PHYML output
+            lines = path("$launchDir/results/phyml/phylogeneticTreeStats.txt").readLines()
+
+            assert lines.contains(". Model of nucleotides substitution: \tGTR")
+            assert lines.contains("  - f(A)=  0.75000")
+            assert lines.contains("  - f(C)=  0.12500")
+            assert lines.contains("  - f(G)=  0.01000")
+            assert lines.contains("  - f(T)=  0.12500")
+
+            lines = path("$launchDir/results/phyml/phylogeneticTree.newick").readLines()
+
+            assert lines.join("\n").contains("SAMPLE1")
+            assert lines.join("\n").contains("SAMPLE2")
+            assert lines.join("\n").contains("SAMPLE3")
+
+            // check MAKE_SNV output
+            lines = path("$launchDir/results/make/snvMatrix.tsv").readLines()
+
+            assert lines[0] == "strain\tSAMPLE2\tSAMPLE3\tSAMPLE1\treference\t"
+            assert lines.contains("SAMPLE1\t1\t1\t0\t0\t")
+            assert lines.contains("SAMPLE2\t0\t2\t1\t1\t")
+            assert lines.contains("SAMPLE3\t2\t0\t1\t1\t")
+
+            // check IRIDA Next JSON file
+            lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
+            
+            assert lines.contains("\"path\": \"make/snvMatrix.tsv\"")
+            assert lines.contains("\"path\": \"filter/filterStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTreeStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTree.newick\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvTable.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/vcf2core.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvAlignment.phy\"")
+            assert lines.contains("\"path\": \"verifying/mappingQuality.txt\"")
+        }
+
+    }
+
+    test("selecting reference by sample id") {
+
+        when {
+            params {
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/409864a836dd4c2cd6191e7456881b973ca04748/assets/samplesheet.csv"
+                reference_sample_id = "SAMPLE1"
                 outdir = "results"
             }
             workflow {}
