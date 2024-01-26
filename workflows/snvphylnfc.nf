@@ -43,7 +43,6 @@ WorkflowSnvphylnfc.initialise(params, log)
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
 include { INPUT_CHECK          } from '../subworkflows/local/input_check'
-include { SELECT_REFERENCE     } from '../modules/local/selectreference/main'
 include { INDEXING             } from '../modules/local/indexing/main'
 include { FIND_REPEATS         } from '../modules/local/findrepeats/main'
 include { SMALT_MAP            } from '../modules/local/smaltmap/main'
