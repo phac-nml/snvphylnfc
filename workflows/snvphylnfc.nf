@@ -94,18 +94,13 @@ workflow SNVPHYL {
                fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ], assembly) :
                tuple(meta, [ file(fastq_1) ], assembly)}
 
-    // A channel of read tuples (meta, [fastq_1, fastq_2*]):
-    reads = input.map { meta, reads, assembly -> tuple(meta, reads) }
+    // Channel of read tuples (meta, [fastq_1, fastq_2*]):
+    reads = input.map { meta, reads, assembly -> tuple(meta, reads) }    
 
-    // A channel of samples mapped to their associated assemblies (if they exist):
-    sample_assemblies = input.toList().collectEntries { meta, reads, assembly -> [meta.id, assembly ? assembly : null] }
-    sample_assemblies.view()
+    // Channel of sample tuples (sample ID, assembly):
+    sample_assemblies = input.map { meta, reads, assembly -> tuple(meta.id, assembly ? assembly : null) }
 
-    reference_genome = SELECT_REFERENCE(
-        params, sample_assemblies 
-    )
-
-    reference_genome.ifEmpty { error("Unable to select a reference!") }
+    reference_genome = select_reference(params.refgenome, params.reference_sample_name, sample_assemblies)
 
     INDEXING(
         reference_genome
@@ -222,6 +217,30 @@ workflow SNVPHYL {
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
 
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    SELECT REFERENCE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+def select_reference(refgenome, reference_sample_name, sample_assemblies) {
+
+    if(refgenome) {
+        reference_genome = Channel.value(refgenome)
+    }
+    else if (reference_sample_name) {
+        reference_genome = sample_assemblies.filter { it[0] == reference_sample_name && it[1] != null}
+                                            .ifEmpty { error("The provided reference sample ID (${reference_sample_name}) is either missing or has no associated assembly.") }
+                                            .map { it[1] }
+                                            .first()
+    }
+    else {
+        error("Unable to select a reference. Neither '--refgenome' nor '--reference_sample_name' were provided.")
+    }
+
+    return reference_genome
 }
 
 /*
