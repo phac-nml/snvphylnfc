@@ -28,10 +28,7 @@ process VCF2SNV_ALIGNMENT {
 
     script:
     def bcf_line = ""
-
-    for (int i = 0; i < bcf_paths.size(); i++) {
-        bcf_line += "--consolidate_vcf ${bcf_metas[i].id}=${bcf_paths[i]} "
-    }
+    bcf_paths.eachWithIndex { path, i -> bcf_line += "--consolidate_vcf ${bcf_metas[i].id}=${path} " }
 
     """
     vcf2snv_alignment.pl --reference reference --invalid-pos ${new_invalid_positions} --format fasta --format phylip --numcpus ${task.cpus} --output-base snvalign --fasta ${refgenome} ${bcf_line}
