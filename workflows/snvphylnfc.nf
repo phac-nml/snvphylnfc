@@ -99,7 +99,7 @@ workflow SNVPHYL {
     // Channel of sample tuples (sample ID, assembly):
     sample_assemblies = input.map { meta, reads, assembly -> tuple(meta.id, assembly ? assembly : null) }
 
-    reference_genome = select_reference(params.refgenome, params.reference_sample_name, sample_assemblies)
+    reference_genome = select_reference(params.refgenome, params.reference_sample_id, sample_assemblies)
 
     INDEXING(
         reference_genome
@@ -224,19 +224,19 @@ workflow SNVPHYL {
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-def select_reference(refgenome, reference_sample_name, sample_assemblies) {
+def select_reference(refgenome, reference_sample_id, sample_assemblies) {
 
     if(refgenome) {
         reference_genome = Channel.value(refgenome)
     }
-    else if (reference_sample_name) {
-        reference_genome = sample_assemblies.filter { it[0] == reference_sample_name && it[1] != null}
-                                            .ifEmpty { error("The provided reference sample ID (${reference_sample_name}) is either missing or has no associated assembly.") }
+    else if (reference_sample_id) {
+        reference_genome = sample_assemblies.filter { it[0] == reference_sample_id && it[1] != null}
+                                            .ifEmpty { error("The provided reference sample ID (${reference_sample_id}) is either missing or has no associated assembly.") }
                                             .map { it[1] }
                                             .first()
     }
     else {
-        error("Unable to select a reference. Neither '--refgenome' nor '--reference_sample_name' were provided.")
+        error("Unable to select a reference. Neither '--refgenome' nor '--reference_sample_id' were provided.")
     }
 
     return reference_genome
