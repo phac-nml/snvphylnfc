@@ -128,4 +128,21 @@ nextflow_workflow {
 
     }
 
+    test("selecting no reference (failure)") {
+
+        when {
+            params {
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/409864a836dd4c2cd6191e7456881b973ca04748/assets/samplesheet.csv"
+                outdir = "results"
+            }
+            workflow {}
+        }
+
+        then {
+            assert workflow.failed
+            assert workflow.stdout.contains("Unable to select a reference. Neither '--refgenome' nor '--reference_sample_id' were provided.")
+        }
+
+    }
+
 }
