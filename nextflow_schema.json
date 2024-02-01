@@ -38,8 +38,8 @@
                 }
             }
         },
-        "new_group_1": {
-            "title": "New Group 1",
+        "reference": {
+            "title": "Reference",
             "type": "object",
             "description": "The reference to use for analysis. Use only one method for selecting the reference.",
             "default": "",
@@ -287,7 +287,7 @@
             "$ref": "#/definitions/input_output_options"
         },
         {
-            "$ref": "#/definitions/new_group_1"
+            "$ref": "#/definitions/reference"
         },
         {
             "$ref": "#/definitions/snvphyl_pipeline_parameters"
