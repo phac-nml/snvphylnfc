@@ -21,10 +21,7 @@ process VERIFYING_MAP_Q {
 
     script:
     def bam_line = ""
-
-    for (int i = 0; i < sorted_bams.size(); i++) {
-        bam_line += "--bam ${sorted_bams[i].getName()}=${sorted_bams[i]} "
-    }
+    sorted_bams.each { bam_line += "--bam ${it.getName()}=${it} " }
 
     """
     verify_mapping_quality.pl -c ${task.cpus} --min-depth ${params.min_coverage_depth} --min-map ${params.min_mapping_percent_cov} --output mappingQuality.txt ${bam_line}

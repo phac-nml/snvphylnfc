@@ -17,6 +17,7 @@
             "fastq_1": {
                 "type": "string",
                 "pattern": "^\\S+\\.f(ast)?q(\\.gz)?$",
+                "format": "file-path",
                 "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have the extension: '.fq', '.fastq', '.fq.gz' or '.fastq.gz'"
             },
             "fastq_2": {
@@ -24,7 +25,22 @@
                 "anyOf": [
                     {
                         "type": "string",
+                        "format": "file-path",
                         "pattern": "^\\S+\\.f(ast)?q(\\.gz)?$"
+                    },
+                    {
+                        "type": "string",
+                        "maxLength": 0
+                    }
+                ]
+            },
+            "assembly": {
+                "errorMessage": "Assembly file associated with this sample and must have the extension: '.fa', '.fasta', '.fa.gz' or '.fasta.gz'",
+                "anyOf": [
+                    {
+                        "type": "string",
+                        "format": "file-path",
+                        "pattern": "^\\S+\\.f(ast)?a(\\.gz)?$"
                     },
                     {
                         "type": "string",

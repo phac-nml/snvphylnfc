@@ -87,23 +87,32 @@ workflow SNVPHYL {
     // NB: `input` corresponds to `params.input` and associated sample sheet schema
     input = Channel.fromSamplesheet("input")
         // Map the inputs so that they conform to the nf-core-expected "reads" format.
-        // Either [meta, [fastq_1]] or [meta, [fastq_1, fastq_2]] if fastq_2 exists
-        .map { meta, fastq_1, fastq_2 ->
-               fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ]) :
-               tuple(meta, [ file(fastq_1) ])}
+        // Either [meta, [fastq_1], assembly]
+        // or [meta, [fastq_1, fastq_2], assembly] if fastq_2 exists
+        .map { meta, fastq_1, fastq_2, assembly ->
+               fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ], assembly) :
+               tuple(meta, [ file(fastq_1) ], file(assembly))}
+
+    // Channel of read tuples (meta, [fastq_1, fastq_2*]):
+    reads = input.map { meta, reads, assembly -> tuple(meta, reads) }    
+
+    // Channel of sample tuples (sample ID, assembly):
+    sample_assemblies = input.map { meta, reads, assembly -> tuple(meta.id, assembly ? assembly : null) }
+
+    reference_genome = select_reference(params.refgenome, params.reference_sample_id, sample_assemblies)
 
     INDEXING(
-        params.refgenome
+        reference_genome
     )
     ch_versions = ch_versions.mix(INDEXING.out.versions)
 
     FIND_REPEATS(
-        params.refgenome
+        reference_genome
     )
     ch_versions = ch_versions.mix(FIND_REPEATS.out.versions)
 
     SMALT_MAP(
-        input, INDEXING.out.ref_fai, INDEXING.out.ref_sma, INDEXING.out.ref_smi
+        reads, INDEXING.out.ref_fai, INDEXING.out.ref_sma, INDEXING.out.ref_smi
     )
     ch_versions = ch_versions.mix(SMALT_MAP.out.versions)
 
@@ -118,7 +127,7 @@ workflow SNVPHYL {
     ch_versions = ch_versions.mix(VERIFYING_MAP_Q.out.versions)
 
     FREEBAYES(
-        SORT_INDEX_BAMS.out.sorted_bams_and_sampleID, params.refgenome
+        SORT_INDEX_BAMS.out.sorted_bams_and_sampleID, reference_genome
     )
     ch_versions = ch_versions.mix(FREEBAYES.out.versions)
 
@@ -139,7 +148,7 @@ workflow SNVPHYL {
     ch_versions = ch_versions.mix(FREEBAYES_VCF_TO_BCF.out.versions)
 
     MPILEUP(
-        SORT_INDEX_BAMS.out.sorted_bams_and_sampleID, params.refgenome
+        SORT_INDEX_BAMS.out.sorted_bams_and_sampleID, reference_genome
     )
     ch_versions = ch_versions.mix(MPILEUP.out.versions)
 
@@ -179,7 +188,7 @@ workflow SNVPHYL {
 
     //13. consolidate variant calling files
     VCF2SNV_ALIGNMENT(
-        consolidated_bcfs_metas, consolidated_bcfs_paths, invalid_positions_file, params.refgenome,
+        consolidated_bcfs_metas, consolidated_bcfs_paths, invalid_positions_file, reference_genome,
         CONSOLIDATE_BCFS.out.consolidated_bcf_index.collect()
     )
     ch_versions = ch_versions.mix(VCF2SNV_ALIGNMENT.out.versions)
@@ -206,6 +215,33 @@ workflow SNVPHYL {
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
     )
+
+}
+
+/*
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    SELECT REFERENCE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+*/
+
+def select_reference(refgenome, reference_sample_id, sample_assemblies) {
+
+    if(refgenome) {
+        reference_genome = Channel.value(file(refgenome))
+        log.debug "Selecting reference genome ${reference_genome} from '--refgenome'."
+    }
+    else if (reference_sample_id) {
+        reference_genome = sample_assemblies.filter { it[0] == reference_sample_id && it[1] != null}
+                                            .ifEmpty { error("The provided reference sample ID (${reference_sample_id}) is either missing or has no associated assembly.") }
+                                            .map { it[1] }
+                                            .first()
+        log.debug "Selecting reference genome ${reference_genome} from '--reference_sample_id'."
+    }
+    else {
+        error("Unable to select a reference. Neither '--refgenome' nor '--reference_sample_id' were provided.")
+    }
+
+    return reference_genome
 }
 
 /*
