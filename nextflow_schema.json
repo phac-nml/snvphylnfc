@@ -2,14 +2,14 @@
     "$schema": "http://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/nextflow_schema.json",
     "title": "phac-nml/snvphylnfc pipeline parameters",
-    "description": "IRIDA Next Example Pipeline",
+    "description": "SNVPhyl: Whole Genome SNV Phylogenomics Pipeline",
     "type": "object",
     "definitions": {
         "input_output_options": {
-            "title": "Input/output options",
+            "title": "Input/Output Options",
             "type": "object",
             "fa_icon": "fas fa-terminal",
-            "description": "Define where the pipeline should find input data and save output data.",
+            "description": "Define which data to use with the pipeline.",
             "required": ["input", "outdir"],
             "properties": {
                 "input": {
@@ -44,69 +44,69 @@
             "description": "The reference to use for analysis. Use only one method for selecting the reference.",
             "default": "",
             "properties": {
-                "refgenome": {
-                    "type": "string",
-                    "description": "The file path to the FASTA-format reference genome to use.",
-                    "fa_icon": "fas fa-file",
-                    "pattern": "^\\S+\\.(fa|fas|fasta)$",
-                    "format": "file-path"
-                },
                 "reference_sample_id": {
                     "type": "string",
                     "fa_icon": "fas fa-file",
                     "description": "The sample ID from which to use the associated FASTA-format assembly as a reference.",
                     "pattern": "^\\S+$"
+                },
+                "refgenome": {
+                    "type": "string",
+                    "description": "The file path to the FASTA-format reference genome.",
+                    "fa_icon": "fas fa-file",
+                    "pattern": "^\\S+\\.(fa|fas|fasta)$",
+                    "format": "file-path"
                 }
             },
             "fa_icon": "fas fa-terminal"
         },
         "snvphyl_pipeline_parameters": {
-            "title": "SNVPhyl pipeline parameters",
+            "title": "SNVPhyl Pipeline Parameters",
             "type": "object",
-            "description": "Parameters to configure specific pipeline behaviour.",
+            "description": "Fine-tuning of SNVPhyl's parameters to configure specific pipeline behaviour.",
             "default": "",
             "properties": {
+                "min_coverage_depth": {
+                    "type": "integer",
+                    "default": 5,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The minimum depth of coverage for a position within the genome to pass the mapping quality check and be included in the analysis.",
+                    "minimum": 1
+                },
+                "min_mapping_percent_cov": {
+                    "type": "integer",
+                    "default": 80,
+                    "description": "The total percentage of positions within the genome that must have a depth of coverage greater than the minimum depth of coverage specified in order to pass the mapping quality check and be included in the analysis.",
+                    "minimum": 0,
+                    "maximum": 100,
+                    "fa_icon": "fas fa-desktop"
+                },
+                "min_mean_mapping_quality": {
+                    "type": "integer",
+                    "default": 30,
+                    "fa_icon": "fas fa-desktop",
+                    "description": "The minimum mean mapping quality score for all reads in a pileup to be included in the analysis.",
+                    "minimum": 1
+                },
                 "window_size": {
                     "type": "integer",
                     "default": 11,
-                    "description": "Used during BCF consolidation.",
+                    "description": "The window size for determining whether a region is high density.",
                     "fa_icon": "fas fa-desktop",
                     "minimum": 1
                 },
                 "density_threshold": {
                     "type": "integer",
                     "default": 2,
-                    "description": "Used during BCF consolidation.",
+                    "description": "The minimum number of SNVs within the window size for a region to be considered high density.",
                     "fa_icon": "fas fa-desktop",
                     "minimum": 1
-                },
-                "min_coverage_depth": {
-                    "type": "integer",
-                    "default": 5,
-                    "fa_icon": "fas fa-desktop",
-                    "description": "The minimum depth of coverage for a VCF to be accepted.",
-                    "minimum": 1
-                },
-                "min_mean_mapping_quality": {
-                    "type": "integer",
-                    "default": 30,
-                    "fa_icon": "fas fa-desktop",
-                    "description": "The minimum mean mapping quality.",
-                    "minimum": 1
-                },
-                "min_mapping_percent_cov": {
-                    "type": "integer",
-                    "default": 80,
-                    "description": "The minimum mapping percent coverage.",
-                    "minimum": 0,
-                    "maximum": 100,
-                    "fa_icon": "fas fa-desktop"
                 },
                 "snv_abundance_ratio": {
                     "type": "number",
                     "default": 0.75,
                     "fa_icon": "fas fa-desktop",
-                    "description": "The SNV abundance ratio.",
+                    "description": "The proportion of reads required to support a variant to be included in the analysis.",
                     "minimum": 0,
                     "maximum": 1
                 },
