@@ -19,13 +19,15 @@ process CONSOLIDATE_BCFS {
     tuple val(meta), path( "${meta.id}_consolidated.bcf" ), emit: consolidated_bcfs
     path( "${meta.id}_consolidated.vcf" )                 , emit: consolidated_vcfs
     path( "${meta.id}_consolidated.bcf.csi" )             , emit: consolidated_bcf_index
-    path( "${meta.id}_filtered_density.txt" )             , emit: filtered_densities
+    path( "${meta.id}_filtered_density.txt" )             , emit: filtered_densities, optional: true
     path("versions.yml")                                  , emit: versions
 
     script:
+    def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+
     """
-    consolidate_vcfs.pl --coverage-cutoff ${params.min_coverage_depth} --min-mean-mapping ${params.min_mean_mapping_quality} --snv-abundance-ratio ${params.snv_abundance_ratio} --vcfsplit ${freebayes_filtered_bcf} --mpileup ${mpileup_bcf} --filtered-density-out ${prefix}_filtered_density.txt --window-size ${params.window_size} --density-threshold ${params.density_threshold} -o ${prefix}_consolidated.bcf > ${prefix}_consolidated.vcf
+    consolidate_vcfs.pl --coverage-cutoff ${params.min_coverage_depth} --min-mean-mapping ${params.min_mean_mapping_quality} --snv-abundance-ratio ${params.snv_abundance_ratio} --vcfsplit ${freebayes_filtered_bcf} --mpileup ${mpileup_bcf} --filtered-density-out ${prefix}_filtered_density.txt --window-size ${params.window_size} --density-threshold ${params.density_threshold} -o ${prefix}_consolidated.bcf ${args} > ${prefix}_consolidated.vcf
     bcftools index -f ${prefix}_consolidated.bcf
 
     cat <<-END_VERSIONS > versions.yml
