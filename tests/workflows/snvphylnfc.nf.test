@@ -28,10 +28,13 @@ nextflow_workflow {
             assert lines.contains("Total number of sites identified: 2")
             assert lines.contains("Number of sites filtered: 0")
 
-            // check CONSOLIDATE_BCFS for filtered density files:
+            // check filtered density files:
             assert path("$launchDir/results/consolidate/SAMPLE1_filtered_density.txt").exists()
             assert path("$launchDir/results/consolidate/SAMPLE2_filtered_density.txt").exists()
             assert path("$launchDir/results/consolidate/SAMPLE3_filtered_density.txt").exists()
+
+            lines = path("$launchDir/results/cat/cat_invalid_positions.txt").readLines()
+            assert lines.contains("#Calculation and writing of high density regions has completed.")
 
             // check PHYML output
             lines = path("$launchDir/results/phyml/phylogeneticTreeStats.txt").readLines()
@@ -95,10 +98,13 @@ nextflow_workflow {
             assert lines.contains("Total number of sites identified: 2")
             assert lines.contains("Number of sites filtered: 0")
 
-            // check CONSOLIDATE_BCFS for filtered density files:
+            // check filtered density files:
             assert path("$launchDir/results/consolidate/SAMPLE1_filtered_density.txt").exists()
             assert path("$launchDir/results/consolidate/SAMPLE2_filtered_density.txt").exists()
             assert path("$launchDir/results/consolidate/SAMPLE3_filtered_density.txt").exists()
+
+            lines = path("$launchDir/results/cat/cat_invalid_positions.txt").readLines()
+            assert lines.contains("#Calculation and writing of high density regions has completed.")
 
             // check PHYML output
             lines = path("$launchDir/results/phyml/phylogeneticTreeStats.txt").readLines()
@@ -168,6 +174,8 @@ nextflow_workflow {
         }
 
         then {
+            def lines = []
+
             assert workflow.success
             assert path("$launchDir/results").exists()
 
@@ -175,6 +183,9 @@ nextflow_workflow {
             assert path("$launchDir/results/consolidate/SAMPLE1_filtered_density.txt").exists() == false
             assert path("$launchDir/results/consolidate/SAMPLE2_filtered_density.txt").exists() == false
             assert path("$launchDir/results/consolidate/SAMPLE3_filtered_density.txt").exists() == false
+
+            lines = path("$launchDir/results/cat/cat_invalid_positions.bed").readLines()
+            assert lines.contains("#Calculation and writing of high density regions has completed.") == false
         }
 
     }
