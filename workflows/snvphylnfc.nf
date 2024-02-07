@@ -173,7 +173,7 @@ workflow SNVPHYL {
     // Concat filtered densities to make new invalid_postions
     invalid_positions = CONSOLIDATE_BCFS.out.filtered_densities
         .concat(FIND_REPEATS.out.repeats_bed_file)
-        .collect().map{it -> [[id: 'invalid_positions'], it]}
+        .collect().map{it -> [[id: 'cat_invalid_positions'], it]}
 
     CAT_CAT(invalid_positions)
 

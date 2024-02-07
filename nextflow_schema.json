@@ -124,6 +124,11 @@
                     "description": "The minimum percent identity when identifying repeats.",
                     "minimum": 0,
                     "maximum": 100
+                },
+                "skip_density_filter": {
+                    "type": "boolean",
+                    "description": "Whether or not to skip filtering low SNV density regions.",
+                    "fa_icon": "fas fa-desktop"
                 }
             },
             "fa_icon": "fas fa-terminal"

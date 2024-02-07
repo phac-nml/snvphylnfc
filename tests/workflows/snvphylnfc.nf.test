@@ -8,8 +8,8 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/samplesheet.csv"
-                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/reference.fasta"
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
+                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
                 outdir = "results"
             }
             workflow {}
@@ -27,6 +27,14 @@ nextflow_workflow {
             assert lines.contains("Number of sites used to generate phylogeny: 2")
             assert lines.contains("Total number of sites identified: 2")
             assert lines.contains("Number of sites filtered: 0")
+
+            // check filtered density files:
+            assert path("$launchDir/results/consolidate/SAMPLE1_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/SAMPLE2_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/SAMPLE3_filtered_density.txt").exists()
+
+            lines = path("$launchDir/results/cat/cat_invalid_positions.txt").readLines()
+            assert lines.contains("#Calculation and writing of high density regions has completed.")
 
             // check PHYML output
             lines = path("$launchDir/results/phyml/phylogeneticTreeStats.txt").readLines()
@@ -70,7 +78,7 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/409864a836dd4c2cd6191e7456881b973ca04748/assets/samplesheet.csv"
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
                 reference_sample_id = "SAMPLE1"
                 outdir = "results"
             }
@@ -89,6 +97,14 @@ nextflow_workflow {
             assert lines.contains("Number of sites used to generate phylogeny: 2")
             assert lines.contains("Total number of sites identified: 2")
             assert lines.contains("Number of sites filtered: 0")
+
+            // check filtered density files:
+            assert path("$launchDir/results/consolidate/SAMPLE1_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/SAMPLE2_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/SAMPLE3_filtered_density.txt").exists()
+
+            lines = path("$launchDir/results/cat/cat_invalid_positions.txt").readLines()
+            assert lines.contains("#Calculation and writing of high density regions has completed.")
 
             // check PHYML output
             lines = path("$launchDir/results/phyml/phylogeneticTreeStats.txt").readLines()
@@ -132,7 +148,7 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/409864a836dd4c2cd6191e7456881b973ca04748/assets/samplesheet.csv"
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
                 outdir = "results"
             }
             workflow {}
@@ -141,6 +157,35 @@ nextflow_workflow {
         then {
             assert workflow.failed
             assert workflow.stdout.contains("Unable to select a reference. Neither '--refgenome' nor '--reference_sample_id' were provided.")
+        }
+
+    }
+
+    test("disabling snv density filtering") {
+
+        when {
+            params {
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
+                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
+                outdir = "results"
+                skip_density_filter = true
+            }
+            workflow {}
+        }
+
+        then {
+            def lines = []
+
+            assert workflow.success
+            assert path("$launchDir/results").exists()
+
+            // check that no "_filtered_density.txt" files exist:
+            assert path("$launchDir/results/consolidate/SAMPLE1_filtered_density.txt").exists() == false
+            assert path("$launchDir/results/consolidate/SAMPLE2_filtered_density.txt").exists() == false
+            assert path("$launchDir/results/consolidate/SAMPLE3_filtered_density.txt").exists() == false
+
+            lines = path("$launchDir/results/cat/cat_invalid_positions.bed").readLines()
+            assert lines.contains("#Calculation and writing of high density regions has completed.") == false
         }
 
     }
