@@ -52,8 +52,8 @@ Please use only one of `--refgenome` or `--reference_sample_id` and not both.
 - `--min_mapping_percent_cov`: The total percentage of positions within the genome that must have a depth of coverage greater than the minimum depth of coverage specified in order to pass the mapping quality check.
 - `--min_mean_mapping_quality`: The minimum mean mapping quality score for all reads in a pileup to be included in the analysis.
 - `--snv_abundance_ratio`: The proportion of reads required to support a variant to be included in the analysis.
-- `--min_repeat_length`: The minimum length when identifying repeats.
-- `--min_repeat_pid`: The minimum percent identity when identifying repeats.
+- `--min_repeat_length`: The minimum length when identifying repeats on the reference genome.
+- `--min_repeat_pid`: The minimum percent identity when identifying repeats on the reference genome.
 - `--skip_density_filter`: Whether or not to skip filtering low SNV density regions.
 
 Please refer to the [SNVPhyl documentation](https://snvphyl.readthedocs.io/en/latest/) for more detailed information about pipeline parameters.
