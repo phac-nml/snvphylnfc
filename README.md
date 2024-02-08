@@ -9,7 +9,7 @@ This is the [nf-core](https://nf-co.re/)-based pipeline for [SNVPhyl](https://sn
 Input is provided to SNVPhyl in the form of a samplesheet (passed as `--input samplesheet.csv`). This samplesheet is a CSV-formated file, which may be provided as a URI (ex: a file path or web address), and has the following format:
 
 | sample  | fastq_1                    | fastq_2                    | assembly                     |
-|---------|----------------------------|----------------------------|------------------------------|
+| ------- | -------------------------- | -------------------------- | ---------------------------- |
 | SAMPLE1 | /path/to/sample1_fastq1.fq | /path/to/sample1_fastq2.fq | /path/to/sample1_assembly.fa |
 | SAMPLE2 | /path/to/sample2_fastq1.fq |                            |                              |
 
@@ -119,12 +119,12 @@ A JSON file for loading the data into IRIDA Next is output by this pipeline. The
             }
         ],
         "samples": {
-            
+
         }
     },
     "metadata": {
         "samples": {
-            
+
         }
     }
 }
