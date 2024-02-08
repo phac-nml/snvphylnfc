@@ -48,8 +48,8 @@ Please use only one of `--refgenome` or `--reference_sample_id` and not both.
 
 - `--window_size`: The window size for determining whether a region is high density.
 - `--density_threshold`: The minimum number of SNVs within the window size for a region to be considered high density.
-- `--min_coverage_depth`: The minimum depth of coverage for a position within the genome to pass the mapping quality check and be included in the analysis.
-- `--min_mapping_percent_cov`: The total percentage of positions within the genome that must have a depth of coverage greater than the minimum depth of coverage specified in order to pass the mapping quality check and be included in the analysis.
+- `--min_coverage_depth`: The minimum depth of coverage for a position within the genome to pass the mapping quality check.
+- `--min_mapping_percent_cov`: The total percentage of positions within the genome that must have a depth of coverage greater than the minimum depth of coverage specified in order to pass the mapping quality check.
 - `--min_mean_mapping_quality`: The minimum mean mapping quality score for all reads in a pileup to be included in the analysis.
 - `--snv_abundance_ratio`: The proportion of reads required to support a variant to be included in the analysis.
 - `--min_repeat_length`: The minimum length when identifying repeats.
