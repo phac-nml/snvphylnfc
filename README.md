@@ -6,7 +6,7 @@ This is the [nf-core](https://nf-co.re/)-based pipeline for [SNVPhyl](https://sn
 
 # Input
 
-Input is provided to SNVPhyl in the form of a sample sheet (passed as `--input samplesheet.csv`). This samplesheet is a CSV-formated file, which may be provided as a URI (ex: a file path or web address), and has the following format:
+Input is provided to SNVPhyl in the form of a samplesheet (passed as `--input samplesheet.csv`). This samplesheet is a CSV-formated file, which may be provided as a URI (ex: a file path or web address), and has the following format:
 
 | sample  | fastq_1                    | fastq_2                    | assembly                     |
 |---------|----------------------------|----------------------------|------------------------------|
@@ -15,10 +15,10 @@ Input is provided to SNVPhyl in the form of a sample sheet (passed as `--input s
 
 The columns are defined as follows:
 
-- sample: The unique sample identifier to associate with the reads (and optionally the assembly).
-- fastq_1: A URI (ex: a file path or web address) to either single-end FASTQ-formatted reads or one pair of pair-end FASTQ-formatted reads.
-- fastq_2: (Optional) If `fastq_1` is paired-end, then this field is a URI to reads that are the other pair of reads associated with `fastq_1`.
-- assembly: (Optional) A URI to an assembly associated with the sample, so that it may be referenced on the command line by the sample identifier for use as the reference for the whole pipeline. However, it may be easier to leave these fields blank and specify the reference using the `--refgenome` parameter.
+- `sample`: The unique sample identifier to associate with the reads (and optionally the assembly).
+- `fastq_1`: A URI (ex: a file path or web address) to either single-end FASTQ-formatted reads or one pair of pair-end FASTQ-formatted reads.
+- `fastq_2`: (Optional) If `fastq_1` is paired-end, then this field is a URI to reads that are the other pair of reads associated with `fastq_1`.
+- `assembly`: (Optional) A URI to an assembly associated with the sample, so that it may be referenced on the command line by the sample identifier for use as the reference for the whole pipeline. However, it may be easier to leave these fields blank and specify the reference using the `--refgenome` parameter.
 
 The structure of this file is defined in [assets/schema_input.json](assets/schema_input.json). Please see [assets/samplesheet.csv](assets/samplesheet.csv) to see an example of a samplesheet for this pipeline.
 
@@ -66,7 +66,7 @@ In order to run the pipeline with provided data, please run:
 nextflow run main.nf -profile singularity --input https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv --refgenome https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/reference.fasta --outdir results
 ```
 
-The pipeline output will be written to a directory named `results`. A JSON file for integrating data with IRIDA Next will be written to `results/iridanext.output.json.gz` (please see the (Output)[#Output] section for details).
+The pipeline output will be written to a directory named `results`. A JSON file for integrating data with IRIDA Next will be written to `results/iridanext.output.json.gz` (please see the Output section for details).
 
 # Output
 
