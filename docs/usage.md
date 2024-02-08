@@ -38,7 +38,7 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run main.nf -profile singularity --input https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv --refgenome https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/reference.fasta --outdir results
+nextflow run phac-nml/snvphylnfc -profile singularity --input https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv --refgenome https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/reference.fasta --outdir results
 ```
 
 This will launch the pipeline with the `singularity` configuration profile.
