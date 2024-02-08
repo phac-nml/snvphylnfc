@@ -58,6 +58,11 @@ Please use only one of `--refgenome` or `--reference_sample_id` and not both.
 
 Please refer to the [SNVPhyl documentation](https://snvphyl.readthedocs.io/en/latest/) for more detailed information about pipeline parameters.
 
+### Other Parameters
+
+- `-profile`: specifies which profiles to use (ex: `-profile singularity`)
+- `-r`: specifies which revision to use (ex: `-r dev`)
+
 # Running
 
 ## Test Data
@@ -69,6 +74,12 @@ nextflow run main.nf -profile singularity --input https://raw.githubusercontent.
 ```
 
 The pipeline output will be written to a directory named `results`. A JSON file for integrating data with IRIDA Next will be written to `results/iridanext.output.json.gz` (please see the Output section for details).
+
+It is also possible to run the pipeline using the test profile as follows:
+
+```
+nextflow run phac-nml/snvphylnfc -profile singularity,test --outdir results
+```
 
 # Output
 
