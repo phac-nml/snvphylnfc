@@ -2,11 +2,11 @@
 
 ## Introduction
 
-This pipeline is an example that illustrates running a nf-core-compliant pipeline on IRIDA Next.
+This is the [nf-core](https://nf-co.re/)-based pipeline for [SNVPhyl](https://snvphyl.readthedocs.io/en/). The SNVPhyl (Single Nucleotide Variant PHYLogenomics) pipeline identifies Single Nucleotide Variants (SNV) within a collection of microbial genomes and constructs a phylogenetic tree from those SNVs.
 
 ## Samplesheet input
 
-You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row as shown in the examples below.
+You will need to create a samplesheet with information about the samples you would like to analyse before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 4 columns, and a header row as shown in the examples below.
 
 ```bash
 --input '[path to samplesheet file]'
@@ -14,22 +14,23 @@ You will need to create a samplesheet with information about the samples you wou
 
 ### Full samplesheet
 
-The input samplesheet must contain three columns: `ID`, `fastq_1`, `fastq_2`. The IDs within a samplesheet should be unique. All other columns will be ignored.
+The input samplesheet must contain three columns: `sample`, `fastq_1`, `fastq_2`, and `assembly`. The sample IDs within a samplesheet should be unique.
 
 A final samplesheet file consisting of both single- and paired-end data may look something like the one below.
 
 ```console
-sample,fastq_1,fastq_2
-SAMPLE1,sample1_R1.fastq.gz,sample1_R2.fastq.gz
-SAMPLE2,sample2_R1.fastq.gz,sample2_R2.fastq.gz
-SAMPLE3,sample1_R1.fastq.gz,
+| sample  | fastq_1                    | fastq_2                    | assembly                     |
+|---------|----------------------------|----------------------------|------------------------------|
+| SAMPLE1 | /path/to/sample1_fastq1.fq | /path/to/sample1_fastq2.fq | /path/to/sample1_assembly.fa |
+| SAMPLE2 | /path/to/sample2_fastq1.fq |                            |                              |
 ```
 
 | Column    | Description                                                                                                                |
 | --------- | -------------------------------------------------------------------------------------------------------------------------- |
-| `sample`  | Custom sample name. Samples should be unique within a samplesheet.                                                         |
-| `fastq_1` | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
-| `fastq_2` | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
+| `sample`   | Custom sample name. Samples should be unique within a samplesheet.                                                         |
+| `fastq_1`  | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
+| `fastq_2`  | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz". |
+| `assembly` | (Optional) Full path to a FASTA file representing an assembly derived from this sample. This field provides a method for selecting a reference genome for the whole pipeline. |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
@@ -38,10 +39,10 @@ An [example samplesheet](../assets/samplesheet.csv) has been provided with the p
 The typical command for running the pipeline is as follows:
 
 ```bash
-nextflow run main.nf --input ./samplesheet.csv --outdir ./results -profile singularity
+nextflow run main.nf -profile singularity --input https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv --refgenome https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/reference.fasta --outdir results
 ```
 
-This will launch the pipeline with the `singularity` configuration profile. See below for more information about profiles.
+This will launch the pipeline with the `singularity` configuration profile.
 
 Note that the pipeline will create the following files in your working directory:
 
@@ -57,7 +58,6 @@ If you wish to repeatedly use the same parameters for multiple runs, rather than
 Pipeline settings can be provided in a `yaml` or `json` file via `-params-file <file>`.
 
 Do not use `-c <file>` to specify parameters as this will result in errors. Custom config files specified with `-c` must only be used for [tuning process resource specifications](https://nf-co.re/docs/usage/configuration#tuning-workflow-resources), other infrastructural tweaks (such as output directories), or module arguments (args).
-:::
 
 The above pipeline run specified with a params file in yaml format:
 
@@ -68,12 +68,11 @@ nextflow run phac-nml/snvphylnfc -profile docker -params-file params.yaml
 with `params.yaml` containing:
 
 ```yaml
-input: './samplesheet.csv'
+input: 'https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv'
 outdir: './results/'
+refgenome: 'https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/reference.fasta'
 <...>
 ```
-
-You can also generate such `YAML`/`JSON` files via [nf-core/launch](https://nf-co.re/launch).
 
 ### Reproducibility
 
@@ -153,12 +152,6 @@ To use a different container from the default container or conda environment spe
 A pipeline might not always support every possible argument or option of a particular tool used in pipeline. Fortunately, nf-core pipelines provide some freedom to users to insert additional parameters that the pipeline does not include by default.
 
 To learn how to provide additional arguments to a particular tool of the pipeline, please see the [customising tool arguments](https://nf-co.re/docs/usage/configuration#customising-tool-arguments) section of the nf-core website.
-
-### nf-core/configs
-
-In most cases, you will only need to create a custom config as a one-off but if you and others within your organisation are likely to be running nf-core pipelines regularly and need to use the same settings regularly it may be a good idea to request that your custom config file is uploaded to the `nf-core/configs` git repository. Before you do this please can you test that the config file works with your pipeline of choice using the `-c` parameter. You can then create a pull request to the `nf-core/configs` repository with the addition of your config file, associated documentation file (see examples in [`nf-core/configs/docs`](https://github.com/nf-core/configs/tree/master/docs)), and amending [`nfcore_custom.config`](https://github.com/nf-core/configs/blob/master/nfcore_custom.config) to include your custom profile.
-
-See the main [Nextflow documentation](https://www.nextflow.io/docs/latest/config.html) for more information about creating your own configuration files.
 
 ## Azure Resource Requests
 
