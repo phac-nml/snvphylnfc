@@ -19,10 +19,9 @@ The input samplesheet must contain three columns: `sample`, `fastq_1`, `fastq_2`
 A final samplesheet file consisting of both single- and paired-end data may look something like the one below.
 
 ```console
-| sample  | fastq_1                    | fastq_2                    | assembly                     |
-|---------|----------------------------|----------------------------|------------------------------|
-| SAMPLE1 | /path/to/sample1_fastq1.fq | /path/to/sample1_fastq2.fq | /path/to/sample1_assembly.fa |
-| SAMPLE2 | /path/to/sample2_fastq1.fq |                            |                              |
+sample,fastq_1,fastq_2,assembly
+SAMPLE1,/path/to/sample1_fastq1.fq,/path/to/sample1_fastq2.fq,/path/to/sample1_assembly.fa
+SAMPLE2,/path/to/sample2_fastq1.fq,,
 ```
 
 | Column    | Description                                                                                                                |
