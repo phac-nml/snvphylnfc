@@ -100,7 +100,7 @@ For more detailed information, please refer to the [SNVPhyl Documentation](https
 
 ## IRIDA Next Integration File
 
-A JSON file for loading the data into IRIDA Next is output by this pipeline. The format of this JSON file is specified in our [Pipeline Standards for the IRIDA Next JSON](https://github.com/phac-nml/pipeline-standards#32-irida-next-json). This JSON file is written directly within the `--outdir` provided to the pipeline with the name `irida.output.json.gz` (ex: `[outdir]/irida.output.json.gz`).
+A JSON file for loading the data into IRIDA Next is output by this pipeline. The format of this JSON file is specified in our [Pipeline Standards for the IRIDA Next JSON](https://github.com/phac-nml/pipeline-standards#32-irida-next-json). This JSON file is written directly within the `--outdir` provided to the pipeline with the name `iridanext.output.json.gz` (ex: `[outdir]/iridanext.output.json.gz`).
 
 ```
 {
