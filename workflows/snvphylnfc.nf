@@ -87,17 +87,17 @@ workflow SNVPHYL {
     // NB: `input` corresponds to `params.input` and associated sample sheet schema
     input = Channel.fromSamplesheet("input")
         // Map the inputs so that they conform to the nf-core-expected "reads" format.
-        // Either [meta, [fastq_1], assembly]
-        // or [meta, [fastq_1, fastq_2], assembly] if fastq_2 exists
-        .map { meta, fastq_1, fastq_2, assembly ->
-               fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ], assembly) :
-               tuple(meta, [ file(fastq_1) ], file(assembly))}
+        // Either [meta, [fastq_1], reference_assembly]
+        // or [meta, [fastq_1, fastq_2], reference_assembly] if fastq_2 exists
+        .map { meta, fastq_1, fastq_2, reference_assembly ->
+               fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ], reference_assembly) :
+               tuple(meta, [ file(fastq_1) ], file(reference_assembly))}
 
     // Channel of read tuples (meta, [fastq_1, fastq_2*]):
-    reads = input.map { meta, reads, assembly -> tuple(meta, reads) }    
+    reads = input.map { meta, reads, reference_assembly -> tuple(meta, reads) }    
 
     // Channel of sample tuples (sample ID, assembly):
-    sample_assemblies = input.map { meta, reads, assembly -> tuple(meta.id, assembly ? assembly : null) }
+    sample_assemblies = input.map { meta, reads, reference_assembly -> tuple(meta.id, reference_assembly ? reference_assembly : null) }
 
     reference_genome = select_reference(params.refgenome, params.reference_sample_id, sample_assemblies)
 
@@ -232,7 +232,7 @@ def select_reference(refgenome, reference_sample_id, sample_assemblies) {
     }
     else if (reference_sample_id) {
         reference_genome = sample_assemblies.filter { it[0] == reference_sample_id && it[1] != null}
-                                            .ifEmpty { error("The provided reference sample ID (${reference_sample_id}) is either missing or has no associated assembly.") }
+                                            .ifEmpty { error("The provided reference sample ID (${reference_sample_id}) is either missing or has no associated reference assembly.") }
                                             .map { it[1] }
                                             .first()
         log.debug "Selecting reference genome ${reference_genome} from '--reference_sample_id'."

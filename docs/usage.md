@@ -14,12 +14,12 @@ You will need to create a samplesheet with information about the samples you wou
 
 ### Full samplesheet
 
-The input samplesheet must contain three columns: `sample`, `fastq_1`, `fastq_2`, and `assembly`. The sample IDs within a samplesheet should be unique.
+The input samplesheet must contain three columns: `sample`, `fastq_1`, `fastq_2`, and `reference_assembly`. The sample IDs within a samplesheet should be unique.
 
 A final samplesheet file consisting of both single- and paired-end data may look something like the one below.
 
 ```console
-sample,fastq_1,fastq_2,assembly
+sample,fastq_1,fastq_2,reference_assembly
 SAMPLE1,/path/to/sample1_fastq1.fq,/path/to/sample1_fastq2.fq,/path/to/sample1_assembly.fa
 SAMPLE2,/path/to/sample2_fastq1.fq,,
 ```
@@ -29,7 +29,7 @@ SAMPLE2,/path/to/sample2_fastq1.fq,,
 | `sample`   | Custom sample name. Samples should be unique within a samplesheet.                                                                                                            |
 | `fastq_1`  | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                    |
 | `fastq_2`  | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                    |
-| `assembly` | (Optional) Full path to a FASTA file representing an assembly derived from this sample. This field provides a method for selecting a reference genome for the whole pipeline. |
+| `reference_assembly` | (Optional) Full path to a FASTA file representing a reference assembly derived from this sample. This field provides a method for selecting a reference genome for the whole pipeline. |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 

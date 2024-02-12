@@ -8,7 +8,7 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/db66e67d6d90f101343f4f07262b8872e2c03a43/assets/samplesheet.csv"
                 refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
                 outdir = "results"
             }
@@ -78,7 +78,7 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/db66e67d6d90f101343f4f07262b8872e2c03a43/assets/samplesheet.csv"
                 reference_sample_id = "SAMPLE1"
                 outdir = "results"
             }
@@ -148,7 +148,7 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/db66e67d6d90f101343f4f07262b8872e2c03a43/assets/samplesheet.csv"
                 outdir = "results"
             }
             workflow {}
@@ -165,7 +165,7 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/db66e67d6d90f101343f4f07262b8872e2c03a43/assets/samplesheet.csv"
                 refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
                 outdir = "results"
                 skip_density_filter = true
