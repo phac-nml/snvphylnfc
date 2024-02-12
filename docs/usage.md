@@ -24,11 +24,11 @@ SAMPLE1,/path/to/sample1_fastq1.fq,/path/to/sample1_fastq2.fq,/path/to/sample1_a
 SAMPLE2,/path/to/sample2_fastq1.fq,,
 ```
 
-| Column     | Description                                                                                                                                                                   |
-| ---------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`   | Custom sample name. Samples should be unique within a samplesheet.                                                                                                            |
-| `fastq_1`  | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                    |
-| `fastq_2`  | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                    |
+| Column               | Description                                                                                                                                                                            |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`             | Custom sample name. Samples should be unique within a samplesheet.                                                                                                                     |
+| `fastq_1`            | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2`            | Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `reference_assembly` | (Optional) Full path to a FASTA file representing a reference assembly derived from this sample. This field provides a method for selecting a reference genome for the whole pipeline. |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
