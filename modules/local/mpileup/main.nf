@@ -17,13 +17,13 @@ process MPILEUP {
     path(refgenome)
 
     output:
-    tuple val(meta), path( "${meta.id}_mpileup.vcf" ), emit: mpileup
-    path("versions.yml"),                              emit: versions
+    tuple val(meta), path( "${meta.id}_mpileup.vcf.gz" ), emit: mpileup
+    path("versions.yml"),                                 emit: versions
 
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    bcftools mpileup --threads ${task.cpus} --fasta-ref ${refgenome} -A -B -C 0 -d 1024 -q 0 -Q 0 --output-type v -I --output ${prefix}_mpileup.vcf ${sorted_bams}
+    bcftools mpileup --threads ${task.cpus} --fasta-ref ${refgenome} -A -B -C 0 -d 1024 -q 0 -Q 0 --output-type z -I --output ${prefix}_mpileup.vcf.gz ${sorted_bams}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

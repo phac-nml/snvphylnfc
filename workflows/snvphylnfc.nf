@@ -152,13 +152,8 @@ workflow SNVPHYL {
     )
     ch_versions = ch_versions.mix(MPILEUP.out.versions)
 
-    BGZIP_MPILEUP_VCF(
-        MPILEUP.out.mpileup
-    )
-    ch_versions = ch_versions.mix(BGZIP_MPILEUP_VCF.out.versions)
-
     BCFTOOLS_CALL(
-        BGZIP_MPILEUP_VCF.out.mpileup_zipped
+        MPILEUP.out.mpileup
     )
     ch_versions = ch_versions.mix(BCFTOOLS_CALL.out.versions)
 
