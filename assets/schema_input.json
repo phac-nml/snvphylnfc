@@ -34,8 +34,8 @@
                     }
                 ]
             },
-            "assembly": {
-                "errorMessage": "Assembly file associated with this sample and must have the extension: '.fa', '.fasta', '.fa.gz' or '.fasta.gz'",
+            "reference_assembly": {
+                "errorMessage": "Reference assembly file associated with this sample and must have the extension: '.fa', '.fasta', '.fa.gz' or '.fasta.gz'",
                 "anyOf": [
                     {
                         "type": "string",

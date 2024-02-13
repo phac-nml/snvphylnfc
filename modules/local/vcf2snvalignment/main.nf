@@ -10,7 +10,7 @@ Please refer to the README for more information.
 def VERSION = '1.8.2' // Version information not provided by tool on CLI
 
 process VCF2SNV_ALIGNMENT {
-    label 'process_single'
+    label 'process_high'
     container = "staphb/snvphyl-tools:1.8.2"
 
     input:
