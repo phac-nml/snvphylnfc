@@ -68,7 +68,7 @@
             "properties": {
                 "min_coverage_depth": {
                     "type": "integer",
-                    "default": 5,
+                    "default": 15,
                     "fa_icon": "fas fa-desktop",
                     "description": "The minimum depth of coverage for a position within the genome to pass the mapping quality check and be included in the analysis.",
                     "minimum": 1
@@ -90,7 +90,7 @@
                 },
                 "window_size": {
                     "type": "integer",
-                    "default": 11,
+                    "default": 500,
                     "description": "The window size for determining whether a region is high density.",
                     "fa_icon": "fas fa-desktop",
                     "minimum": 1
