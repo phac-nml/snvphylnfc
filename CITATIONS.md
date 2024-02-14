@@ -1,5 +1,13 @@
 # phac-nml/snvphylnfc: Citations
 
+## [SNVPhyl](https://www.microbiologyresearch.org/content/journal/mgen/10.1099/mgen.0.000116)
+
+> Petkau A, Mabon P, Sieffert C, Knox N, Cabral J, Iskander M, Iskander M, Weedmark K, Zaheer R, Katz L, Nadon C, Reimer A, Taboada E, Beiko R, Hsiao W, Brinkman F, Graham M, Van Domselaar G. SNVPhyl: a single nucleotide variant phylogenomics pipeline for microbial genomic epidemiology. 08/06/2017. M Gen 3(6): doi:10.1099/mgen.0.000116.
+
+## [SNVPhyl Nextflow](https://github.com/DHQP/SNVPhyl_Nextflow)
+
+> Hagey J. SNVPhyl Nextflow. 2022-21-4. https://github.com/DHQP/SNVPhyl_Nextflow/.
+
 ## [nf-core](https://pubmed.ncbi.nlm.nih.gov/32055031/)
 
 > Ewels PA, Peltzer A, Fillinger S, Patel H, Alneberg J, Wilm A, Garcia MU, Di Tommaso P, Nahnsen S. The nf-core framework for community-curated bioinformatics pipelines. Nat Biotechnol. 2020 Mar;38(3):276-278. doi: 10.1038/s41587-020-0439-x. PubMed PMID: 32055031.

@@ -1,0 +1,35 @@
+nextflow_process {
+
+    name "Test Process SMALT_MAP"
+    script "modules/local/smaltmap/main.nf"
+    process "SMALT_MAP"
+
+    test("Should run without failures") {
+
+        when {
+            params {
+                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
+                outdir = "results"
+            }
+            process {
+                """
+                input[0] = new Tuple(["id": "SAMPLE1"], [file("$baseDir/tests/data/SAMPLE1_1.fastq"), file("$baseDir/tests/data/SAMPLE1_2.fastq")])
+                input[1] = file("$baseDir/tests/data/reference.fasta.fai")
+                input[2] = file("$baseDir/tests/data/reference.sma")
+                input[3] = file("$baseDir/tests/data/reference.smi")
+                """
+            }
+        }
+
+        then {
+            assert process.success
+
+            with(process.out) {
+                assert bams[0][0].id == "SAMPLE1"
+                assert path(bams[0][1]).exists()
+            }
+        }
+
+    }
+
+}

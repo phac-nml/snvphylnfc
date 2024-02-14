@@ -1,0 +1,42 @@
+nextflow_process {
+
+    name "Test Process PHYML"
+    script "modules/local/phyml/main.nf"
+    process "PHYML"
+
+    test("Should run without failures") {
+
+        when {
+            params {
+                outdir = "results"
+            }
+            process {
+                """
+                input[0] = file("$baseDir/tests/data/snvAlignment.phy")
+                """
+            }
+        }
+
+        then {
+            assert process.success
+
+            with(process.out) {
+                def lines = path(phylogeneticTreeStats[0]).readLines()
+
+                assert lines.contains(". Model of nucleotides substitution: \tGTR")
+                assert lines.contains("  - f(A)=  0.75000")
+                assert lines.contains("  - f(C)=  0.12500")
+                assert lines.contains("  - f(G)=  0.01000")
+                assert lines.contains("  - f(T)=  0.12500")
+
+                lines = path(phylogeneticTree[0]).readLines()
+
+                assert lines.join("\n").contains("SAMPLE1")
+                assert lines.join("\n").contains("SAMPLE2")
+                assert lines.join("\n").contains("SAMPLE3")
+            }
+        }
+
+    }
+
+}

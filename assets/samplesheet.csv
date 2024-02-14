@@ -1,4 +1,4 @@
-sample,fastq_1,fastq_2
-SAMPLE1,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/a_1.fastq,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/a_2.fastq
-SAMPLE2,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/b_1.fastq,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/b_2.fastq
-SAMPLE3,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/c_1.fastq,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/c_2.fastq
+sample,fastq_1,fastq_2,reference_assembly
+SAMPLE1,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/a_1.fastq,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/a_2.fastq,https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta
+SAMPLE2,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/b_1.fastq,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/b_2.fastq,
+SAMPLE3,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/c_1.fastq,https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/c_2.fastq,

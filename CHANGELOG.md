@@ -3,14 +3,19 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## 1.0.0dev
-
-Development release of phac-nml/snvphylnfc.
+## 2.0.0 - 2024/02/14
 
 ### `Added`
+
+- The initial release of phac-nml/snvphylnfc as a Nextflow pipeline follwing nf-core pipeline standards.
+
+### `Changed`
+
+- Migrated SNVPhyl to a Nextflow pipeline.
+- Updated the major SNVPhyl release version from 1 to 2 in order to reflect the migration from a Galaxy-based pipeline to a Nextflow-based pipeline.
+
+### `Deprecated`
 
 ### `Fixed`
 
 ### `Dependencies`
-
-### `Deprecated`
