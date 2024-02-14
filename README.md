@@ -70,7 +70,7 @@ Please refer to the [SNVPhyl documentation](https://snvphyl.readthedocs.io/en/la
 In order to run the pipeline with provided data, please run:
 
 ```
-nextflow run phac-nml/snvphylnfc -profile singularity --input https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv --refgenome https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/reference.fasta --outdir results
+nextflow run phac-nml/snvphylnfc -profile singularity --input https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv --refgenome https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta --outdir results
 ```
 
 The pipeline output will be written to a directory named `results`. A JSON file for integrating data with IRIDA Next will be written to `results/iridanext.output.json.gz` (please see the Output section for details).
