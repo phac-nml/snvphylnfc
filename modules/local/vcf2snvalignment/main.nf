@@ -27,11 +27,17 @@ process VCF2SNV_ALIGNMENT {
     path("versions.yml"),     emit: versions
 
     script:
+    // Decompress reference if necessary:
+    def decompress_refgenome = refgenome.toString().endsWith(".gz") ? "gunzip -q -f $refgenome" : ""
+    def refgenome_path = refgenome.toString().endsWith(".gz") ? refgenome.toString().split('.gz')[0] : refgenome
+
     def bcf_line = ""
     bcf_paths.eachWithIndex { path, i -> bcf_line += "--consolidate_vcf ${bcf_metas[i].id}=${path} " }
 
     """
-    vcf2snv_alignment.pl --reference reference --invalid-pos ${new_invalid_positions} --format fasta --format phylip --numcpus ${task.cpus} --output-base snvalign --fasta ${refgenome} ${bcf_line}
+    $decompress_refgenome
+
+    vcf2snv_alignment.pl --reference reference --invalid-pos ${new_invalid_positions} --format fasta --format phylip --numcpus ${task.cpus} --output-base snvalign --fasta ${refgenome_path} ${bcf_line}
     mv snvalign-positions.tsv snvTable.tsv
     mv snvalign-stats.csv vcf2core.tsv
     if [[ -f snvalign.phy ]]; then

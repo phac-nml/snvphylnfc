@@ -22,10 +22,15 @@ process INDEXING {
     path("versions.yml"), emit: versions
 
     script:
+    // Decompress reference if necessary:
+    def decompress_refgenome = refgenome.toString().endsWith(".gz") ? "gunzip -q -f $refgenome" : ""
+    def refgenome_path = refgenome.toString().endsWith(".gz") ? refgenome.toString().split('.gz')[0] : refgenome
+
     """
-    REF_BASENAME=\$(basename ${refgenome} .fasta)
-    smalt index -k 13 -s 6 \${REF_BASENAME} ${refgenome}
-    samtools faidx ${refgenome}
+    $decompress_refgenome
+
+    smalt index -k 13 -s 6 reference ${refgenome_path}
+    samtools faidx ${refgenome_path}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
