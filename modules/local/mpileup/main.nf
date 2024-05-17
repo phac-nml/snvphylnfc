@@ -22,7 +22,7 @@ process MPILEUP {
 
     script:
     // Decompress reference if necessary:
-    def decompress_refgenome = refgenome.toString().endsWith(".gz") ? "gunzip -q -f $refgenome" : ""
+    def decompress_refgenome = refgenome.toString().endsWith(".gz") ? "gunzip -q -f '$refgenome'" : ""
     def refgenome_path = refgenome.toString().endsWith(".gz") ? refgenome.toString().split('.gz')[0] : refgenome
 
     def prefix = task.ext.prefix ?: "${meta.id}"
