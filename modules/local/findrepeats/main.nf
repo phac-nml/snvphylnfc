@@ -20,8 +20,14 @@ process FIND_REPEATS {
     path("versions.yml"),             emit: versions
 
     script:
+    // Decompress reference if necessary:
+    def decompress_refgenome = refgenome.toString().endsWith(".gz") ? "gunzip -q -f '$refgenome'" : ""
+    def refgenome_path = refgenome.toString().endsWith(".gz") ? refgenome.toString().split('.gz')[0] : refgenome
+
     """
-    find-repeats.pl ${refgenome} --min-length ${params.min_repeat_length} --min-pid ${params.min_repeat_pid} > invalid_positions.bed
+    $decompress_refgenome
+
+    find-repeats.pl ${refgenome_path} --min-length ${params.min_repeat_length} --min-pid ${params.min_repeat_pid} > invalid_positions.bed
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

@@ -21,9 +21,15 @@ process MPILEUP {
     path("versions.yml"),                                 emit: versions
 
     script:
+    // Decompress reference if necessary:
+    def decompress_refgenome = refgenome.toString().endsWith(".gz") ? "gunzip -q -f '$refgenome'" : ""
+    def refgenome_path = refgenome.toString().endsWith(".gz") ? refgenome.toString().split('.gz')[0] : refgenome
+
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    bcftools mpileup --threads ${task.cpus} --fasta-ref ${refgenome} -A -B -C 0 -d 1024 -q 0 -Q 0 --output-type z -I --output ${prefix}_mpileup.vcf.gz ${sorted_bams}
+    $decompress_refgenome
+
+    bcftools mpileup --threads ${task.cpus} --fasta-ref ${refgenome_path} -A -B -C 0 -d 1024 -q 0 -Q 0 --output-type z -I --output ${prefix}_mpileup.vcf.gz ${sorted_bams}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
