@@ -21,9 +21,15 @@ process FREEBAYES {
     path("versions.yml"),                                emit: versions
 
     script:
+    // Decompress reference if necessary:
+    def decompress_refgenome = refgenome.toString().endsWith(".gz") ? "gunzip -q -f '$refgenome'" : ""
+    def refgenome_path = refgenome.toString().endsWith(".gz") ? refgenome.toString().split('.gz')[0] : refgenome
+
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    freebayes --bam ${sorted_bams} --ploidy 1 --fasta-reference ${refgenome} --vcf ${prefix}_freebayes.vcf
+    $decompress_refgenome
+
+    freebayes --bam ${sorted_bams} --ploidy 1 --fasta-reference ${refgenome_path} --vcf ${prefix}_freebayes.vcf
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
