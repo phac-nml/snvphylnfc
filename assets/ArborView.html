@@ -1,0 +1,2412 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .inline-block-child {
+            display: inline-block;
+        }
+
+        .scrollbar-window{
+            overflow: auto;
+            /*overflow-x: scroll;*/
+            /*height: 200px;*/
+        }
+
+        input[type="file"] {
+            /* Hide the button in boot strap*/
+            display: none;
+        }
+
+        
+        .input-group-text:hover {
+            filter: brightness(80%);
+        }
+
+        .legend-element:hover {
+            filter: opacity(0.5);
+            cursor: pointer;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0);
+            }
+            25% {
+                transform: rotate(-0.05turn);
+            }
+
+            50% {
+                transform: rotate(0);
+            }
+
+            75% {
+                transform: rotate(0.05turn);
+            }
+
+            100% {
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes  updown {
+            0% {
+                transform: translateY(-10%);
+            }
+
+            50% {
+                transform: translateY(10%);
+            }
+
+            100% {
+                transform: translateY(-10%);
+            }
+        }
+
+        .icon-spin {
+            animation: spin 1s linear infinite;
+        }
+
+        .icon-jump {
+            animation: updown 1s ease infinite
+        }
+
+
+    </style>
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Random colour library for creating some nice highlighted trees  https://github.com/davidmerfield/randomColor   -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/randomcolor/0.6.1/randomColor.min.js" integrity="sha512-vPeZ7JCboHcfpqSx5ZD+/jpEhS4JpXxfz9orSvAPPj0EKUVShU2tgy7XkU+oujBJKnWmu4hU7r9MMQNWPfXsYw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <!-- Below switching to tidy tree 0.5.1 as the dev broke 0.5.0 -->
+
+    <script rel="stylesheet" type="text/javascript" href="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    
+    <!--JQuery Beautiful Data Tables-->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.3/css/jquery.dataTables.min.css">
+    <script type="text/javascript" src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+
+
+    <!--Bootstrap 5 library elements-->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+    
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+    
+    
+    <!--toggle buttons by https://palcarazm.github.io/bootstrap5-toggle/ -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.0.4/css/bootstrap5-toggle.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap5-toggle@5.0.4/js/bootstrap5-toggle.jquery.min.js"></script>
+
+    <!-- Sweet Alerts 2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    
+
+    <script type="text/javascript">
+
+        const __DEADBEEF__ = 0xDEADBEEF;
+        const __DEADFOOD__ = 0xDEADF00D;
+        //var test_newick = "((BGIOSIFCE006902.1_ORYSA:0.652945[&&NHX:S=ORYSA],(At4g19560.1_ARATH:0.566484[&&NHX:S=ARATH],(At4g19600.1_ARATH:0.229647[&&NHX:S=ARATH],At5g45190.1_ARATH:0.149569[&&NHX:S=ARATH]):0.109796[&&NHX:S=ARATH:SIS=100:D=Y:B=100]):0.283052[&&NHX:S=ARATH:SIS=100:D=Y:B=100]):0.930921[&&NHX:S=Magnoliophyta:D=N:B=100],((((((((((((CCNK_HUMAN:0.001351[&&NHX:S=HUMAN],CCNK_F3_PANTR:0.001588[&&NHX:S=PANTR]):0.009317[&&NHX:S=Homo/Pan/Gorilla_group:D=N:B=100],CCNK_MACMU:0.01227[&&NHX:S=MACMU]):0.020339[&&NHX:S=Catarrhini:D=N:B=100],(CCNK_BOVIN:0.049478[&&NHX:S=BOVIN],CCNK_CANFA:0.076883[&&NHX:S=CANFA]):0.026972[&&NHX:S=Laurasiatheria:D=N:B=97]):0.01376[&&NHX:S=Eutheria:D=N:B=62],(Ccnk_MOUSE:0.018183[&&NHX:S=MOUSE],LOC500715_RAT:0.02728[&&NHX:S=RAT]):0.054247[&&NHX:S=Murinae:D=N:B=100]):0.087752[&&NHX:S=Eutheria:D=N:B=65],CCNK_MONDO:0.069457[&&NHX:S=MONDO]):0.053263[&&NHX:S=Theria:D=N:B=83],NP_001026380_CHICK:0.085022[&&NHX:S=CHICK]):0.059401[&&NHX:S=Amniota:D=N:B=80],CCNK_XENTR:0.175799[&&NHX:S=XENTR]):0.075577[&&NHX:S=Tetrapoda:D=N:B=97],((si_dkey-60a16_F2_BRARE:0.143195[&&NHX:S=BRARE],(CCNK_TETNG:0.142629[&&NHX:S=TETNG],CCNK_F2_GASAC:0.115749[&&NHX:S=GASAC]):0.130837[&&NHX:S=Percomorpha:D=N:B=100]):0.077038[&&NHX:S=Clupeocephala:D=N:B=95],ENSGACT00000017400_GASAC:0.40355[&&NHX:S=GASAC]):0.058401[&&NHX:S=Clupeocephala:SIS=33:D=Y:B=13]):0.233994[&&NHX:S=Euteleostomi:D=N:B=18],(ENSCINT00000017473_CIOIN:0[&&NHX:S=CIOIN],ENSCINT00000026852_CIOIN:0.002343[&&NHX:S=CIOIN]):0.481407[&&NHX:S=CIOIN:SIS=100:D=Y:B=100]):0.090892[&&NHX:S=Chordata:D=N:B=98],((CycK-RA_DROME:0.17719[&&NHX:S=DROME],dper_GLEANR_8777_caf1_DROPE:0.174477[&&NHX:S=DROPE]):0.199588[&&NHX:S=Sophophora:D=N:B=100],(AAEL013531-RA_AEDAE:0.214131[&&NHX:S=AEDAE],XP_317464_ANOGA:0.204436[&&NHX:S=ANOGA]):0.178396[&&NHX:S=Culicidae:D=N:B=100]):0.293157[&&NHX:S=Diptera:D=N:B=100]):0.104694[&&NHX:S=Coelomata:D=N:B=98],Smp_130980_SCHMA:0.624197[&&NHX:S=SCHMA]):0.041513[&&NHX:S=Bilateria:D=N:B=84],(WBGene00009650_CAEEL:0.186775[&&NHX:S=CAEEL],(CBG04574_CAEBR:0.21279[&&NHX:S=CAEBR],cr01.sctg48.wum.67.1_CAERE:0.192611[&&NHX:S=CAERE]):0.076335[&&NHX:S=Caenorhabditis:D=N:B=86]):1.18006[&&NHX:S=Caenorhabditis:D=N:B=86]):0.311276[&&NHX:S=Bilateria:D=N:B=84])[&&NHX:S=Eukaryota:D=N:B=0];";
+        const TREE = __DEADBEEF__;
+        // the '= __DEADFOOD__' is an expression to find and replace and inline tsv string e.g. 'head1\thead2\nv1\tv2\n'
+        const DATA = __DEADFOOD__;
+        const DEBUG = false;
+        const TREE_OFFSET = 100;
+        var NEWICK = null;
+        var tree_root = null;
+        var METADATA = null;
+        var TABLE_HEADERS = null;
+        var data_table = null;
+        var query_table = null;
+        var ORIGINAL_DATA = null;
+        var ORIGINAL_VIEW_BOX = null;
+        var ORIGINAL_WIDTH_SVG = 0;  
+        var LAST_MOVE_X = 0;
+        var LAST_MOVE_Y = 0;
+        var SHOW_BRANCH_LENGTHS = true;
+        
+        var TREE_VAL = 1; // sets defualt tree to draw
+        //var TREE_SWITCH = false;
+        var collapse_subtree = false; // can think of another way to signal state without our larger refactor 
+        var focused_element = null; // Focused element to have its colour reset
+        var RADIUS_INCREASED = false;
+        var MENU_CREATED = false;
+        const colour_legend = new Array;
+        const default_color = "#999";
+        const clicked_color = "blue";
+        const ID_FIELD = 0;
+        // Refactoring selected nodes to make it easier to update the legend and selected nodes on dom changes
+        //const SELECTED_NODES = new Set();
+        const right_mouse = 3;
+        const center_mouse = 2;
+        const left_mouse = 1;
+        const CIRCLE_SIZE_SELECTED = 6;
+        const INNER_NODE_SIZE = 4;
+        const LEAF_NODE_SIZE = 6;
+        const DECIMAL_PLACES = 4;
+        const DISTANCE_LABEL_OFFSET = 5.2
+
+
+        // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ TREE FUNCTIONS ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+        // These are messy due to the way in which they were created, and there has not been time
+        // to refactor them yet sadly.
+        const dendrogram_chart = (data) => {
+            // Made with lost of help from: https://observablehq.com/d/6c52fee38fb28b2f
+
+                var ele = document.getElementById("TreeData");
+                var ele_style = window.getComputedStyle(ele);
+                const width = parseInt(ele_style.width);
+    
+                //var width = window.innerWidth;
+                const marginTop = 40;
+                const marginRight = 10;
+                const marginBottom = 30; // updated for viewing
+                const marginLeft = 40;
+
+                let label_safety_factor = 200; 
+                const inner_radius = width - label_safety_factor;
+
+                function setDistance(d, y0, k) {
+                    // From the tree of life code
+                    d.distance = (y0 += d.data.d) * k;
+                    if (d.children) d.children.forEach(d => setDistance(d, y0, k));
+                }
+
+                function maxLength(d) {
+                    return d.data.d + (d.children ? d3.max(d.children, maxLength) : 0);
+                }
+
+                // Rows are separated by dx pixels, columns by dy pixels. These names can be counter-intuitive
+                // (dx is a height, and dy a width). This because the tree must be viewed with the root at the
+                // “bottom”, in the data domain. The width of a column is based on the tree’s height.
+                const root = d3.hierarchy(data);
+                setDistance(root, root.data.d = 0, (inner_radius / maxLength(root))) // Third value is a scaling factor
+
+                const leaves_in_tree = root.leaves();
+                const pixels_per_label = 15;
+                
+                const dx = 20;
+                const dy = (width - marginRight - marginLeft) / (1 + root.height);
+                tree = d3.cluster()
+                            .nodeSize([dx, dy])
+                            .separation( (a, b) => { return 1;}) // Can pass in a custom function to alter distance between labels, 1 means all labels are spaced the same distance
+
+
+
+                diagonal = (d) => {
+                    //console.log(d.source);
+                    // TODO have this reflect the branch length
+                    // https://www.w3.org/TR/SVG/paths.html#PathElement for path movements meanings
+                    //return `M${d.source.y},${d.source.x} V${d.target.x} H${d.target.y}`
+                    return `M${d.source.distance},${d.source.x} L${d.source.distance},${d.target.x} L${d.target.distance},${d.target.x}`
+                };
+                
+                // Create the SVG container, a layer for the links and a layer for the nodes.
+                const svg = d3.create("svg")
+                    .attr("id", "TreeSVG")
+                    .attr("width", width + 20) //makes sure all tree nodes are within view
+                    .attr("style", `width:100%; height: auto; font: 10px sans-serif; user-select: none;`)
+                    
+                const gLink = svg.append("g")
+                    .attr("fill", "none")
+                    .attr("stroke", "#555")
+                    .attr("stroke-opacity", 0.8)
+                    .attr("stroke-width", 2.0);
+
+                const gNode = svg.append("g")
+                    .attr("cursor", "pointer")
+                    .attr("pointer-events", "all");
+                
+                function showLinkExtension(d, show=true) {
+                        const dest = show ? inner_radius : d.target.distance;
+                        const path = d3.path();
+                        path.moveTo(d.target.distance, d.target.x);
+                        path.lineTo(dest, d.target.x);
+                        return path.toString();
+                }
+
+                function update(event, source) {
+                const duration = event?.altKey ? 2500 : 250; // hold the alt key to slow down the transition
+                const nodes = root.descendants().reverse(); // Might be able to replace with the recurse tree function for speed up
+                const links = root.links();
+
+                // Compute the new tree layout.
+                // Converting tree to cluster may solve our conundrum...
+                tree(root);
+
+                svg.selectAll(".extension-node-links").remove();
+
+                const linkExtension = svg.append("g") // Would probably save rendering if this was tied to the "entered nodes"
+                        .attr("class", "extension-node-links")
+                        .attr("fill", "none")
+                        .attr("stroke", "#000")
+                        .attr("stroke-opacity", 0.5)
+                        .attr("stroke-dasharray", "4")
+                        .selectAll("path")
+                        .data(root.links().filter(d => d.target.data.leaf ))
+                        .join("path")
+                        .each(function(d) { d.target.linkExtensionNode = this; })
+                        .attr("d", (d) => showLinkExtension(d, true)); // Shows lines to link
+
+                let left = root;
+                let right = root;
+                root.eachBefore(node => {
+                    if (node.x < left.x) left = node;
+                    if (node.x > right.x) right = node;
+                });
+
+
+                ORIGINAL_WIDTH_SVG=width
+                const height = right.x - left.x + marginTop + marginBottom;
+                const transition = svg.transition()
+                    .duration(duration)
+                    .attr("height", height)
+                    .attr("viewBox", [0, left.x - marginTop, width, height])
+                    .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+
+                // Update the nodes…
+                const node = gNode.selectAll("g")
+                    .data(nodes, d => d.id);
+
+                // Enter any new nodes at the parent's previous position.
+                const nodeEnter = node.enter().append("g")
+                    //.attr("transform", d => `translate(${source.y0},${source.x0})`)
+                    .attr("transform", d => `translate(${source.y0},${source.x0})`)
+                    .attr("fill-opacity", 0)
+                    .attr("stroke-opacity", 0)
+                    .attr("id", (d) => {
+                        if(d.data.name){
+                            return d.data.name;
+                        }
+                    })
+                    .attr("class", (d) => {
+                        if(!d.children){
+                            return "tree-node leaf-node";
+                        }
+                        return "tree-node inner-node";
+                    })
+                    .on("mousedown", (event, d) => {
+
+                        d.children = d.children ? null : d._children;
+                        if(event.which == left_mouse){
+                            NodeDropDownMenu(event, d, () => {
+                                if(update(event, d)){
+                                    // TODO event does not need to be called on collapse only un-collapse
+                                    let descendants = d.descendants(); // TODO the d3 leaves may be too slow, recurseTree better
+                                    let uncollapsed_descendants_length = 1;
+                                    // The length of the uncollapsed descendants is greater than one on uncollapse
+                                    if(descendants.length > uncollapsed_descendants_length){
+                                        for(const item of descendants){
+                                            let name = item.data.name;
+                                            if(name !== "" && SelectedNodes.nodes.has(name)){
+                                                SelectedNodes.nodes.set(name, $(`#TreeSVG [id='${name}']`)[0]); // TODO query all nodes at once
+                                                let [parent, circle, text] = SelectedNodes.getNodeData(SelectedNodes.nodes.get(name));
+                                                SelectedNodes.setSelectedColours(text, circle);
+
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                nodeEnter.append("circle")
+                    .attr("r", d => d._children ? INNER_NODE_SIZE : LEAF_NODE_SIZE) // size 6 for leaf nodes and 4 for inner nodes
+                    .attr("fill", d => d._children ? "#555" : "#999")
+                    .attr("stroke-width", 10);
+                
+                // Add branch length to all inner nodes
+                nodeEnter.append("text")
+                    .text((d) => {
+                        if(!d.data.leaf){
+                            return Number((d.data.d).toFixed(DECIMAL_PLACES))
+                        }})
+                    .attr("class", "branch-length")
+                    .style("visibility", () => {
+                        if(!SHOW_BRANCH_LENGTHS){
+                            return "hidden"
+                        }else{
+                            return "visible"
+                        }
+                    })
+                    .attr("position", "relative")
+                    .attr("dx", (d) => { 
+                        let val = Number((d.data.d).toFixed(DECIMAL_PLACES)).toString(); 
+                        return `${-val.length * DISTANCE_LABEL_OFFSET}pt`;
+                    })
+                    .attr("dy", 14)
+                    .attr("font-size", 12);
+                
+                nodeEnter.append("text")
+                    // dx the 12 corresponds to a safety metric to add some space between nodes, no children, dx is 0 to align leaves to inner nodes
+                    // Below two lines allow for inner nodes to show up
+                    .attr("dx", d => d._children ? 0 : inner_radius - d.distance + 12) 
+                    .attr("dy", d => d._children ? -8 : 0) 
+                    //.attr("transform", d => d._children ? `translate(${inner_radius + d.distance},${d.y})` : "")
+                    .attr("x", d => d._children ? -10 : 6)
+                    .attr("font-size", 12)
+                    .attr("text-anchor", d => d._children ? "end" : "start")
+                    .text(d => d.data.name)
+                    .clone(true).lower()
+                    .attr("stroke", "white");
+                
+                    
+
+                // Transition nodes to their new position.
+                const nodeUpdate = node.merge(nodeEnter).transition(transition)
+                    .attr("transform", d => `translate(${d.distance},${d.x})`) // aligns the text to the nodes
+                    .attr("fill-opacity", 1)
+                    .attr("stroke-opacity", 1);
+
+                // Transition exiting nodes to the parent's new position.
+                const nodeExit = node.exit().transition(transition).remove()
+                    .attr("transform", d => `translate(${source.y},${source.x})`)
+                    .attr("fill-opacity", 0)
+                    .attr("stroke-opacity", 0);
+
+                // Update the links…
+                const link = gLink.selectAll("path")
+                    .data(links, d => d.target.id)
+                    .attr("d", diagonal);
+
+                // Enter any new links at the parent's previous position.
+                const linkEnter = link.enter().append("path")
+                                    .attr("d", diagonal);
+
+                link.merge(linkEnter).transition(transition)
+                        .attr("d", diagonal);
+
+                // Transition exiting nodes to the parent's new position.
+                link.exit().transition(transition).remove()
+                    .attr("d", diagonal);
+
+                // Stash the old positions for transition.
+                root.eachBefore(d => {
+                    d.x0 = d.x;
+                    d.y0 = d.y;
+                });
+                return true;
+            }
+
+            // Do the first update to the initial configuration of the tree — where a number of nodes
+            // are open (arbitrarily selected as the root, plus nodes with 7 letters).
+            root.x0 = dy / 2;
+            root.y0 = 0;
+            root.descendants().forEach((d, i) => {
+            d.id = i;
+            d._children = d.children;
+            });
+            
+            update(null, root);
+            
+            return svg.node();
+        };
+
+
+        const dendrogram_circle = (data) => {
+            // Made with lots of help from: https://observablehq.com/d/6c52fee38fb28b2f
+            var ele = document.getElementById("TreeData");
+            var ele_style = window.getComputedStyle(ele);
+            
+            const width = parseInt(ele_style.width);
+            const height = width;
+            const outerRadius = width / 2; 
+            const innerRadius = outerRadius - 170;
+            const decimal_places = 4;
+            const sc_to_radians = Math.PI / 180;
+
+            const root = d3.hierarchy(data);
+            
+            const dx = 20; 
+            const dy = outerRadius;
+    
+            function linkStep(startAngle, startRadius, endAngle, endRadius) {
+                const c0 = Math.cos(startAngle = (startAngle - 90) / 180 * Math.PI);
+                const s0 = Math.sin(startAngle);
+                const c1 = Math.cos(endAngle = (endAngle - 90) / 180 * Math.PI); 
+                const s1 = Math.sin(endAngle); 
+                
+                return "M" + startRadius * c0 + "," + startRadius * s0
+                    + (endAngle === startAngle ? "" : "A" + startRadius + "," + startRadius + " 0 0 " + (endAngle > startAngle ? 1 : 0) + " " + startRadius * c1 + "," + startRadius * s1)
+                    + " L" + endRadius * c1 + "," + endRadius * s1;
+            }
+            
+            function setRadius(d, y0, k) {
+                
+                d.radius = (y0 += d.data.d) * k;
+                if (d.children) d.children.forEach(d => setRadius(d, y0, k));
+            }
+
+            function linkVariable(d) {
+                return linkStep(d.source.x, d.source.radius, d.target.x, d.target.radius);
+            }
+
+            function maxLength(d) {
+                return d.data.d + (d.children ? d3.max(d.children, maxLength) : 0);
+            }
+
+            function linkConstant(d) {
+                return linkStep(d.source.x, d.source.y, d.target.x, d.target.y);
+            }
+
+            function linkExtensionVariable(d) {
+                return linkStep(d.target.x, d.target.radius, d.target.x, innerRadius);
+            }
+
+            function linkExtensionConstant(d) {
+                return linkStep(d.target.x, d.target.y, d.target.x, innerRadius);
+            }
+
+            tree = d3.cluster()
+                .size([360, innerRadius])
+                .separation((a, b) => 1);
+
+            const svg = d3.create("svg")
+                .attr("id", "TreeSVG")
+                .attr("viewBox", [0, 0, width, height])
+                .attr("font-family", "sans-serif")
+                .attr("font-size", 10);
+
+            const gNode = svg.append("g")
+                .attr("cursor", "pointer")
+                .attr("pointer-events", "all")
+                .attr("transform", `translate(${outerRadius}, ${outerRadius})`);
+            
+            const gLink = svg.append("g")
+                    .attr("fill", "none")
+                    .attr("stroke", "#555")
+                    .attr("stroke-opacity", 0.8)
+                    .attr("stroke-width", 2.0)
+                    .attr("transform", `translate(${outerRadius}, ${outerRadius})`);
+            
+            root.data.d = 0
+            const max_len = innerRadius / maxLength(root)
+            setRadius(root, root.data.d, max_len);
+
+            function translate_points(d){
+
+                let x = Math.cos((d.x - 90) * sc_to_radians) * d.radius
+                let y = Math.sin((d.x - 90) * sc_to_radians) * d.radius;
+                let output = `rotate(${d.x - 90}) translate(${d.radius},0)`
+                return output
+            }
+
+            function translate_text(d){
+                let new_rad = innerRadius - d.radius + 6
+                if(!d.data.leaf){
+                    new_rad = d.radius
+                }
+                
+
+                
+                let x = Math.cos((d.x - 90) * sc_to_radians) * new_rad;
+                let y = Math.sin((d.x - 90) * sc_to_radians) * new_rad;
+
+                let rot_val = d.x - 90;
+                if(x < 0){
+                    rot_val = d.x + 90;
+                }
+                d.x0 = x;
+                d.y0 = y;
+                let output = `translate(${x}, ${y}) rotate(${rot_val})`
+                return output
+            }
+            
+            
+            function update(event, source){
+                
+
+                const duration = event?.altKey ? 2500 : 250; // hold the alt key to slow down the transition
+                const nodes = root.descendants().reverse(); // Might be able to replace with the recurse tree function for speed up
+                const links = root.links();
+                tree(root)
+
+                svg.selectAll(".extension-node-links").remove();
+
+                const linkExtension = svg.append("g")
+                    .attr("class", "extension-node-links")
+                    .attr("fill", "none")
+                    .attr("stroke", "#000")
+                    .attr("stroke-opacity", 0.25)
+                    .attr("stroke-dasharray", "4")
+                    .selectAll("path")
+                    .data(root.links().filter(d => d.target.data.leaf ))
+                    .join("path")
+                    .each(function(d) { d.target.linkExtensionNode = this; })
+                    //.attr("d", linkExtensionConstant); // linkExtension constant can be passed in to align all branches to labels
+                    .attr("d", (d) => linkExtensionVariable(d))
+                    // Added to move points over
+                    .attr("transform", `translate(${outerRadius}, ${outerRadius})`);
+                
+                let left = root;
+                let right = root;
+                root.eachBefore(node => {
+                    if (node.x < left.x) left = node;
+                    if (node.x > right.x) right = node;
+                });
+
+                ORIGINAL_WIDTH_SVG=width
+                const transition = svg.transition()
+                    .duration(duration)
+                    .attr("height", height)
+                    .attr("viewBox", [0, 0, width, height])
+                    .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+
+                const node = gNode.selectAll("g")
+                    .data(nodes, d => d.id);
+
+                const nodeEnter = node.enter().append("g")
+                    .attr("transform", translate_points)
+                    // Transform statement below can be used to re-orient leaves at the cost of mis-aligning them on collapse
+                    //.attr("transform", d => `rotate(${d.x - 90}) translate(${d.radius},0)${d.x < 180 ? "" : " rotate(180)"}`)
+                    .attr("fill-opacity", 0)
+                    .attr("stroke-opacity", 0)
+                    .attr("id", (d) => {
+                        if(d.data.name){
+                            return d.data.name;
+                        }
+                    })
+                    .attr("class", (d) => {
+                        if(d.data.leaf){
+                            return "tree-node leaf-node";
+                        }
+                        return "tree-node inner-node";
+                    })
+                    .on("mousedown", (event, d) => {
+
+                        d.children = d.children ? null : d._children;
+                        if(event.which == left_mouse){
+                            NodeDropDownMenu(event, d, () => {
+                                let updated_p = false;
+                                updated_p = update(event, d);
+                                if(updated_p){
+                                    let descendants = d.descendants(); // TODO the d3 leaves may be too slow, recurseTree better
+                                    let uncollapsed_descendants_length = 1;
+                                    // The length of the uncollapsed descendants is greater than one on uncollapse
+                                    if(descendants.length > uncollapsed_descendants_length){
+                                        for(const item of descendants){
+                                            let name = item.data.name;
+                                            if(name !== "" && SelectedNodes.nodes.has(name)){
+                                                SelectedNodes.nodes.set(name, $(`#TreeSVG [id='${name}']`)[0]); // TODO query all nodes at once
+                                                let [parent, circle, text] = SelectedNodes.getNodeData(SelectedNodes.nodes.get(name));
+                                                SelectedNodes.setSelectedColours(text, circle);
+                                            }
+                                        }
+                                    }
+                                }
+                            });
+                        }
+                });
+
+                nodeEnter.append("circle")
+                    .attr("r", d => d.data.leaf ? LEAF_NODE_SIZE : INNER_NODE_SIZE) // size 6 for leaf nodes and 4 for inner nodes
+                    .attr("fill", d => d.data.leaf ? "#999" : "#555")
+                    .attr("stroke-width", 10);
+
+                nodeEnter.append("text")
+                    .text((d) => {
+                        if(!d.data.leaf){
+                            return Number((d.data.d).toFixed(DECIMAL_PLACES))
+                        }})
+                    .attr("class", "branch-length")
+                    .style("visibility", () => {
+                        if(!SHOW_BRANCH_LENGTHS){
+                            return "hidden"
+                        }else{
+                            return "visible"
+                        }
+                    })
+                    .attr("position", "relative")
+                    .attr("dx", (d) => { 
+                        let val = Number((d.data.d).toFixed(DECIMAL_PLACES)).toString();
+                        return `${-val.length * DISTANCE_LABEL_OFFSET}pt`;
+                    })
+                    .attr("transform", (d) => {
+                        return ""
+                    })
+                    .attr("dy", 14)
+                    .attr("font-size", "12");
+                
+                nodeEnter.append("text")
+                    .attr("dy", d => d._children ? -8 : 0) // dx being in a different cord system seems to be causing issues...
+                    .attr("dx", (d) => {
+                        let hyp = 0 
+                        if(!d._children){
+                            hyp = innerRadius - d.radius + 6;
+                        }else{
+                            hyp = d.data.d - 10;
+                        }
+                        return hyp}) // labels are not bein moved to the correct pos when redrawn
+                    .text(d => d.data.name)
+                    .clone(true).lower()
+                    .attr("font-size", "12")
+                    .attr("stroke-linejoin", "round")
+                    .attr("stroke", "white");
+                    
+
+                // Getting spontatnous errors in redraw
+                // get new position
+                const nodeUpdate = node.merge(nodeEnter)
+                    .transition(transition)
+                    .attr("transform", translate_points) // aligns the text to the nodes
+                    .attr("fill-opacity", 1)
+                    .attr("stroke-opacity", 1);
+                
+
+                const nodeExit = node.exit().transition(transition).remove()
+                    .attr("transform", translate_points) // aligns the text to the nodes
+                    .attr("fill-opacity", 0)
+                    .attr("stroke-opacity", 0);
+                
+                // Update the links…
+                const link = gLink.selectAll("path")
+                    .data(links, d => d.target.id)
+                    .attr("d", linkVariable);
+                
+                const linkEnter = link.enter().append("path")
+                                    .attr("d", linkVariable);
+
+                link.merge(linkEnter).transition(transition)
+                        .attr("d", linkVariable);
+
+                // Transition exiting nodes to the parent's new position.
+                // TODO see if transition can be added it makes the whole flow smoother
+                link.exit().remove(); // Removing the transition got rid of path errors
+
+                // Stash the old positions for transition.
+                root.eachBefore(d => {
+                    d.x0 = d.x;
+                    d.y0 = d.y;
+                });
+                return true;
+            }
+            
+            root.x0 = root.x
+            root.y0 = 0;
+            root.descendants().forEach((d, i) => {
+                d.id = i;
+                d._children = d.children;
+            });
+
+            
+            update(null, root);
+
+            
+            return svg.node();
+        };
+
+        const tidytree_chart = (data) => {
+
+                // Specify the charts’ dimensions. The height is variable, depending on the layout.
+
+                var ele = document.getElementById("TreeData");
+                var ele_style = window.getComputedStyle(ele);
+                const width = parseInt(ele_style.width);
+    
+
+                
+                //const width = window.innerWidth;
+                const marginTop = 40;
+                const marginRight = 10;
+                const marginBottom = 30;
+                const marginLeft = 40;
+
+                // Rows are separated by dx pixels, columns by dy pixels. These names can be counter-intuitive
+                // (dx is a height, and dy a width). This because the tree must be viewed with the root at the
+                // “bottom”, in the data domain. The width of a column is based on the tree’s height.
+                const root = d3.hierarchy(data);
+                const dx = 20;
+                const dy = (width - marginRight - marginLeft) / (1 + root.height);
+
+                // Define the tree layout and the shape for links.
+                tree = d3.tree().nodeSize([dx, dy]);
+                diagonal = d3.linkHorizontal().x(d => d.y).y(d => d.x);
+                
+                // Create the SVG container, a layer for the links and a layer for the nodes.
+                const svg = d3.create("svg")
+                    .attr("id", "TreeSVG")
+                    .attr("width", width + 20) //makes sure all tree nodes are within view
+                    .attr("height", dx)
+                    .attr("style", `width:${width}px; height: auto; font: 10px sans-serif; user-select: none;`)
+
+                const gLink = svg.append("g")
+                    .attr("fill", "none")
+                    .attr("stroke", "#555")
+                    .attr("stroke-opacity", 0.8)
+                    .attr("stroke-width", 0.8);
+
+                const gNode = svg.append("g")
+                    .attr("cursor", "pointer")
+                    .attr("pointer-events", "all");
+                
+
+                function update(event, source) {
+                    const duration = event?.altKey ? 2500 : 250; // hold the alt key to slow down the transition
+                    const nodes = root.descendants().reverse();
+                    const links = root.links();
+
+                    // Compute the new tree layout.
+                    // Converting tree to cluster may solve our conundrum...
+                    tree(root);
+
+                    let left = root;
+                    let right = root;
+                    root.eachBefore(node => {
+                        if (node.x < left.x) left = node;
+                        if (node.x > right.x) right = node;
+                    });
+
+
+                    ORIGINAL_WIDTH_SVG=width
+                    const height = right.x - left.x + marginTop + marginBottom;
+                    const transition = svg.transition()
+                        .duration(duration)
+                        .attr("height", height)
+                        .attr("viewBox", [0, left.x - marginTop, width, height])
+                        .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+
+                    // Update the nodes…
+                    const node = gNode.selectAll("g")
+                        .data(nodes, d => d.id);
+
+                    // Enter any new nodes at the parent's previous position.
+                    const nodeEnter = node.enter().append("g")
+                        .attr("transform", d => `translate(${source.y0},${source.x0})`)
+                        .attr("fill-opacity", 0)
+                        .attr("stroke-opacity", 0)
+                        .attr("id", (d) => {
+                            if(d.data.name){
+                                return d.data.name;
+                            }
+                        })
+                        .attr("class", (d) => {
+                            if(!d.children){
+                                return "tree-node leaf-node";
+                            }
+                            return "tree-node inner-node";
+                        })
+                        .on("mousedown", (event, d) => {
+                            d.children = d.children ? null : d._children;
+                            if(event.which == left_mouse){
+                                NodeDropDownMenu(event, d, () => {
+                                    if(update(event, d)){
+                                        let descendants = d.descendants(); // TODO the d3 leaves may be too slow, recurseTree better
+                                        let uncollapsed_descendants_length = 1;
+                                        // The length of the uncollapsed descendants is greater than one on uncollapse
+                                        if(descendants.length > uncollapsed_descendants_length){
+                                            for(const item of descendants){
+                                                let name = item.data.name;
+                                                if(name !== "" && SelectedNodes.nodes.has(name)){
+                                                    SelectedNodes.nodes.set(name, $(`#TreeSVG [id='${name}']`)[0]); // TODO query all nodes at once
+                                                    let [parent, circle, text] = SelectedNodes.getNodeData(SelectedNodes.nodes.get(name));
+                                                    SelectedNodes.setSelectedColours(text, circle);
+
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            }
+                        });
+
+                    nodeEnter.append("circle")
+                        .attr("r", d => d.data.leaf ? LEAF_NODE_SIZE : INNER_NODE_SIZE)
+                        .attr("fill", d => d.data.leaf ? "#555" : "#999")
+                        .attr("stroke-width", 10);
+
+                    nodeEnter.append("text") // TODO can do this with if statement and recurse over them all may be a bit slower but more mem friednly
+                        .text((d) => {
+                            if(!d.data.leaf){
+                                return Number((d.data.d).toFixed(DECIMAL_PLACES))
+                            }})
+                        .attr("class", "branch-length")
+                        .style("visibility", () => {
+                            if(!SHOW_BRANCH_LENGTHS){
+                                return "hidden"
+                            }else{
+                                return "visible"
+                            }
+                        })
+                        .attr("position", "relative")
+                        .attr("dx", (d) => { 
+                            let val = Number((d.data.d).toFixed(DECIMAL_PLACES)).toString(); 
+                            return `${-val.length * DISTANCE_LABEL_OFFSET}pt`;
+                        })
+                        .attr("dy", 18)
+                        .attr("font-size", "12");
+
+
+                    nodeEnter.append("text")
+                        .attr("dy", d => d._children ? -6 : 0) 
+                        .attr("x", d => d._children ? -6 : 6)
+                        .text(d => d.data.name)
+                        .clone(true).lower()
+                        .attr("stroke-linejoin", "round")
+                        .attr("stroke-width", 3)
+                        .attr("stroke", "white")
+                        .attr("font-size", "12");
+                    
+
+                    // Transition nodes to their new position.
+                    const nodeUpdate = node.merge(nodeEnter).transition(transition)
+                        .attr("transform", d => `translate(${d.y},${d.x})`)
+                        .attr("fill-opacity", 1)
+                        .attr("stroke-opacity", 1);
+
+                    // Transition exiting nodes to the parent's new position.
+                    const nodeExit = node.exit().transition(transition).remove()
+                        .attr("transform", d => `translate(${source.y},${source.x})`)
+                        .attr("fill-opacity", 0)
+                        .attr("stroke-opacity", 0);
+
+                    // Update the links…
+                    const link = gLink.selectAll("path")
+                        .data(links, d => d.target.id)
+
+                    // Enter any new links at the parent's previous position.
+                    const linkEnter = link.enter().append("path")
+                                        .attr("d", d => {
+                                            const o = {x: source.x0, y: source.y0};
+                                            return diagonal({source: o, target: o});
+                                        });
+
+                    link.merge(linkEnter).transition(transition)
+                            .attr("d", diagonal);
+
+                    // Transition exiting nodes to the parent's new position.
+                    link.exit().transition(transition).remove()
+                        .attr("d", d => {
+                            const o = {x: source.x, y: source.y};
+                            return diagonal({source: o, target: o});
+                        });
+
+                    // Stash the old positions for transition.
+                    root.eachBefore(d => {
+                        d.x0 = d.x;
+                        d.y0 = d.y;
+                    });
+                    return true;
+                }
+
+                // Do the first update to the initial configuration of the tree — where a number of nodes
+                // are open (arbitrarily selected as the root, plus nodes with 7 letters).
+                root.x0 = dy / 2;
+                root.y0 = 0;
+                root.descendants().forEach((d, i) => {
+                d.id = i;
+                d._children = d.children;
+                });
+                
+                update(null, root);
+                
+                return svg.node();
+
+        }
+
+        var TREE_SWITCH = new Map([[1, dendrogram_chart],[2, tidytree_chart], [3, dendrogram_circle]]); // key value pairs map to switch between tree views
+
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ End of tree definitions ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+        // Class for selected nodes
+        class SelectedNodes {
+            static nodes = new Map();
+            static #circle_pos = 1;
+            static #name_pos = 3;
+            static #circle_size_selected = LEAF_NODE_SIZE * 1.5;
+            static #circle_size_default = LEAF_NODE_SIZE;
+            static #default_color = "#999";
+            static #clicked_color = "blue";
+            static #svg_parent = "g";
+            static selection_id = "#SelectedNodes";
+
+            static getDefaultColour(){
+                return SelectedNodes.#default_color;
+            }
+
+            static getSelectedColour(){
+                return SelectedNodes.#clicked_color
+            }
+
+            static getCirclePos(){
+                return SelectedNodes.#circle_pos;
+            }
+
+            static getNamePos(){
+                return SelectedNodes.#circle_pos;
+            }
+
+            static clearNodes(){
+                SelectedNodes.nodes.clear();
+            }
+
+            static setSelectedColours(text, circle){
+                text.style.fontWeight = "bold";
+                text.style.fill = "black";
+                if(!circle.dataset.oldfill && circle.style.fill != SelectedNodes.#default_color){
+                    circle.dataset.oldfill = circle.style.fill
+                }
+                circle.style.fill = SelectedNodes.#clicked_color;
+                circle.setAttribute("r", SelectedNodes.#circle_size_selected);
+            }
+
+            static deSelectedColours(text, circle){
+                text.style.fontWeight = "normal";
+                text.style.fill = "black";
+                if(circle.dataset.oldfill){
+                    circle.style.fill = circle.dataset.oldfill;
+                    if(circle.dataset.oldfill === SelectedNodes.#default_color){
+                        delete circle.dataset.oldfill
+                    }
+                    
+                }else{
+                    circle.style.fill = SelectedNodes.#default_color
+                }
+                circle.setAttribute("r", SelectedNodes.#circle_size_default);
+
+            }
+
+            static getNodeData(element){
+                let child_nodes = element.childNodes;
+                let circle = child_nodes[SelectedNodes.#circle_pos];
+                let text = child_nodes[SelectedNodes.#name_pos];
+                return [element, circle, text]; // element is g tag
+            }
+
+            static addNodes(element) {    
+            /* Function to update the set of nodes, going forward each node should probably contain the element by ID and the html element
+            
+            This class is also being refactored as it should never get a none leaf-node
+
+            param element: a html "g" element to update the colour of
+            */        
+                let [parent, circle, text] = SelectedNodes.getNodeData(element.closest(SelectedNodes.#svg_parent));
+                
+                if(!SelectedNodes.nodes.has(text.textContent)){
+                    SelectedNodes.nodes.set(text.textContent, parent);
+                    SelectedNodes.setSelectedColours(text, circle);
+                }else if (DEBUG){
+                    console.log(`${text.textContent} already exists in map.`)
+                }
+            }
+
+            static unselectNode(element){
+                // Function tied to an on click event removing it from the map, legend and de-colouring it
+                let elm = element.closest(SelectedNodes.#svg_parent)
+                let [parent, circle, text] = SelectedNodes.getNodeData(elm);
+                SelectedNodes.deSelectedColours(text, circle);
+                let dropped = SelectedNodes.nodes.delete(text.textContent)
+
+                if (DEBUG) {
+                    console.log("Dropping values:", text.textContent, dropped);
+                }
+                
+            }
+
+            static deselectNodes(){
+                for(const n of SelectedNodes.nodes){
+                    SelectedNodes.unselectNode(n[SelectedNodes.#circle_pos]);
+                }
+                SelectedNodes.emptyNodeSelections();
+            }
+
+            static emptyNodeSelections(){
+                $(SelectedNodes.selection_id).empty();
+            }
+
+            static drawSelectedNodes(){
+                // Redraw the menu of selected nodes
+                // and re-colour selected ones
+                $(SelectedNodes.selection_id).empty().append(() => {
+                    let attributes = new Array;
+                    for(const item of SelectedNodes.nodes.keys()){
+                        attributes.push(`<div class="d-flex border-bottom align-items-center selected-node">
+                        <div onclick="scroll_into_view_treenode('${item}')" class="flex-grow-1">${item}</div>
+                        <div>
+                            <button onclick="remove_selected_node(this.dataset.nodeId)" data-node-id="${item}" 
+                            class="btn btn-danger m-1 btn-sm">x</button>
+                        </div>
+                        </div>\n`);
+                        
+                    }
+                    
+                    return `${attributes.join("")}`;
+                });
+            }
+        }
+
+
+        /** Code for parsing a newick tree to be used by D3
+         * The code is taken from Knhx.js written by Heng Li
+        */
+        function kn_new_node() {
+            // Heng li code to add node
+            return {parent:null, children:[], name:"", meta:"", d:-1.0, hl:false, hidden:false, leaf:false};
+        }
+
+        function kn_add_node(str, l, tree, x, leaf) // private method
+        {
+            // Heng Li code to add nodes to a tree
+            var r, beg, end = 0, z;
+            z = kn_new_node();
+            z.leaf = leaf;
+            for (i = l, beg = l; i < str.length && str.charAt(i) != ',' && str.charAt(i) != ')'; ++i) {
+                var c = str.charAt(i);
+                if (c == '[') {
+                    var meta_beg = i;
+                    if (end == 0) end = i;
+                    do ++i; while (i < str.length && str.charAt(i) != ']');
+                    if (i == str.length) {
+                        tree.error |= 4;
+                        break;
+                    }
+                    z.meta = str.substr(meta_beg, i - meta_beg + 1);
+                } else if (c == ':') {
+                    if (end == 0) end = i;
+                    for (var j = ++i; i < str.length; ++i) {
+                        var cc = str.charAt(i);
+                        if ((cc < '0' || cc > '9') && cc != 'e' && cc != 'E' && cc != '+' && cc != '-' && cc != '.')
+                            break;
+                    }
+                    z.d = parseFloat(str.substr(j, i - j));
+                    --i;
+                } else if (c < '!' && c > '~' && end == 0) end = i;
+            }
+            if (end == 0) end = i;
+            if (end > beg) z.name = str.substr(beg, end - beg);
+            tree.node.push(z);
+            return i;
+        }
+    
+        function kn_parse(str)
+            {
+                // Heng li Newick parsing code
+            var stack = new Array();
+            var tree = new Object();
+            tree.error = tree.n_tips = 0;
+            tree.node = new Array();
+            for (var l = 0; l < str.length;) {
+                while (l < str.length && (str.charAt(l) < '!' || str.charAt(l) > '~')) ++l;
+                if (l == str.length) break;
+                var c = str.charAt(l);
+                if (c == ',') ++l;
+                else if (c == '(') {
+                    stack.push(-1); ++l;
+                } else if (c == ')') {
+                    var x, m, i;
+                    x = tree.node.length;
+                    for (i = stack.length - 1; i >= 0; --i)
+                        if (stack[i] < 0) break;
+                    if (i < 0) {
+                        tree.error |= 1; break;
+                    }
+                    m = stack.length - 1 - i;
+                    l = kn_add_node(str, l + 1, tree, m, false);
+                    for (i = stack.length - 1, m = m - 1; m >= 0; --m, --i) {
+                        tree.node[x].children[m] = tree.node[stack[i]];
+                        tree.node[stack[i]].parent = tree.node[x];
+                    }
+                    stack.length = i;
+                    stack.push(x);
+                } else {
+                    ++tree.n_tips;
+                    stack.push(tree.node.length);
+                    l = kn_add_node(str, l, tree, 0, true);
+                }
+            }
+            if (stack.length > 1) tree.error |= 2;
+            tree.root = tree.node[tree.node.length - 1];
+            return tree;
+        }
+        //~~~~~~~~~ End of Heng Li's Code
+
+
+        let CreateMenuItem = (node_type, text, evt_list_func, on_click) => {
+            
+            let node = document.createElement(node_type);
+            
+            if(node_type !== "h4"){ // Not liking the way this is formatted
+                node.style.cursor = "default";
+            }
+            node.style.margin = "2px";
+            //node.innerHTML = text;
+            node.textContent = text;
+            if(evt_list_func !== undefined){
+                evt_list_func(node);
+            }
+            if(on_click !== undefined){
+                node.onclick = on_click;
+            }
+            return node;
+        }
+
+        let ColourMouseOver = (node) => {
+            // Set attributes for colouring of values
+            node.classList.add("dropdown-item");
+        };
+
+        let AppendToParent = (parent, ...nodes) => {
+            nodes.forEach(arg => parent.appendChild(arg));
+        };
+
+        let CreateDropDownDiv = (event) => {
+            let offset_menu = 0;
+            // Temporarily increase node size on collection
+            let circle = event.target.parentNode.getElementsByTagName("circle")[0];
+            let rad_size = circle.getAttribute("r");
+            let increased_size = rad_size * 3;
+            if(!RADIUS_INCREASED && MENU_CREATED){
+                circle.setAttribute("r", increased_size);
+                RADIUS_INCREASED = true;
+            }
+            
+            let drop_down_menu = document.createElement("div");
+
+            drop_down_menu.classList.add("dropdown")
+
+            drop_down_menu.style.position = "fixed";
+            drop_down_menu.style.left = event.pageX+'px';
+            drop_down_menu.style.top = event.pageY+'px';
+            drop_down_menu.style.borderStyle = "solid";
+            drop_down_menu.style.borderWidth = "2px";
+            drop_down_menu.style.borderRadius = "10pt"
+            drop_down_menu.style.backgroundColor = "#FAFCF9";
+            drop_down_menu.setAttribute("id", "PopDownMenu");
+
+            // Add event listeners to undo changes when leaving
+            drop_down_menu.addEventListener("click", (event) => {
+                drop_down_menu.remove();
+                circle.setAttribute("r", rad_size);
+                RADIUS_INCREASED = false;
+                MENU_CREATED = false;
+            });
+
+            drop_down_menu.addEventListener("mouseleave", (event) => {
+                event.target.remove();
+                circle.setAttribute("r", rad_size);
+                RADIUS_INCREASED = false;
+                MENU_CREATED = false;
+            });
+
+            document.getElementById("TreeSVG").addEventListener("mouseover", (event) => {
+                drop_down_menu.remove();
+                circle.setAttribute("r", rad_size);
+                RADIUS_INCREASED = false;
+                MENU_CREATED = false;
+            })
+
+            return drop_down_menu;
+        }
+
+        let NodeDropDownMenu = (event, data, func) => {
+            // Rendering dropdown menu on click, it may be better to render a hidden menu for each node in a div
+            // This would clutter the dom however
+            
+            if(event.target.parentNode.classList.contains("inner-node")){
+                if(!MENU_CREATED){
+                    MENU_CREATED = true;
+                    let drop_down_menu = CreateDropDownDiv(event);
+                    let title = CreateMenuItem("h4", "Node Options");
+
+
+                    let collapse_tree = CreateMenuItem("p", "Collapse/Un-collapse branch", ColourMouseOver, func);                    
+
+                    // TODO need to remove selected nodes when drawing subtree
+                    let create_subtree = CreateMenuItem("p", "Display Sub-tree", ColourMouseOver, () => {
+                        CustomSubTree(event, data);
+                    });
+
+                    let select_child_nodes = CreateMenuItem("p", "Select all Children", ColourMouseOver, () => {
+                        SelectChildren(event, data);
+                    });
+
+                    AppendToParent(drop_down_menu, title, collapse_tree, create_subtree, select_child_nodes);            
+                    let tree_element = document.getElementById("TreeData");
+                    tree_element.append(drop_down_menu)
+                }
+            }else{
+                LeafNode(event, data);
+                SelectedNodes.drawSelectedNodes();
+            }
+        };
+
+        // Tree specific code for this project implementation
+        let CustomSubTree = (event, data) => {
+            $("#legend_toggle").bootstrapToggle('off')
+            SelectedNodes.drawSelectedNodes();
+            $('#colour-legend').empty()
+            $('#colour-legend').addClass('d-none')
+            $('#TreeSVG').remove()
+            if(data !== null){
+                // Make copy of head node as data will be overwritten
+                let copy_head_node = Object.assign({}, data.data);
+                let svg_chart = TREE_SWITCH.get(TREE_VAL)(copy_head_node);
+                svg_chart.style.paddingLeft = svg_chart.style.paddingLeft + TREE_OFFSET;
+                $("#TreeData").append(svg_chart);
+                $(".leaf-node").each((i, elm) => {
+                    // Maintain colour of already selected nodes
+
+                    let [parent, circle, text] = SelectedNodes.getNodeData(elm);
+                    if(SelectedNodes.nodes.has(text.textContent)){
+                        SelectedNodes.nodes.set(text.textContent, parent); // update to new parent
+                        SelectedNodes.setSelectedColours(text, circle);
+                    }
+                });
+            }
+        };
+
+        // Helper function to recurse through child nodes
+        let RecurseTree = (data) => {
+            let children = new Array;
+            let ids = new Array;
+            children.push(...data._children);
+            while (children.length){
+                let child = children.pop();
+                if(!child._children){
+                    ids.push(child.data.name);
+                }else{
+                    children.push(...child._children)
+                }
+            }
+            return ids;
+        };
+
+
+        // Select all children of an inner-node
+        let SelectChildren = (event, data) => {
+            const circle_pos = SelectedNodes.getCirclePos();
+            const trg_name_pos = SelectedNodes.getNamePos(); 
+
+            // D3 functions to collect the sub-tree do not appear to be working here
+            let selected_children = RecurseTree(data);
+            let selected_children_jq = `#TreeSVG [id='${selected_children.join("'], #TreeSVG [id='")}']`;
+            $(`${selected_children_jq}`).each((i, d) => {
+                SelectedNodes.addNodes(d);
+            })
+            SelectedNodes.drawSelectedNodes();
+
+        };
+
+
+        let LeafNode = (event, d) => {
+            d.children = d.children ? null : d._children;
+            const circle_pos = 1;
+            const trg_name_pos = 2;
+            let parent = event.target.closest('g').childNodes;
+            let trg = parent[circle_pos];
+            let node_name = parent[trg_name_pos].textContent;
+            if(!d._children){
+                if(trg.style.fill === clicked_color){
+                    SelectedNodes.unselectNode(event.target);
+                }else{
+                    SelectedNodes.addNodes(event.target);
+                }
+            }
+        };
+
+        let switchTreeType = (eve) => {
+            TREE_VAL = parseInt(eve.value); // select tree type from slider
+
+            $('#colour-legend').empty()
+            $('#colour-legend').addClass('d-none')
+            $('#TreeSVG').remove();
+            let chart_ = null;
+            if(tree_root !== null){
+                chart_ = TREE_SWITCH.get(TREE_VAL)(tree_root);
+                chart_.style.paddingLeft = chart_.style.paddingLeft + TREE_OFFSET;
+                $("#TreeData").append(chart_);
+                $(".leaf-node").each((i, elm) => {
+                let [parent, circle, text] = SelectedNodes.getNodeData(elm);
+                if(SelectedNodes.nodes.has(text.textContent)){
+                        SelectedNodes.nodes.set(text.textContent, parent); // reset dom postion
+                        SelectedNodes.setSelectedColours(text, circle);
+                    };
+                });
+                reset_zoom_slider()
+                return true;
+            }
+        };
+
+        
+
+        let drawTree = (newick_) => {
+            $("#tree-splash").remove()
+            $("#tree-selector").remove()
+            $("#tree-upload-button").remove()
+            let tree = kn_parse(newick_);
+            if(tree_root != null){
+                console.error("A tree is already drawn");
+                return false;
+            }
+            tree_root = tree.root; // Save the trees root to redraw the tree when needed
+            let node_out = TREE_SWITCH.get(TREE_VAL)(tree_root)
+            node_out.style.paddingLeft = node_out.style.paddingLeft + TREE_OFFSET;
+
+            $("#TreeData").append(node_out);
+            document.querySelector('#SelectedNodes').style.maxHeight = `${document.querySelector('#TreeData').offsetHeight - document.querySelector('#tree_menu_buttons').offsetHeight}px`
+            document.querySelector('#TreeData').scrollTo(document.querySelector('#TreeData').scrollWidth/2,0)
+        };
+
+
+        let CreateDataTable = () => {
+            data_table = $('#metadata').DataTable({
+                //stateSave: true,
+                "lengthMenu": [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
+                className: ".editable",
+                columnDefs: [{
+                        targets: '_all',
+                        createdCell : (td, cellData, rowData, row, col) =>
+                        {
+                            if(col != 0){ // Skip ID column as it should not be editable
+                                td.setAttribute('contenteditable', true);
+                            }
+                        }
+                    }
+                ],
+
+            });
+            $('#metadata_filter input').attr("id", "search-bar").attr("class", "table table-striped"); // Give search bar ID to squash warnings
+
+            // TODO initializing table from json object would minimize copies
+            // Saving data as a map, to allow for updating of metadata
+            ORIGINAL_DATA = new Map();
+            data_table.rows().data().each((value, index) => {
+                ORIGINAL_DATA.set(value[ID_FIELD], value)
+            });
+
+            
+            // TODO This can likely be initialized in the above loop pushing to value 
+            for(const [key, value] of ORIGINAL_DATA.entries()){
+                value.push(false); // Append a key to flag whether the value has been modified    
+            }
+        };
+
+
+        let CreateTable = (parsed_data, table_id, table_headers) => {
+            $("#table-splash").remove();
+            $("#metadata-selector-input").remove();
+            $("#metadata-selector").remove();
+            let headers = table_headers;
+            let table_head = "";
+            let table_body = [];
+            for(const item of headers){
+                table_head = table_head + `<th>${item}</th>\n`;
+            }
+            for(const item of parsed_data){
+                table_body.push('<tr>\n');
+                for(const header of headers){
+                    table_body.push(`<td class="editable">${item[header]}</td>\n`);
+                }
+                table_body.push("</tr>\n");
+            }
+
+            parsed_data = null; // mark old data for GC
+            $(table_id).html("<thead>" + table_head + "</thead>" + "<tbody>" + table_body.join() + "</tbody>");
+            // ? A bit odd we are making the table with HTML then converting to jquery datatable...
+            CreateDataTable();
+        };
+
+        let CreateColoringGroups = (array_vals) => {
+            let new_obj = new Object();
+            for(const item of array_vals){
+                new_obj[item] = new Array;
+            }
+            return new_obj;
+        };
+
+        function rgbToHex(r, g, b) {
+            return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
+        }
+
+        function parseRBGstring(rbgString){
+            m = rbgString.match(/^rgb\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*\)$/i);
+            if( m) {
+                return [m[1],m[2],m[3]];
+            }
+        }
+
+        //fill legend with items
+        let CreateNodeLegend = (array_tuples, column_index, value2samples) => {
+
+            let node_leg = $("#colour-legend")
+            node_leg.empty()
+            node_leg.append(`<div id="drag_legend_button" onmousedown="dragDivByMouse(event)" class="w-100" style="height:5px; background-color:blue; box-shadow: 1px 1px 1px 1px rgba(0,0,0,.8); cursor: all-scroll;"></div>`)
+
+            for(const item of array_tuples){ //[field_value, hex_colour]
+                let row_legend_node = $(`<div class="d-flex p-1 border-bottom flex-nowrap align-items-center legend-element"></div>`)
+                let field_value=item[0]
+                if(field_value === ''){field_value="Not defined"}
+                row_legend_node.append(`
+                <input type="color" value="${item[1]}" data-sampleID="${value2samples[item[0]].join(',')}"  onchange="changeLegendItemColour(this)" 
+                style="width: 20px; height:20px; padding: 1px; border: 1px solid black"></input>\n
+                <small onclick="select_deselect_nodes_by_field_value(this, ${column_index})" 
+                style="padding-left:5px">${field_value}</small>`)
+                node_leg.append(row_legend_node)
+            }
+            document.querySelector('#colour-legend').classList.remove("d-none");
+            document.querySelector('#colour-legend').style.left = `${document.querySelector('#TreeData').scrollLeft}px`
+
+        };
+
+
+        let changeLegendItemColour = (div) => {
+            let prevColourValueHex = div.getAttribute("value");
+            let newColourValueHex = `${div.value}`
+            div.setAttribute("value",newColourValueHex);
+            let legend_update = div.nextElementSibling.innerText;
+            div.dataset.sampleid.split(',').forEach( sample_id => {
+                let ele = document.querySelector(`#TreeSVG [id="${sample_id}"]`);
+                if(ele !== null){
+                    let [elem, circle, text] = SelectedNodes.getNodeData(ele);
+                    if(SelectedNodes.nodes.has(text.textContent)){
+                        // if selected old fill value needs to be updated
+                        circle.dataset.oldfill = newColourValueHex;
+                    }else{
+                        circle.style.fill = newColourValueHex;
+                    }
+                    
+                }
+            })
+
+        }
+
+        let PopulateGroups = (json_groups, query_key) => {
+
+            ORIGINAL_DATA.forEach((value, key) => {
+                if (value[query_key] in json_groups) {
+                    json_groups[value[query_key]].push(key);
+                }
+                
+            });
+            return json_groups;
+        };
+
+        let ResetTable = () => {
+            data_table.clear();
+            // ? Is there a more space efficient way to do this?
+            data_table.rows.add(Array.from(ORIGINAL_DATA.values())).draw();
+            $("td").addClass("editable");
+            $("td:not(:first-child)").attr("contenteditable", true);
+        };
+
+        let SubsetTable = () => {
+            let filtered = data_table.data().filter((value, idx) => {
+                return SelectedNodes.nodes.has(value[ID_FIELD]);
+            });
+            data_table.clear();
+            data_table.rows.add(filtered).draw();
+            $("td").addClass("editable");
+            $("td:not(:first-child)").attr("contenteditable", true);
+
+        };
+
+
+
+        let initialize_legend_menu = () => {
+            // update the legend text to reflect loading
+            let button = document.querySelector("#legend_dropdown_button");
+            button.textContent = "Colour tree by column";
+            button.dataset.bsToggle = "dropdown";
+            button.classList.remove("btn-danger");
+            button.classList.add("btn-primary");
+        }
+
+        let create_legend_elements = (headers) => {
+                // Create html elements for the dropdown menu of itmes to creat the legend by
+                let text = new Array;
+                text.push('<div class=\"dropdown-menu\" id=\"legend-items\" style=\"overflow:visible;\">')
+                let header_offset = headers.slice(1);
+                header_offset.forEach((ele, idx) => {
+                    text.push(`\t<a onclick="colour_by_element(this)" class="dropdown-item" href="#" id="${idx+1}">${ele}</a>`)
+                });
+                text.push("</div>\n")
+                return text.join("\n")
+        }
+        
+        let colour_by_element = (ele) => {
+            // Create a legend for the column selected
+            if(tree_root === null){
+                // TODO add pop up
+                console.error("No newick loaded")
+                return null
+            }
+
+            let col_index = ele.id;
+            $("#legend_toggle").bootstrapToggle('on')
+
+            let unq_data = new Set();
+            ORIGINAL_DATA.forEach((value, key) => {
+                unq_data.add(value[col_index])
+            })
+
+            // Need to create groupings of the each set of ID's belonging to each value grouping
+            let break_down_values = Array.from(unq_data);
+            break_down_values.sort()
+            
+            // Instead of searching the array for ID's using the datatable, I am just going to use a linear look up
+            let group_vals = CreateColoringGroups(break_down_values);
+            break_down_values = PopulateGroups(group_vals, col_index);
+
+            let colours = randomColor({luminosity: 'dark', count: Object.keys(break_down_values).length, seed: 42, format: "hex"});
+            let colour_idx = 0;
+            colour_legend.length = 0; // clear out old data, so new legend created each time
+            for(const item in break_down_values){
+                break_down_values[item].forEach((x, i) => {
+                    try{
+                        let current_item = document.querySelector(`[id='${x}']`);
+                        let [elem, circle, text] = SelectedNodes.getNodeData(current_item);
+                        if(SelectedNodes.nodes.has(x)){
+                            circle.dataset.oldfill = colours[colour_idx];
+                        }else{
+                            circle.style.fill = colours[colour_idx];
+                        }
+                        
+                    }catch(error){
+                        console.error("Could not find ", x, " In DOM");
+                        console.error(error); 
+                    }
+                });
+                colour_legend.push([item, colours[colour_idx]])
+                colour_idx++;
+            }
+            CreateNodeLegend(colour_legend, col_index, break_down_values);    
+
+        };
+
+        $(() => {
+
+
+            $("#redraw-tree-button").on("click", () => {
+                $('#colour-legend').empty()
+                $('#colour-legend').addClass('d-none')
+                $('#TreeSVG').remove();
+                let chart_ = null;
+                if(tree_root !== null){
+                    chart_ = TREE_SWITCH.get(TREE_VAL)(tree_root);
+                    chart_.style.paddingLeft = chart_.style.paddingLeft + TREE_OFFSET;
+                    $("#TreeData").append(chart_);
+                    $(".leaf-node").each((i, elm) => {
+                        let [parent, circle, text] = SelectedNodes.getNodeData(elm);
+                        if(SelectedNodes.nodes.has(text.textContent)){
+                            SelectedNodes.nodes.set(text.textContent, parent); // reset dom postion
+                            SelectedNodes.setSelectedColours(text, circle);
+                    };
+                });
+                    reset_zoom_slider()
+                    return true;
+                }
+                console.error("No tree to redraw");
+            });
+
+            // ! Below disables the right click menu for the page
+            document.oncontextmenu = (event) => {
+                // Disables context menu for TreeData div, e.g. default web menu does not appear
+                let item_id = event.target.closest("div").id;
+                return true;
+            };
+
+            // Save some clicking
+            if(DEBUG || TREE != __DEADBEEF__){
+                if(TREE != __DEADBEEF__){
+                    drawTree(TREE);
+                }else if(DEBUG){
+                    drawTree(test_newick);
+                    
+                }
+            }
+
+            $("#tree-selector").change((event) => {
+                let reader = new FileReader();
+                let newick_file = event.target.files[0];
+                reader.readAsText(newick_file, "UTF-8");
+                reader.onload = (evt) => {
+                    newick = evt.target.result;
+                    drawTree(newick);
+                };
+                reader.onerror = (evt) => {
+                    alert(`Could not read file ${newick_file}`);
+                };
+            });
+
+
+            $("#ResetTree").on("click", (evt) => {
+                
+                if(focused_element !== null){
+                    // Revert any focused node back to its original colours
+                    // TODO perhaps this should be dropped as there is a redraw tree option
+                    focused_element.setAttribute('fill', "black");
+                }
+                let svg = document.querySelector('#TreeSVG')
+                let og_box = svg.getBBox();
+                svg.style.width = `${og_box.width}`
+                //scroll to middle of the div
+                document.querySelector('#TreeData').scrollLeft = document.querySelector('#TreeData').clientWidth/2
+                reset_zoom_slider()
+            });
+
+
+            $("#metadata").on("blur", ".editable", (evt)=>{
+                // Update element        
+                let row_values = evt.target.closest("tr").childNodes;        
+                let edited_value = row_values[0].textContent;
+                let retrieved_value = ORIGINAL_DATA.get(edited_value);
+                let retrieved_val_length = retrieved_value.length;
+                let updated_bool_pos = retrieved_val_length -1; // last value in list is a boolean for wether the data has been modified
+
+                let updated = false;
+                for(let i = 0; i < updated_bool_pos; i++){ 
+                    if(row_values[i].textContent !== retrieved_value[i]){
+                        // can alternatively use str1.localeCompare(str2)
+                        retrieved_value[i] = row_values[i].textContent;
+                        updated = true
+                    }
+                    
+                }
+
+                // only update the row if the values are new
+                if(updated){
+                    retrieved_value[updated_bool_pos] = true;
+                }
+            });
+
+            if(DATA != __DEADFOOD__){
+                /*
+                Optimization Note:
+
+                Initially just pasting in the string for the metadata which may or may not be a good thing...
+                
+                It could be slow due to the over head of the object existing as text in the page and in memory
+                TODO remove selectors
+                */
+
+                // Create METADATA to load in
+                let processing = true;
+                const blankQuitter = (d, i) => {
+                        const blankRow = Object.keys(d).every(k => !d[k]);
+                        if (blankRow) processing = false;
+                        if (processing) return d;
+                }
+                METADATA = d3.tsvParse(DATA, blankQuitter);
+                TABLE_HEADERS = METADATA.columns;
+                CreateTable(METADATA, "#metadata", TABLE_HEADERS);
+                METADATA = null;
+                initialize_legend_menu();
+                $("#dropdown_legend").append(create_legend_elements(TABLE_HEADERS));
+                //$("#table-splash").remove();
+                //$("#table-splash").remove();
+                //$("#table-splash").remove();
+            }
+
+            $("#metadata-selector").change((event) => {
+                let reader = new FileReader();
+                let metadata_file = event.target.files[0];
+
+                reader.readAsText(metadata_file, "UTF-8");
+                reader.onload = (evt) => {
+                    // TODO scrub empty rows on reading, e.g. force a sample id to be filled
+                    let metadata = evt.target.result;
+                    // Blank quitter function from: https://stackoverflow.com/questions/67793952/is-there-an-easy-way-to-stop-d3-csvparse-when-it-hits-a-blank-line
+                    let processing = true;
+                    const blankQuitter = (d, i) => {
+                        const blankRow = Object.keys(d).every(k => !d[k]);
+                        if (blankRow) processing = false;
+                        if (processing) return d;
+                    }
+                    METADATA = d3.tsvParse(metadata, blankQuitter);
+                    TABLE_HEADERS = METADATA.columns;
+                    CreateTable(METADATA, "#metadata", TABLE_HEADERS);
+                    METADATA = null;
+                    initialize_legend_menu();
+                    $("#dropdown_legend").append(create_legend_elements(TABLE_HEADERS));
+                };
+                reader.onerror = (evt) => {
+                    alert(`Could not read file ${metadata_file}`);
+                };
+                
+            });
+
+            $("#metadata-search-button").on('click', SubsetTable);
+            $("#reset-table-button").on('click', ResetTable);
+
+
+            $("#metadata").on( "dblclick", "tr:not(:first) td:first-child", function(evt) {
+                if(DEBUG){
+                    console.log(`trying to add ${evt.target.textContent}`)
+                }
+                
+                let tree_node = document.querySelector( `[id='${evt.target.textContent}']`)
+                let text = tree_node.lastChild
+                let circle = tree_node.querySelector('circle')
+                if(SelectedNodes.nodes.has(text.textContent)){
+                    SelectedNodes.unselectNode(text);
+                }else{
+                    SelectedNodes.addNodes(text);
+                }
+
+                SelectedNodes.drawSelectedNodes();
+                
+            } );
+
+
+
+            // TODO need to change from sorting_1, to  :first
+            // Zoom in on a NODE on single click event
+            $("#metadata").on('click', 'tr td:first-child', (evt) => {
+                if(DEBUG){
+                    console.log(`ZOOMING on node selected in metadata table ${evt.target.textContent}`)
+                } 
+                
+                let identified_point = document.querySelector(`[id='${evt.target.textContent}']`)
+                let identified_point_id = identified_point.childNodes[0].textContent; // gets nodes name
+                let is_selected = SelectedNodes.nodes.has(identified_point_id);
+                let is_selected_focus = false;
+                if(focused_element !== null){
+                    is_selected_focus = SelectedNodes.nodes.has(focused_element.childNodes[0].textContent);
+                }
+                
+                // if there is a foucsed item, the new focused item is not selected and the focused item is not selected
+                // set its texts to black
+                if(focused_element !== null && !is_selected_focus){
+                    // Return elements state unless it is already adjusted due to being selected 
+                    focused_element.childNodes[2].style.fill = "black";
+                }
+                focused_element = identified_point; // Save reference to new point
+
+                if(!is_selected){
+                    // Highlight selected item unless it is already highlighted due to being selected
+                    if(DEBUG){
+                        console.log("Selected element", identified_point)
+                    }
+                    identified_point.childNodes[2].style.fill = clicked_color;
+                }
+                
+                let rect = identified_point.getBBox();
+                let translated_coords = identified_point.getAttribute('transform').replace('translate(', '').replace(")", '').split(",");
+                let rect_x = parseFloat(translated_coords[0]);
+                let rect_y = parseFloat(translated_coords[1]);
+                let svg = document.querySelector('#TreeSVG')
+                
+                //delay execution so that double click event is possible on the metadata row
+                setTimeout(function() {
+                    scroll_into_view_treenode(`${evt.target.textContent}`)
+                },500);    
+                
+            });
+
+            $("#TreeData").on('scroll', '#TreeSVG', (evt) => {
+                if(DEBUG){
+                    console.log("scrolling");
+                }
+            });
+
+        });
+
+        zoom_tree = function(){
+
+            const zoom_times = parseFloat(document.querySelector('#zoom_slider').value)
+            const tree_data_elm = document.querySelector('#TreeData')
+            const tree_svg = document.querySelector('#TreeSVG')
+            document.querySelector('#zoom_slider_value').textContent =  zoom_times 
+        
+            const new_width = ORIGINAL_WIDTH_SVG  * zoom_times //use global value as getBBox() at high zooms gives wrong values
+            const prev_width = parseFloat(document.querySelector('#TreeSVG').style.width)
+
+            //Previous x and y scroll positions before applying a zoom
+            const prev_x_scroll_pos = tree_data_elm.scrollLeft
+            const prev_y_scroll_pos = tree_data_elm.scrollTop
+            document.querySelector('#TreeSVG').style.width = new_width ; //modify width of SVG tree
+
+            //store new translated x and y coordinates after zooming 
+            let zoom_x_translated = 0 
+            let zoom_y_translated = 0
+            const scaleChange = new_width/prev_width //sometimes the specified zoom factor is not exact, use this value instead
+            
+            //keeping zoom centered on an element
+            if(new_width > prev_width){
+                //get previous scroll position which is the left most x-coordinate position of a view
+                //translate that coordiante to a new zoomed state
+                //add 1/4 view field length scaled to a new zoomed state coordinate
+                zoom_x_translated =  prev_x_scroll_pos*scaleChange + (tree_data_elm.clientWidth/4)*(scaleChange)
+                zoom_y_translated =  prev_y_scroll_pos*scaleChange + (tree_data_elm.clientHeight/4)*(scaleChange)
+            
+            }else{
+                //Zooming out 
+                //Scale current scroll position (previous scroll + 1/4 view field distance) to a new coordinate zoomed out state
+                //Substract the 1/4 offeset/margin that is already in the needed zoomed out state (no adjustments)
+                zoom_x_translated =  prev_x_scroll_pos*scaleChange - (tree_data_elm.clientWidth/4)
+                zoom_y_translated =  prev_y_scroll_pos*scaleChange - (tree_data_elm.clientHeight/4)
+            
+            }
+            document.querySelector('#TreeData').scrollTo(zoom_x_translated,zoom_y_translated)
+        }
+
+        scroll_into_view_treenode = function(id){
+            let selectedNode = document.querySelector(`[id='${id}']`)
+            if(selectedNode !== null){
+                selectedNode.scrollIntoView({block: "center", inline:"center", behavior: "smooth"})
+            }else{
+                console.error(`scroll_into_view_treenode(): Node ${id} is not available in this tree. Uncollapse all nodes`)
+            } 
+        }
+
+        legend_on_off = function(node){
+            if(DEBUG){
+                console.log(node.checked)
+            }
+            
+            if(node.checked === false){
+                document.querySelector('#colour-legend').classList.add("d-none");
+            }else{
+                document.querySelector('#colour-legend').classList.remove("d-none");
+            }
+        }
+
+        branch_lengths_on_off = function(node){
+            SHOW_BRANCH_LENGTHS = !SHOW_BRANCH_LENGTHS;
+            $(".branch-length").css("visibility", () => {
+                            if(!SHOW_BRANCH_LENGTHS){
+                                return "hidden"
+                            }else{
+                                return "visible"
+                            }
+                        });
+        }
+        
+
+
+        scroll_legend_into_view = function(node,full_screen_btn, node_TreeData){
+            if(node !== null){
+                node.style.left=`${node_TreeData.scrollLeft}px`
+                node.style.top=`${node_TreeData.scrollTop}px`
+                full_screen_btn.style.right = `-${node_TreeData.scrollLeft}px`
+                full_screen_btn.style.top = `${node_TreeData.scrollTop}px`
+
+            }else{
+                console.error('No legend rendered skipping scroll_legend_into_view()')
+            }    
+        }
+
+        reset_zoom_slider = function(){
+            document.querySelector('#zoom_slider_value').textContent = 1
+            document.querySelector('#zoom_slider').value = 1
+        }    
+
+        let select_deselect_nodes_by_field_value = (legend_node, column_index) => {
+
+            //find indices of filtered data in a metadata table
+            let indexes = data_table.rows( (idx, data, node) => {
+                if(data[column_index] === `${legend_node.textContent}` ){
+                    return true
+                }else{
+                    return false
+                }
+            } ).indexes()
+            
+            let selected = legend_node.classList.contains('fw-bold') ? true : false
+            
+            if(!selected){
+                legend_node.classList.add('fw-bold');
+            }else{
+                legend_node.classList.remove('fw-bold');
+            }
+
+            let selected_node_ids = data_table.cells(indexes,0).data();
+            for(var i = 0; i < selected_node_ids.length; i++) {
+                // TODO need to batch select and deselct from this
+                let tree_node = document.querySelector( `[id='${selected_node_ids[i]}']`)
+                let [ele, circle, text] = SelectedNodes.getNodeData(tree_node);
+
+                if(!selected){
+                    if(circle.dataset.oldfill){
+                        circle.dataset.oldfill = circle.style.fill;
+                    }
+                    SelectedNodes.addNodes(text);
+                }else{
+                    SelectedNodes.unselectNode(text);
+                }    
+            }
+            // Bring the terminal node into frame
+            terminal_node = document.querySelector(`[id=${selected_node_ids[selected_node_ids.length-1]}`);
+            terminal_node.scrollIntoView({block: "center", inline: "center"})
+            SelectedNodes.drawSelectedNodes();
+            
+        }
+
+        remove_selected_node = function(node_id){
+            let trg_node = SelectedNodes.nodes.get(node_id);
+            SelectedNodes.unselectNode(trg_node);
+            SelectedNodes.drawSelectedNodes();
+        }
+
+        let original_data_blob = (headers) => {
+            // Create a text string of the original data
+            let output_text = new Array();
+            output_text.push(headers.join("\t"))
+            
+            for(const [key, value] of ORIGINAL_DATA.entries()){
+                output_text.push(value.join("\t"))
+            }
+            return output_text;
+        };
+
+        let filtered_data_blob = (headers) => {
+            let output_text = new Array();
+            output_text.push(headers.join("\t"))
+            data_table.rows().data().each((value, index) => {
+                output_text.push(value.join("\t"))
+            });
+            return output_text;
+        }
+
+        export_metadata_table = function(e){
+            // Export updated metadata
+            console.log(e.id)
+            if(!ORIGINAL_DATA){
+                console.error("No contextual data imported yet");
+                Swal.fire({
+                    title: "Error",
+                    text: "No metadata table imported yet. Please upload data first!",
+                    icon: "error"
+                    });
+                return false;
+            }
+            let headers = Array.from(TABLE_HEADERS);
+            headers.push("modified"); // Values track what have been modified however it is not in the original headers
+            let output_text = null;
+            let updated_metadata = null;
+            if(e.id === "export-metadata-table"){
+                output_text = original_data_blob(headers);
+                updated_metadata = "FullClusterInfo.tsv";
+            }else if(e.id === "export-metadata-view"){
+                output_text = filtered_data_blob(headers);
+                updated_metadata = "FilteredClusterInfo.tsv"
+            }else{
+                console.error("Unknown element specified for export of data.")
+                return false;
+            }
+
+            const blob = new Blob([output_text.join("\n")], {type: "text/tsv"} );
+
+
+            if(window.navigator.msSaveOrOpenBlob){
+                // thank stackoverflow for this: https://stackoverflow.com/questions/3665115/how-to-create-a-file-in-memory-for-user-to-download-but-not-through-server
+                window.navigator.msSaveBlob(blob, updated_metadata);
+            }else{
+                const elem = window.document.createElement('a');
+                elem.href = window.URL.createObjectURL(blob);
+                elem.download = updated_metadata;
+                document.body.appendChild(elem);
+                elem.click();
+                document.body.removeChild(elem);
+                window.URL.revokeObjectURL(elem.href); // revoke object url as it wont be cleared till after the browser is closed otherwise
+            }
+            Swal.fire({
+                    title: "Exported Metadata",
+                    text: `Exported ${output_text.length-1} rows of metadata saved in ${updated_metadata}`,
+                    icon: "info"
+                    })
+            return true;
+
+        }
+
+        //adapted from https://observablehq.com/@mbostock/saving-svg by Mike Bostock
+        serialize2svg = function(svg) {
+            const xmlns = "http://www.w3.org/2000/xmlns/";
+            const xlinkns = "http://www.w3.org/1999/xlink";
+            const svgns = "http://www.w3.org/2000/svg";
+            svg = svg.cloneNode(true);
+                        
+            const lgd = document.getElementById("colour-legend");
+            const legend_width = lgd.clientWidth;
+
+            const fragment = window.location.href + "#";
+            const walker = document.createTreeWalker(svg, NodeFilter.SHOW_ELEMENT);
+            while (walker.nextNode()) {
+            for (const attr of walker.currentNode.attributes) {
+                if (attr.value.includes(fragment)) {
+                    attr.value = attr.value.replace(fragment, "#");
+                    }
+                }
+            }
+
+            svg.setAttributeNS(xmlns, "xmlns", svgns);
+            svg.setAttributeNS(xmlns, "xmlns:xlink", xlinkns);
+
+            // Clone style elements to add incorporate into the SVG file
+            const css_export = document.createElement("defs")
+            const link_style_sheet = document.createElement("link");
+            link_style_sheet.setAttribute("href", "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css");
+            link_style_sheet.setAttribute("rel", "stylesheet");
+            link_style_sheet.setAttribute("crossorigin", "anonymous");
+            css_export.appendChild(link_style_sheet);
+            svg.insertBefore(css_export, svg.firstChild);
+
+            const tree_svg = svg.querySelector("#TreeSVG");
+            const offset_safety_factor = 20;
+            tree_svg.style.marginLeft = legend_width + offset_safety_factor;
+
+            const serializer = new window.XMLSerializer;
+            const xml_string = serializer.serializeToString(svg);
+            return [new Blob([xml_string], {type: "image/svg+xml"}), xml_string];
+        }
+
+
+        export_tree_to_svg = function(){
+            const date = new Date();
+            let downloadLink = document.createElement("a");
+            downloadLink.download = 'tree_snapshot_'+date.getDate()+'-'+
+                (date.getMonth()+1)+'-'+date.getFullYear()+'_'+date.getHours()+'h.svg';
+            let svg =  document.getElementById("TreeData")    
+            const blob = serialize2svg(svg)[0];
+            downloadLink.href = window.URL.createObjectURL(blob);
+            downloadLink.click(); //Trigger a click on the element
+            downloadLink.remove();               
+        }
+
+        /*Adapted from https://gist.github.com/tatsuyasusukida/1261585e3422da5645a1cbb9cf8813d6 and https://zooper.pages.dev/articles/how-to-convert-a-svg-to-png-using-canvas*/
+        export_tree_to_png = function(){
+            let svg =  document.getElementById("TreeSVG")
+            let svg_width = svg.getBoundingClientRect().width;
+            let svg_height = svg.getBoundingClientRect().height;
+            //extract SVG element
+            const svgData = new XMLSerializer().serializeToString(svg);
+            //const svgDataBase64 = btoa(unescape(encodeURIComponent(svgData)))
+            //const svgDataUrl = `data:image/svg+xml;charset=utf-8;base64,${svgDataBase64}`
+
+            //create canvas to the size of the SVG
+            let canvas = document.createElement('canvas')
+            canvas.width = svg_width+svg_width*0.05;
+            canvas.height = svg_height+svg_width*0.15;
+            
+            //create SVG image element
+            let img = new Image();
+            img.src = "data:image/svg+xml;base64," + btoa(svgData);
+
+            img.onload = function () { //must be inside this image onload event function due to async image load nature
+                //render SVG image onto canvas element
+                let ctx = canvas.getContext('2d');
+                ctx.fillStyle = "white";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(img, 0, 0);
+                //create PNG image from the canvas
+                let pngUrl = canvas.toDataURL('image/png').replace('image/png', 'octet/stream');
+                //create download link
+                let downloadLink = document.createElement("a");
+                downloadLink.download = 'tree_snapshot.png';
+                downloadLink.href = pngUrl;
+                downloadLink.click();
+                downloadLink.remove();
+            }
+
+
+            
+
+
+        }    
+
+        tree_full_screen_mode = function(){
+            document.querySelector('#TreeData').requestFullscreen()
+            
+        }
+
+        document.addEventListener("DOMContentLoaded",()=>{
+            let button = document.querySelector('#tree_fullscreen_btn')
+
+            document.querySelector('#TreeData').addEventListener("fullscreenchange", (event) => {
+                
+                if(button.classList.contains("d-none")){
+                    button.classList.remove('d-none')
+                }else{
+                    button.classList.add('d-none')
+                }
+            })
+
+            document.querySelector('#ClusterInfo').addEventListener('hidden.bs.collapse', function () {
+                let heightMetaDiv = document.querySelector('#ClusterInfo>div').style.height
+                let heightTreeDataDiv = document.querySelector('#TreeData').style.height
+                let unit = heightTreeDataDiv.match(/.?(\w{1,2})$/)[1]
+                console.log(`hide meta div collapse event  ${heightTreeDataDiv} + ${heightMetaDiv} `)
+                document.querySelector('#TreeData').style.height= parseFloat(heightTreeDataDiv) + parseFloat(heightMetaDiv)+unit
+                document.querySelector('#control_panel').style.height = parseFloat(heightTreeDataDiv) + parseFloat(heightMetaDiv)+unit
+                document.querySelector('#SelectedNodes').style.maxHeight = `${document.querySelector('#TreeData').offsetHeight - document.querySelector('#tree_menu_buttons').offsetHeight}px`
+            })
+            document.querySelector('#ClusterInfo').addEventListener('show.bs.collapse', function () {
+                let heightMetaDiv = document.querySelector('#ClusterInfo>div').style.height
+                let heightTreeDataDiv = document.querySelector('#TreeData').style.height
+                let unit = heightTreeDataDiv.match(/.?(\w{1,2})$/)[1]
+                console.log(`show meta div collapse event  ${heightTreeDataDiv} - ${heightMetaDiv}`)
+                document.querySelector('#TreeData').style.height= parseFloat(heightTreeDataDiv) - parseFloat(heightMetaDiv)+unit
+                document.querySelector('#control_panel').style.height = parseFloat(heightTreeDataDiv) - parseFloat(heightMetaDiv)+unit
+                document.querySelector('#SelectedNodes').style.maxHeight = `${document.querySelector('#TreeData').offsetHeight - document.querySelector('#tree_menu_buttons').offsetHeight}px`
+            })
+
+    
+        });    
+
+
+        clear_selected_nodes = function(){
+            // Clear selected nodes and un-bold legend text
+            SelectedNodes.deselectNodes(); // deselect nodes
+            SelectedNodes.clearNodes();
+            // a way to de colour all of these nodes probably exists
+            $(".legend-element > .fw-bold").each((it, ele) => {
+                ele.classList.remove("fw-bold");
+            })
+
+        }
+
+        copy_ids_to_clipboard = function(){
+            let text2copyArray=[]
+            
+            document.querySelectorAll('#SelectedNodes div>div:first-child').forEach(node => {
+                if(DEBUG){
+                    console.log(node.textContent)
+                }
+                text2copyArray.push(node.textContent)
+            })
+            let text2copy = text2copyArray.join('\n');
+            let success_msg = `copied ${text2copyArray.length} sample IDs to the clipboard`
+            if(DEBUG){
+                console.log(text2copy);
+            }
+            let file = new File(["\ufeff"+text2copy], 'selectedNodes.txt', {type: "text/plain:charset=UTF-8"})
+            //create a ObjectURL in order to download the created file
+            url = window.URL.createObjectURL(file);
+            let a = document.createElement("a");
+            a.style = "display: none";
+            a.href = url;
+            a.download = file.name;
+            a.click();
+            window.URL.revokeObjectURL(url);        
+        }
+
+        vertical_div_resize = function(event){
+            event.preventDefault()
+            let cursor_pos_init = event.y
+            metadata_panel = document.querySelector('#ClusterInfo>div')
+            treeData_panel = document.querySelector('#TreeData')
+            control_panel = document.querySelector('#control_panel')
+            let metadata_panel_height_init = metadata_panel.getBoundingClientRect().height
+            let treeData_panel_height_init = treeData_panel.getBoundingClientRect().height
+            let control_panel_height_init = control_panel.getBoundingClientRect().height
+            document.addEventListener('mousemove', resize, false)
+            document.addEventListener('mouseup', stop_resize, false)
+            function resize(event){
+                event.stopPropagation();
+                const dy = event.y - cursor_pos_init  
+                metadata_panel.style.height = metadata_panel_height_init - dy+'px'
+                treeData_panel.style.height  = treeData_panel_height_init + dy+'px'
+                control_panel.style.height = control_panel_height_init + dy+'px'
+            }
+            function stop_resize(event){
+                document.removeEventListener('mousemove', resize)
+                document.querySelector('#SelectedNodes').style.maxHeight = `${document.querySelector('#TreeData').offsetHeight - document.querySelector('#tree_menu_buttons').offsetHeight}px`
+            }    
+        }
+        document.addEventListener('mouseup',(event)=>{
+                document.removeEventListener('mousemove', vertical_div_resize,false)
+        })
+    window.onload = function(){
+        let heightSelectedNodesPanel = `${document.querySelector('#TreeData').offsetHeight - document.querySelector('#tree_menu_buttons').offsetHeight}px`
+        document.querySelector('#SelectedNodes').style.cssText = `height: ${heightSelectedNodesPanel}; max-height: ${heightSelectedNodesPanel} `
+
+    }    
+
+    //The Bootstrap dropdown-menu position absolute css is not working and menu is obscured by other divs
+    //This fixes the issue as we do not want to modify original BS code
+    dropdownmenufix = function(){
+        document.querySelector('.dropdown-menu').style['position']="fixed"
+    }
+
+    dragDivByMouse = function(event) {
+        let isDown = true;
+        let legend_div = document.querySelector('#colour-legend')
+        let control_panel_div = document.querySelector("#control_panel")
+        let TreeData_div = document.querySelector('#TreeData')
+        let offset = {"x": event.clientX - control_panel_div.offsetWidth, "y": event.clientY + TreeData_div.scrollTop}   
+        document.addEventListener('mouseup', function(){isDown = false}, true)
+        document.addEventListener('mousemove', move, true)
+        function move(event){
+            event.preventDefault();
+            if(isDown === true){
+                offset = {"x": event.clientX-control_panel_div.offsetWidth, "y": event.clientY + TreeData_div.scrollTop}
+                legend_div.style['left'] = offset.x+"px"
+                legend_div.style['top'] = offset.y+"px"
+            }    
+        }
+    }
+
+    </script>
+</head>
+    <body>
+        <div class="container-fluid m-0">
+            <div class="row"> <!-- id="TreeSelections" style=""-->
+                <div id="control_panel" class="col-2 border border-primary px-1 overflow-auto">
+                    <div id="tree_menu_buttons" class="row m-0">
+                                <div class="d-flex flex-row align-items-center p-0 text-left mt-1">
+                                    <button class="h-100 flex-grow-1 me-1 btn-sm btn-primary text-break" data-toggle="tooltip" data-placement="top" 
+                                        title="Select a newick file" onclick="document.getElementById('tree-selector').click();" name="newick" id="tree-upload-button">
+                                        <i class="bi bi-upload me-1"></i>Newick <i class="bi bi-tree ml-1"></i>
+                                    </button>
+                                    <input  type="file" id="tree-selector" name="tree-selector" accept=".nwk, .newick, .treefile" hidden> 
+                                    <button class="h-100 flex-grow-1 btn-sm btn-primary text-break" data-toggle="tooltip" data-placement="top" 
+                                        title="Select a tab delimited metadata file" onclick="document.getElementById('metadata-selector').click();" 
+                                        id="metadata-selector-input" name="metadata-selector-input">
+                                        <i class="bi bi-upload me-1"></i>Meta <i class="bi bi-file-spreadsheet ml-1"></i>
+                                    </button>
+                                    <input type="file"  id="metadata-selector" 
+                                    name="metadata-selector" accept=".tsv, .tab" hidden>
+                                </div>
+                                <button type="button" class="btn-sm btn-primary w-100 text-break mb-1 mt-1" data-toggle="tooltip" data-placement="top" 
+                                    title="Clear filters applied to the metadata table." name="ResetTable" id="reset-table-button">Clear filters</button>                                
+                                
+                                <div class="d-flex flex-row align-items-center p-0 text-left">
+                                    <button class="flex-grow-1 btn-sm btn-primary text-break me-1 mb-1" data-toggle="tooltip" data-placement="top"  
+                                        title="Copy selected node ID's to your clipboard to paste into another application." onclick="copy_ids_to_clipboard()" name="CopyIDs" id="copy-ids-button">
+                                        <i class="bi bi-clipboard me-1"></i>IDs
+                                    </button>
+                                    <button class="flex-grow-1 btn-sm btn-primary text-break me-1 mb-1" data-toggle="tooltip" data-placement="top" 
+                                        title="Export the tree to SVG." onclick="export_tree_to_svg()" id="export-tree-to-svg">
+                                        <i class="bi bi-download m-1"></i> SVG
+                                    </button>
+                                    <button class="flex-grow-1 btn-sm btn-primary text-break mb-1" data-toggle="tooltip" data-placement="top" 
+                                        title="Export the tree to PNG." onclick="export_tree_to_png()" id="export-tree-to-png">
+                                        <i class="bi bi-download m-1"></i> PNG
+                                    </button>
+                                </div>
+                                <div class="dropdown p-0">
+                                    <button class="w-100 flex-grow-1 mb-1 btn-sm btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-download me-1"></i> Export Meta Table
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a id="export-metadata-view" data-toggle="tooltip" data-placement="top" title="Export the currently selected metadata." 
+                                        class="dropdown-item flex-grow-1 me-1 btn-sm btn-primary text-break mb-1" onclick="export_metadata_table(this)" id="export-metadata-view">
+                                            <i class="bi bi-download me-1"></i> Export Filtered Table
+                                            </a>
+                                        </li>
+                                        <li><a id="export-metadata-table" data-toggle="tooltip" data-placement="top" title="Export the currently selected metadata." 
+                                            class="dropdown-item flex-grow-1 me-1 btn-sm btn-primary text-break mb-1" onclick="export_metadata_table(this)" id="export-metadata-view">
+                                                <i class="bi bi-download me-1"></i> Export Full Table
+                                            </a>
+                                        </li>
+                                    </ul>
+
+                                    <!--button data-toggle="tooltip" data-placement="top" title="Export the entire metadata table below." 
+                                    class="flex-grow-1 me-1 btn-sm btn-primary text-break mb-1" onclick="export_metadata_table(this)" id="export-metadata-table">
+                                        <i class="bi bi-download me-1"></i> Export Full Table
+                                    </button>
+                                    <button data-toggle="tooltip" data-placement="top" 
+                                    title="Export the currently selected metadata." 
+                                    class="flex-grow-1 me-1 btn-sm btn-primary text-break mb-1" onclick="export_metadata_table(this)" 
+                                    id="export-metadata-view">
+                                        <i class="bi bi-download me-1"></i> Export Filtered Table
+                                    </button-->
+                                </div>
+                                <!--Tree layout slider-->
+                                <div class="d-flex flex-row align-items-center p-0 text-left">
+                                    <button data-toggle="tooltip" data-placement="top" title="Redraw the entire tree undoing any changes." 
+                                    class="btn-sm btn-primary w-100 h-100 text-break me-1" name="RedrawTree" id="redraw-tree-button"><i class="bi bi-pencil-square"></i> Redraw Tree</button>
+                                    <button data-toggle="tooltip" data-placement="top" title="Bring the tree back into focus" class="btn-sm btn-primary w-100 h-100" name="ResetTree" id="ResetTree"><i class="bi bi-eyeglasses"></i> Refocus tree</button>
+                                </div>
+                                <!--Zoom slider-->
+                                <div data-toggle="tooltip" data-placement="top" title="Zoom in or out on the tree" class="d-flex flex-wrap align-items-center p-1">
+                                    <small class="flex-grow-1" for="zoom_slider" class="form-label">Zoom</small>
+                                    <div class="flex-grow-1 w-50">
+                                        <input type="range" class="form-range align-middle"  id="zoom_slider" onchange="zoom_tree()" value="1" min="0.5" max="5" step="0.5">
+                                    </div>
+                                    <div class="flex-grow-1 fw-bold text-center">
+                                        <span id="zoom_slider_value">1</span>x
+                                    </div>    
+                                </div>  
+
+                                <div class="d-flex flex-nowrap flex-column align-items-center p-1 text-left" data-toggle="tooltip" data-placement="top" title="Change the layout of the tree.">
+                                    <small class="flex-grow-1 m-0" for="zoom_slider" class="form-label">Layout</small>
+                                    <div class="flex-grow-1 w-100">
+                                        <input type="range" class="form-range align-middle"  id="tree_layout_slider" 
+                                            onchange="switchTreeType(this)" value="1" min="1" max="3" step="1">
+                                    </div>
+                                </div>
+                                <!--button class="btn-sm btn-primary w-100 text-break mb-1" onclick="switchTreeType()" name="SwitchTree" id="switch-tree">Switch Tree</button-->   
+                                <div class="d-flex flex-wrap p-1 align-items-center text-left" data-toggle="tooltip" data-placement="top" title="Turn the legend on or off">
+                                    <small  class="flex-grow-1" for="legend_toggle">Legend</small>
+                                    <input onchange="legend_on_off(this)" id="legend_toggle" 
+                                    checked type="checkbox" data-toggle="toggle" data-onstyle="primary" data-size="sm">
+                                </div> 
+                                <div class="d-flex flex-wrap p-1 align-items-center text-left" data-toggle="tooltip" data-placement="top" title="Turn branch lengths on or off" >
+                                    <small data-toggle="tooltip" data-placement="top" title="Turn branch lengths on or off" class="flex-grow-1" for="legend_toggle">Branch lengths</small>
+                                    <input onchange="branch_lengths_on_off(this)" id="branch_lengths_toggle" 
+                                    checked type="checkbox" data-toggle="toggle" data-placement="top" title="Turn branch lengths on or off" data-onstyle="primary" data-size="sm">
+                                </div>  
+                                <div id="dropdown_legend" onclick="dropdownmenufix()" class="d-flex flex-wrap p-0 dropdown mb-1">
+                                    <button id="legend_dropdown_button"  class="btn btn-danger btn-sm dropdown-toggle w-100 text-wrap" type="button" data-toggle="tooltip" data-placement="top" title="List of fields to colour nodes by.">
+                                        Awaiting metadata</button>
+                                </div> 
+                                <div class="d-flex flex-row align-items-center p-0 text-left">
+                                    <button data-toggle="tooltip" data-placement="top" title="Filter metadata for selected nodes" 
+                                    class="flex-grow-1 btn-sm btn-primary text-break w-100 h-100 mb-1 me-1" name="SearchMetadata" id="metadata-search-button">
+                                    <i class="bi bi-search icon-image"></i> Filter data</button>
+                                    <button data-toggle="tooltip" data-placement="top" title="Clear all selected nodes." 
+                                    class="flex-grow-1  btn-sm btn-primary text-break w-100 h-100 mb-1" name="ClearSelectedNodes" 
+                                    onclick="clear_selected_nodes()" id="clear-selected-nodes"><i class="bi bi-x-square"></i> Clear Nodes</button>
+                                </div>       
+                    </div> 
+            
+                    <div data-toggle="tooltip" data-placement="top" title="Selected nodes on the tree will show up here." 
+                      class="col border border-primary p-1 w-100 Tree inline-block-child scrollbar-window" 
+                                id="SelectedNodes">
+                        <div class="d-flex h-100 text-center text-uppercase text-center"><small class="align-self-center w-100">Selected Nodes</small></div>        
+                    </div>
+                </div> 
+
+
+                <div class="position-relative p-0 bg-white col-10 Tree inline-block-child scrollbar-window" 
+                onscroll="scroll_legend_into_view(document.querySelector('#colour-legend'), document.querySelector('#tree_fullscreen_btn'), this)"
+                id="TreeData" style="height:70vh;">
+
+                        <div id="tree-splash" class="fs-2 d-flex justify-content-center align-items-center" style="height:50vh;"><i class="bi bi-tree"></i> Your tree will show up here when loaded!</div>
+                        
+                        <div id="colour-legend"
+                        class="d-none p-1 position-absolute border border-primary text-break Tree inline-block-child scrollbar-window" 
+                        style="top:0px; left:0px; resize: both; max-height:100%; background-color: rgba(255, 255, 255, 0.9)">   
+                        </div>
+                        
+                        <i style="position:absolute; top:0; right: 0; cursor: pointer; color:blue; margin-right:1px" id="tree_fullscreen_btn" 
+                        onclick="tree_full_screen_mode()" class="d-flex fs-5 bi-arrow-up-right-square"></i>
+                        
+                </div> 
+
+                </div>
+                
+                
+            </div>
+            <div class="row" style="height:5px;background-color: #0d6efd;">
+                <a  href="#" data-bs-toggle="collapse" 
+                data-bs-target="#ClusterInfo">
+                </a>
+                <div class="p-0" onmousedown="vertical_div_resize(event)" 
+                style="position:absolute; cursor: ns-resize; box-shadow: 1px 1px 1px 1px rgba(0,0,0,.8); border-radius: 3px; left:50%; 
+                background-color: #dc3545; width:50px; height:10px; z-index: 2;">
+                </div>
+            </div>
+            <div id="ClusterInfo" class="row collapse show border border-primary">
+                <div class="col-12 overflow-auto" style="height:28.9vh">
+                    <div id="table-splash" class="fs-2 d-flex justify-content-center align-items-center" style="height:25vh" ><i class="bi bi-file-spreadsheet"></i> Your metadata will go here when loaded!</div>
+                    <table id="metadata" class="w-100 display overflow-scroll" >
+                    </table>
+                </div>    
+            </div>
+                
+                <!-- Need to have the legend be scrollable and situated under the selected nodes-->
+                
+            
+        </div> 
+        <div id="TestSubTree"></div> 
+        
+
+    
+    </body>
+</html>
