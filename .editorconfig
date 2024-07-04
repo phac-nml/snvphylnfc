@@ -33,3 +33,7 @@ indent_style = unset
 # ignore python
 [*.{py}]
 indent_style = unset
+
+#ignore License-Apachev2
+[LICENSE-Apachev2]
+indent_style = unset
