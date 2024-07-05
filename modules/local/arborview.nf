@@ -16,7 +16,7 @@ process ARBOR_VIEW {
 
 
     script:
-    output_value = "SNVPhyl__ArborView.html"
+    output_value = "SNVPhyl_ArborView.html"
     """
     inline_arborview.py -d ${metadata} -n ${tree} -o ${output_value} -t ${arbor_view}
     """
