@@ -59,7 +59,7 @@ include { VCF2SNV_ALIGNMENT    } from '../modules/local/vcf2snvalignment/main'
 include { FILTER_STATS         } from '../modules/local/filterstats/main'
 include { PHYML                } from '../modules/local/phyml/main'
 include { MAKE_SNV             } from '../modules/local/makesnv/main'
-include { APPEND_METADATA      } from '../modules/local/appendmetadata/main'
+include { WRITE_METADATA      } from '../modules/local/writemetadata/main'
 include { ARBOR_VIEW           } from '../modules/local/arborview.nf'
 
 /*
@@ -217,7 +217,7 @@ workflow SNVPHYL {
     metadata_rows = input.map { meta, reads, reference_assembly ->
         tuple(meta.id, meta.metadata_1, meta.metadata_2, meta.metadata_3, meta.metadata_4, meta.metadata_5, meta.metadata_6, meta.metadata_7, meta.metadata_8)}.toList()
 
-    metadata = APPEND_METADATA(metadata_headers, metadata_rows)
+    metadata = WRITE_METADATA(metadata_headers, metadata_rows)
 
     tree_data = PHYML.out.phylogeneticTree.merge(metadata)
     tree_html = file("$projectDir/assets/ArborView.html")
