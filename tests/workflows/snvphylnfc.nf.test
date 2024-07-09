@@ -61,7 +61,7 @@ nextflow_workflow {
 
             // check IRIDA Next JSON file
             lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
-            
+
             assert lines.contains("\"path\": \"make/snvMatrix.tsv\"")
             assert lines.contains("\"path\": \"filter/filterStats.txt\"")
             assert lines.contains("\"path\": \"phyml/phylogeneticTreeStats.txt\"")
@@ -131,7 +131,7 @@ nextflow_workflow {
 
             // check IRIDA Next JSON file
             lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
-            
+
             assert lines.contains("\"path\": \"make/snvMatrix.tsv\"")
             assert lines.contains("\"path\": \"filter/filterStats.txt\"")
             assert lines.contains("\"path\": \"phyml/phylogeneticTreeStats.txt\"")
@@ -247,7 +247,7 @@ nextflow_workflow {
 
             // check IRIDA Next JSON file
             lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
-            
+
             assert lines.contains("\"path\": \"make/snvMatrix.tsv\"")
             assert lines.contains("\"path\": \"filter/filterStats.txt\"")
             assert lines.contains("\"path\": \"phyml/phylogeneticTreeStats.txt\"")

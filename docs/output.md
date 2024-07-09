@@ -6,6 +6,7 @@ This document describes the output produced by the pipeline.
 
 The directories listed below will be created in the results directory after the pipeline has finished. All paths are relative to the top-level results directory.
 
+- `arbor`
 - `bcftools`
 - `bgzip`
 - `cat`
@@ -45,4 +46,6 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and processes d
 - VCF2SNV alignment
 - Filter stats
 - PhyML
+- Appending metadata and phylogenetic tree
+- ArborView HTML app
 - Make SNV

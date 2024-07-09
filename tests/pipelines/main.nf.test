@@ -1,0 +1,330 @@
+nextflow_pipeline {
+
+    name "Integration Tests of SNVPhyl pipeline"
+    script "main.nf"
+
+    test("Full pipeline with metadata") {
+        tag "pipeline_metadata"
+
+        when {
+            params {
+                input = "$baseDir/tests/data/samplesheets/samplesheet1.csv"
+                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
+                outdir = "results"
+
+                metadata_1_header = "myheader_1"
+                metadata_2_header = "myheader_2"
+                metadata_3_header = "myheader_3"
+                metadata_4_header = "myheader_4"
+                metadata_5_header = "myheader_5"
+                metadata_6_header = "myheader_6"
+                metadata_7_header = "myheader_7"
+                metadata_8_header = "myheader_8"
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert path("$launchDir/results").exists()
+
+            def lines = []
+
+            // check FILTER_STATS output
+            lines = path("$launchDir/results/filter/filterStats.txt").readLines()
+
+            assert lines.contains("Number of sites used to generate phylogeny: 2")
+            assert lines.contains("Total number of sites identified: 2")
+            assert lines.contains("Number of sites filtered: 0")
+
+            // check filtered density files:
+            assert path("$launchDir/results/consolidate/SAMPLE1_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/SAMPLE2_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/SAMPLE3_filtered_density.txt").exists()
+
+            lines = path("$launchDir/results/cat/cat_invalid_positions.txt").readLines()
+            assert lines.contains("#Calculation and writing of high density regions has completed.")
+
+            // check PHYML output
+            lines = path("$launchDir/results/phyml/phylogeneticTreeStats.txt").readLines()
+
+            assert lines.contains(". Model of nucleotides substitution: \tGTR")
+            assert lines.contains("  - f(A)=  0.75000")
+            assert lines.contains("  - f(C)=  0.12500")
+            assert lines.contains("  - f(G)=  0.01000")
+            assert lines.contains("  - f(T)=  0.12500")
+
+            lines = path("$launchDir/results/phyml/phylogeneticTree.newick").readLines()
+
+            assert lines.join("\n").contains("SAMPLE1")
+            assert lines.join("\n").contains("SAMPLE2")
+            assert lines.join("\n").contains("SAMPLE3")
+
+            // check WRITE_METADATA file
+            lines = path("$launchDir/results/write/metadata.tsv").readLines()
+
+            assert lines.size() == 4
+            assert lines.contains("id\tmyheader_1\tmyheader_2\tmyheader_3\tmyheader_4\tmyheader_5\tmyheader_6\tmyheader_7\tmyheader_8")
+            assert lines.contains("SAMPLE1\t1.1\t1.2\t1.3\t1.4\t1.5\t1.6\t1.7\t1.8")
+            assert lines.contains("SAMPLE2\t2.1\t2.2\t2.3\t2.4\t2.5\t2.6\t2.7\t2.8")
+            assert lines.contains("SAMPLE3\t3.1\t3.2\t3.3\t3.4\t3.5\t3.6\t3.7\t3.8")
+
+            // Check that ArborView output is created
+            def actual_arborview = path("$launchDir/results/arbor/SNVPhyl_ArborView.html")
+            assert actual_arborview.exists()
+            assert actual_arborview.text.contains("id\\tmyheader_1\\tmyheader_2\\tmyheader_3\\tmyheader_4\\tmyheader_5\\tmyheader_6\\tmyheader_7\\tmyheader_8\\nSAMPLE1\\t1.1\\t1.2\\t1.3\\t1.4\\t1.5\\t1.6\\t1.7\\t1.8\\nSAMPLE2\\t2.1\\t2.2\\t2.3\\t2.4\\t2.5\\t2.6\\t2.7\\t2.8\\nSAMPLE3\\t3.1\\t3.2\\t3.3\\t3.4\\t3.5\\t3.6\\t3.7\\t3.8")
+
+            // check MAKE_SNV output
+            lines = path("$launchDir/results/make/snvMatrix.tsv").readLines()
+
+            assert lines[0] == "strain\tSAMPLE2\tSAMPLE3\tSAMPLE1\treference\t"
+            assert lines.contains("SAMPLE1\t1\t1\t0\t0\t")
+            assert lines.contains("SAMPLE2\t0\t2\t1\t1\t")
+            assert lines.contains("SAMPLE3\t2\t0\t1\t1\t")
+
+            // check IRIDA Next JSON file
+            lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
+
+            assert lines.contains("\"path\": \"arbor/SNVPhyl_ArborView.html\"")
+            assert lines.contains("\"path\": \"make/snvMatrix.tsv\"")
+            assert lines.contains("\"path\": \"filter/filterStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTreeStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTree.newick\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvTable.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/vcf2core.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvAlignment.phy\"")
+            assert lines.contains("\"path\": \"verifying/mappingQuality.txt\"")
+        }
+    }
+
+    test("Full pipeline without metadata") {
+        tag "pipeline_no-metadata"
+
+        when {
+            params {
+                input = "$baseDir/tests/data/samplesheets/samplesheet_no-metadata.csv"
+                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
+                outdir = "results"
+
+                metadata_1_header = "myheader_1"
+                metadata_2_header = "myheader_2"
+                metadata_3_header = "myheader_3"
+                metadata_4_header = "myheader_4"
+                metadata_5_header = "myheader_5"
+                metadata_6_header = "myheader_6"
+                metadata_7_header = "myheader_7"
+                metadata_8_header = "myheader_8"
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert path("$launchDir/results").exists()
+
+            def lines = []
+
+            // check WRITE_METADATA file
+            lines = path("$launchDir/results/write/metadata.tsv").readLines()
+
+            assert lines.size() == 4
+            assert lines.contains("id\tmyheader_1\tmyheader_2\tmyheader_3\tmyheader_4\tmyheader_5\tmyheader_6\tmyheader_7\tmyheader_8")
+            assert lines.contains("SAMPLE1\t\t\t\t\t\t\t\t")
+            assert lines.contains("SAMPLE2\t\t\t\t\t\t\t\t")
+            assert lines.contains("SAMPLE3\t\t\t\t\t\t\t\t")
+
+            // Check that ArborView output is created
+            def actual_arborview = path("$launchDir/results/arbor/SNVPhyl_ArborView.html")
+            assert actual_arborview.exists()
+            assert actual_arborview.text.contains("id\\tmyheader_1\\tmyheader_2\\tmyheader_3\\tmyheader_4\\tmyheader_5\\tmyheader_6\\tmyheader_7\\tmyheader_8\\nSAMPLE1\\t\\t\\t\\t\\t\\t\\t\\t\\nSAMPLE2\\t\\t\\t\\t\\t\\t\\t\\t\\nSAMPLE3\\t\\t\\t\\t\\t\\t\\t\\t")
+
+            // check IRIDA Next JSON file
+            lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
+
+            assert lines.contains("\"path\": \"arbor/SNVPhyl_ArborView.html\"")
+            assert lines.contains("\"path\": \"make/snvMatrix.tsv\"")
+            assert lines.contains("\"path\": \"filter/filterStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTreeStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTree.newick\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvTable.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/vcf2core.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvAlignment.phy\"")
+            assert lines.contains("\"path\": \"verifying/mappingQuality.txt\"")
+        }
+    }
+
+    test("Full pipeline with little metadata") {
+        tag "pipeline_little-metadata"
+
+        when {
+            params {
+                input = "$baseDir/tests/data/samplesheets/samplesheet_little-metadata.csv"
+                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
+                outdir = "results"
+
+                metadata_1_header = "myheader_1"
+                metadata_2_header = "myheader_2"
+                metadata_3_header = "myheader_3"
+                metadata_4_header = "myheader_4"
+                metadata_5_header = "myheader_5"
+                metadata_6_header = "myheader_6"
+                metadata_7_header = "myheader_7"
+                metadata_8_header = "myheader_8"
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert path("$launchDir/results").exists()
+
+            def lines = []
+
+            // check WRITE_METADATA file
+            lines = path("$launchDir/results/write/metadata.tsv").readLines()
+
+            assert lines.size() == 4
+            assert lines.contains("id\tmyheader_1\tmyheader_2\tmyheader_3\tmyheader_4\tmyheader_5\tmyheader_6\tmyheader_7\tmyheader_8")
+            assert lines.contains("SAMPLE1\t\t\t\t1.4\t\t\t\t")
+            assert lines.contains("SAMPLE2\t\t\t\t\t\t\t\t")
+            assert lines.contains("SAMPLE3\t3.1\t3.2\t\t\t\t\t\t3.8")
+
+            // Check that ArborView output is created
+            def actual_arborview = path("$launchDir/results/arbor/SNVPhyl_ArborView.html")
+            assert actual_arborview.exists()
+            assert actual_arborview.text.contains("id\\tmyheader_1\\tmyheader_2\\tmyheader_3\\tmyheader_4\\tmyheader_5\\tmyheader_6\\tmyheader_7\\tmyheader_8\\nSAMPLE1\\t\\t\\t\\t1.4\\t\\t\\t\\t\\nSAMPLE2\\t\\t\\t\\t\\t\\t\\t\\t\\nSAMPLE3\\t3.1\\t3.2\\t\\t\\t\\t\\t\\t3.8")
+
+            // check IRIDA Next JSON file
+            lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
+
+            assert lines.contains("\"path\": \"arbor/SNVPhyl_ArborView.html\"")
+            assert lines.contains("\"path\": \"make/snvMatrix.tsv\"")
+            assert lines.contains("\"path\": \"filter/filterStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTreeStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTree.newick\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvTable.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/vcf2core.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvAlignment.phy\"")
+            assert lines.contains("\"path\": \"verifying/mappingQuality.txt\"")
+        }
+    }
+
+    test("Pipeline failure from invalid metadata") {
+        tag "pipeline_metadata_failure"
+
+        when {
+            params {
+                input = "$baseDir/tests/data/samplesheets/samplesheet_tab-metadata.csv"
+                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
+                outdir = "results"
+
+                metadata_1_header = "myheader_1"
+                metadata_2_header = "myheader_2"
+                metadata_3_header = "myheader_3"
+                metadata_4_header = "myheader_4"
+                metadata_5_header = "myheader_5"
+                metadata_6_header = "myheader_6"
+                metadata_7_header = "myheader_7"
+                metadata_8_header = "myheader_8"
+            }
+        }
+
+        then {
+            assert workflow.failed
+            assert workflow.stdout.contains("ERROR ~ ERROR: Validation of 'input' file failed!")
+        }
+    }
+
+    test("Pipeline missing metadata columns") {
+        tag "pipeline_no-metadata-columns"
+
+        when {
+            params {
+                input = "$baseDir/tests/data/samplesheets/samplesheet_no-metadata.csv"
+                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
+                outdir = "results"
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert path("$launchDir/results").exists()
+
+            def lines = []
+
+            // check WRITE_METADATA file
+            lines = path("$launchDir/results/write/metadata.tsv").readLines()
+
+            assert lines.size() == 4
+            assert lines.contains("id\tmetadata_1\tmetadata_2\tmetadata_3\tmetadata_4\tmetadata_5\tmetadata_6\tmetadata_7\tmetadata_8")
+            assert lines.contains("SAMPLE1\t\t\t\t\t\t\t\t")
+            assert lines.contains("SAMPLE2\t\t\t\t\t\t\t\t")
+            assert lines.contains("SAMPLE3\t\t\t\t\t\t\t\t")
+
+            // Check that ArborView output is created
+            def actual_arborview = path("$launchDir/results/arbor/SNVPhyl_ArborView.html")
+            assert actual_arborview.exists()
+            assert actual_arborview.text.contains("id\\tmetadata_1\\tmetadata_2\\tmetadata_3\\tmetadata_4\\tmetadata_5\\tmetadata_6\\tmetadata_7\\tmetadata_8\\nSAMPLE1\\t\\t\\t\\t\\t\\t\\t\\t\\nSAMPLE2\\t\\t\\t\\t\\t\\t\\t\\t\\nSAMPLE3\\t\\t\\t\\t\\t\\t\\t\\t")
+
+            // check IRIDA Next JSON file
+            lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
+
+            assert lines.contains("\"path\": \"arbor/SNVPhyl_ArborView.html\"")
+            assert lines.contains("\"path\": \"make/snvMatrix.tsv\"")
+            assert lines.contains("\"path\": \"filter/filterStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTreeStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTree.newick\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvTable.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/vcf2core.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvAlignment.phy\"")
+            assert lines.contains("\"path\": \"verifying/mappingQuality.txt\"")
+        }
+    }
+
+    test("Pipeline with some metadata and some missing metadata columns") {
+        tag "pipeline_few-columns-little-metadata"
+
+        when {
+            params {
+                input = "$baseDir/tests/data/samplesheets/samplesheet_few-metadata.csv"
+                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
+                outdir = "results"
+
+                metadata_1_header = "myheader_1"
+                metadata_2_header = "myheader_2"
+                metadata_3_header = "myheader_3"
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert path("$launchDir/results").exists()
+
+            def lines = []
+
+            // check WRITE_METADATA file
+            lines = path("$launchDir/results/write/metadata.tsv").readLines()
+
+            assert lines.size() == 4
+            assert lines.contains("id\tmyheader_1\tmyheader_2\tmyheader_3\tmetadata_4\tmetadata_5\tmetadata_6\tmetadata_7\tmetadata_8")
+            assert lines.contains("SAMPLE1\t1.1\t2.1\t3.1\t\t\t\t\t")
+            assert lines.contains("SAMPLE2\t\t2.2\t3.2\t\t\t\t\t")
+            assert lines.contains("SAMPLE3\t1.3\t2.3\t\t\t\t\t\t")
+
+            // Check that ArborView output is created
+            def actual_arborview = path("$launchDir/results/arbor/SNVPhyl_ArborView.html")
+            assert actual_arborview.exists()
+            assert actual_arborview.text.contains("id\\tmyheader_1\\tmyheader_2\\tmyheader_3\\tmetadata_4\\tmetadata_5\\tmetadata_6\\tmetadata_7\\tmetadata_8\\nSAMPLE1\\t1.1\\t2.1\\t3.1\\t\\t\\t\\t\\t\\nSAMPLE2\\t\\t2.2\\t3.2\\t\\t\\t\\t\\t\\nSAMPLE3\\t1.3\\t2.3\\t\\t\\t\\t\\t\\t")
+
+            // check IRIDA Next JSON file
+            lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
+
+            assert lines.contains("\"path\": \"arbor/SNVPhyl_ArborView.html\"")
+            assert lines.contains("\"path\": \"make/snvMatrix.tsv\"")
+            assert lines.contains("\"path\": \"filter/filterStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTreeStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTree.newick\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvTable.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/vcf2core.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvAlignment.phy\"")
+            assert lines.contains("\"path\": \"verifying/mappingQuality.txt\"")
+        }
+    }
+}

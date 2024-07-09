@@ -47,6 +47,62 @@
                         "maxLength": 0
                     }
                 ]
+            },
+            "metadata_1": {
+                "type": "string",
+                "meta": ["metadata_1"],
+                "errorMessage": "Metadata associated with the sample (metadata_1).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_2": {
+                "type": "string",
+                "meta": ["metadata_2"],
+                "errorMessage": "Metadata associated with the sample (metadata_2).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_3": {
+                "type": "string",
+                "meta": ["metadata_3"],
+                "errorMessage": "Metadata associated with the sample (metadata_3).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_4": {
+                "type": "string",
+                "meta": ["metadata_4"],
+                "errorMessage": "Metadata associated with the sample (metadata_4).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_5": {
+                "type": "string",
+                "meta": ["metadata_5"],
+                "errorMessage": "Metadata associated with the sample (metadata_5).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_6": {
+                "type": "string",
+                "meta": ["metadata_6"],
+                "errorMessage": "Metadata associated with the sample (metadata_6).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_7": {
+                "type": "string",
+                "meta": ["metadata_7"],
+                "errorMessage": "Metadata associated with the sample (metadata_7).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_8": {
+                "type": "string",
+                "meta": ["metadata_8"],
+                "errorMessage": "Metadata associated with the sample (metadata_8).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
             }
         },
         "required": ["sample", "fastq_1"]
