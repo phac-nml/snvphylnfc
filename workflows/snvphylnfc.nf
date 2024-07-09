@@ -59,6 +59,8 @@ include { VCF2SNV_ALIGNMENT    } from '../modules/local/vcf2snvalignment/main'
 include { FILTER_STATS         } from '../modules/local/filterstats/main'
 include { PHYML                } from '../modules/local/phyml/main'
 include { MAKE_SNV             } from '../modules/local/makesnv/main'
+include { WRITE_METADATA      } from '../modules/local/writemetadata/main'
+include { ARBOR_VIEW           } from '../modules/local/arborview.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -89,11 +91,11 @@ workflow SNVPHYL {
         // Either [meta, [fastq_1], reference_assembly]
         // or [meta, [fastq_1, fastq_2], reference_assembly] if fastq_2 exists
         .map { meta, fastq_1, fastq_2, reference_assembly ->
-               fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ], reference_assembly) :
-               tuple(meta, [ file(fastq_1) ], file(reference_assembly))}
+            fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ], reference_assembly) :
+            tuple(meta, [ file(fastq_1) ], file(reference_assembly))}
 
     // Channel of read tuples (meta, [fastq_1, fastq_2*]):
-    reads = input.map { meta, reads, reference_assembly -> tuple(meta, reads) }    
+    reads = input.map { meta, reads, reference_assembly -> tuple(meta, reads) }
 
     // Channel of sample tuples (sample ID, assembly):
     sample_assemblies = input.map { meta, reads, reference_assembly -> tuple(meta.id, reference_assembly ? reference_assembly : null) }
@@ -158,6 +160,7 @@ workflow SNVPHYL {
 
     //Joining channels of multiple outputs
     combined_ch = BCFTOOLS_CALL.out.mpileup_bcf.join(FREEBAYES_VCF_TO_BCF.out.filtered_bcf)
+
     //11. consolidate variant calling files process takes 2 input channels as arguments
     CONSOLIDATE_BCFS(
         combined_ch
@@ -205,6 +208,21 @@ workflow SNVPHYL {
     )
     ch_versions = ch_versions.mix(MAKE_SNV.out.versions)
 
+    // 17. Generate the metadata.tsv file and process it with the ArborView HTML app
+
+    metadata_headers = Channel.of(
+        tuple(params.metadata_1_header, params.metadata_2_header, params.metadata_3_header, params.metadata_4_header, params.metadata_5_header, params.metadata_6_header, params.metadata_7_header, params.metadata_8_header)
+        )
+
+    metadata_rows = input.map { meta, reads, reference_assembly ->
+        tuple(meta.id, meta.metadata_1, meta.metadata_2, meta.metadata_3, meta.metadata_4, meta.metadata_5, meta.metadata_6, meta.metadata_7, meta.metadata_8)}.toList()
+
+    metadata = WRITE_METADATA(metadata_headers, metadata_rows)
+
+    tree_data = PHYML.out.phylogeneticTree.merge(metadata)
+    tree_html = file("$projectDir/assets/ArborView.html")
+
+    ARBOR_VIEW(tree_data, tree_html)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
