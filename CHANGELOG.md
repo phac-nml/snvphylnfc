@@ -10,7 +10,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Support for including contextual metadata in the input samplesheet: See [PR 22](https://github.com/phac-nml/snvphylnfc/pull/22)
 - ArborView HTML app functionality for viewing dendograms with contextual metadata: See [PR 22](https://github.com/phac-nml/snvphylnfc/pull/22)
 
-## 2.0.2 - 2024/05/17
+## 2.0.2 - 2024/05/21
 
 ### `Added`
 
