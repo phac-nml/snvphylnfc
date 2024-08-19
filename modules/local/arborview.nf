@@ -4,7 +4,7 @@ process ARBOR_VIEW {
     stageInMode 'copy' // Need to copy in arbor view html
 
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-    "biocontainers/python:3.12" :
+    "https://depot.galaxyproject.org/singularity/python%3A3.12" :
     "biocontainers/python:3.12" }"
 
     input:
