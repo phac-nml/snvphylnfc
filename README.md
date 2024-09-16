@@ -8,18 +8,21 @@ This is the [nf-core](https://nf-co.re/)-based pipeline for [SNVPhyl](https://sn
 
 Input is provided to SNVPhyl in the form of a samplesheet (passed as `--input samplesheet.csv`). This samplesheet is a CSV-formated file, which may be provided as a URI (ex: a file path or web address), and has the following format:
 
-| sample  | fastq_1                    | fastq_2                    | reference_assembly           | metadata_1 | metadata_2 | metadata_3 | metadata_4 | metadata_5 | metadata_6 | metadata_7 | metadata_8 |
-| ------- | -------------------------- | -------------------------- | ---------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- |
-| SAMPLE1 | /path/to/sample1_fastq1.fq | /path/to/sample1_fastq2.fq | /path/to/sample1_assembly.fa | meta1      | meta2      | meta3      | meta4      | meta5      | meta6      | meta7      | meta8      |
-| SAMPLE2 | /path/to/sample2_fastq1.fq |                            |                              | meta1      | meta2      | meta3      | meta4      | meta5      | meta6      | meta7      | meta8      |
+| sample  | sample_name  | fastq_1                    | fastq_2                    | reference_assembly           | metadata_1 | metadata_2 | metadata_3 | metadata_4 | metadata_5 | metadata_6 | metadata_7 | metadata_8 |
+| ------- | ------------ | -------------------------- | -------------------------- | ---------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- |
+| SAMPLE1 | sample_name1 | /path/to/sample1_fastq1.fq | /path/to/sample1_fastq2.fq | /path/to/sample1_assembly.fa | meta1      | meta2      | meta3      | meta4      | meta5      | meta6      | meta7      | meta8      |
+| SAMPLE2 | sample_name2 | /path/to/sample2_fastq1.fq |                            |                              | meta1      | meta2      | meta3      | meta4      | meta5      | meta6      | meta7      | meta8      |
 
 The columns are defined as follows:
 
 - `sample`: The unique sample identifier to associate with the reads (and optionally the reference assembly).
+- `sample_name`: Sample name used in outputs (filenames and sample names)
 - `fastq_1`: A URI (ex: a file path or web address) to either single-end FASTQ-formatted reads or one pair of pair-end FASTQ-formatted reads.
 - `fastq_2`: (Optional) If `fastq_1` is paired-end, then this field is a URI to reads that are the other pair of reads associated with `fastq_1`.
 - `reference_assembly`: (Optional) A URI to a reference assembly associated with the sample, so that it may be referenced on the command line by the sample identifier for use as the reference for the whole pipeline. However, it may be easier to leave these fields blank and specify the reference using the `--refgenome` parameter.
 - `metadata_1...8`: (Optional) Permits up to 8 columns for user-defined contextual metadata associated with each `sample`. Refer to [Metadata](#metadata) for more information.
+
+Note: If `sample_name` value is left blank for a sample, then the `sample` value will replace the value. To ensure that all `sample_name` values are unique, `sample` will be suffixed to `sample_name` that are not unique. Non-alphanumeric characters (excluding `_`,`-`,`.`) will be replaced with `"_"`.
 
 The structure of this file is defined in [assets/schema_input.json](assets/schema_input.json). Please see [assets/samplesheet.csv](assets/samplesheet.csv) to see an example of a samplesheet for this pipeline.
 

@@ -84,15 +84,33 @@ workflow SNVPHYL {
 
     ch_versions = Channel.empty()
 
+    // Track processed IDs
+    def processedIDs = [] as Set
+
     // Create a new channel of metadata from a sample sheet
     // NB: `input` corresponds to `params.input` and associated sample sheet schema
     input = Channel.fromSamplesheet("input")
         // Map the inputs so that they conform to the nf-core-expected "reads" format.
         // Either [meta, [fastq_1], reference_assembly]
         // or [meta, [fastq_1, fastq_2], reference_assembly] if fastq_2 exists
+        // and remove non-alphanumeric characters in sample_names (meta.id), whilst also correcting for duplicate sample_names (meta.id)
         .map { meta, fastq_1, fastq_2, reference_assembly ->
+            if (!meta.id) {
+                meta.id = meta.irida_id
+            } else {
+                // Replace spaces in 'id' with underscores
+                meta.id = meta.id.replaceAll(/[^A-Za-z0-9_.\-]/, '_')
+            }
+            // Ensure ID is unique by appending meta.irida_id if needed
+            while (processedIDs.contains(meta.id)) {
+                meta.id = "${meta.id}_${meta.irida_id}"
+            }
+            // Add the ID to the set of processed IDs
+            processedIDs << meta.id
+
             fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ], reference_assembly) :
             tuple(meta, [ file(fastq_1) ], file(reference_assembly))}
+
 
     // Channel of read tuples (meta, [fastq_1, fastq_2*]):
     reads = input.map { meta, reads, reference_assembly -> tuple(meta, reads) }

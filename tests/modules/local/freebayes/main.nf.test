@@ -4,7 +4,7 @@ nextflow_process {
     script "modules/local/freebayes/main.nf"
     process "FREEBAYES"
 
-    test("SAMPLE1") {
+    test("A_1_") {
 
         when {
             params {
@@ -13,7 +13,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = new Tuple(["id": "SAMPLE1"], file("$baseDir/tests/data/SAMPLE1_sorted.bam"))
+                input[0] = new Tuple(["id": "A_1_"], file("$baseDir/tests/data/A_1__sorted.bam"))
                 input[1] = params.refgenome
                 """
             }
@@ -39,7 +39,7 @@ nextflow_process {
 
     }
 
-    test("SAMPLE2") {
+    test("B2") {
 
         when {
             params {
@@ -48,7 +48,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = new Tuple(["id": "SAMPLE2"], file("$baseDir/tests/data/SAMPLE2_sorted.bam"))
+                input[0] = new Tuple(["id": "B2"], file("$baseDir/tests/data/B2_sorted.bam"))
                 input[1] = params.refgenome
                 """
             }
@@ -75,7 +75,7 @@ nextflow_process {
 
     }
 
-    test("SAMPLE3") {
+    test("B2_SAMPLE3") {
 
         when {
             params {
@@ -84,7 +84,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = new Tuple(["id": "SAMPLE3"], file("$baseDir/tests/data/SAMPLE3_sorted.bam"))
+                input[0] = new Tuple(["id": "B2_SAMPLE3"], file("$baseDir/tests/data/B2_SAMPLE3_sorted.bam"))
                 input[1] = params.refgenome
                 """
             }
