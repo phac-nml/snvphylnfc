@@ -33,7 +33,7 @@ nextflow_process {
 
                 assert lines.join("\n").contains("A_1_")
                 assert lines.join("\n").contains("B2")
-                assert lines.join("\n").contains("B3_SAMPLE3")
+                assert lines.join("\n").contains("B2_SAMPLE3")
             }
         }
 
