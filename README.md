@@ -48,7 +48,7 @@ The optional parameters are as follows:
 ### Reference
 
 - `--refgenome`: a URI to the reference genome to use during pipeline analysis
-- `--reference_sample_id`: the sample identifier of a sample in the samplesheet that contains a provided `reference_assembly` to use as a reference genome during pipeline analysis
+- `--reference_sample_id`: the sample identifier of a sample (`sample` or `sample_name`) in the samplesheet that contains a provided `reference_assembly` to use as a reference genome during pipeline analysis
 
 Please use only one of `--refgenome` or `--reference_sample_id` and not both.
 

@@ -115,8 +115,8 @@ workflow SNVPHYL {
     // Channel of read tuples (meta, [fastq_1, fastq_2*]):
     reads = input.map { meta, reads, reference_assembly -> tuple(meta, reads) }
 
-    // Channel of sample tuples (sample ID, assembly):
-    sample_assemblies = input.map { meta, reads, reference_assembly -> tuple(meta.id, reference_assembly ? reference_assembly : null) }
+    // Channel of sample tuples (meta, assembly):
+    sample_assemblies = input.map { meta, reads, reference_assembly -> tuple(meta, reference_assembly ? reference_assembly : null) }
 
     reference_genome = select_reference(params.refgenome, params.reference_sample_id, sample_assemblies)
 
@@ -261,7 +261,8 @@ def select_reference(refgenome, reference_sample_id, sample_assemblies) {
         log.debug "Selecting reference genome ${reference_genome} from '--refgenome'."
     }
     else if (reference_sample_id) {
-        reference_genome = sample_assemblies.filter { it[0] == reference_sample_id && it[1] != null}
+        // Check each meta category (meta.id, meta.id_alt, meta.irida_id) for a match to params.reference_sample_id
+        reference_genome = sample_assemblies.filter { (it[0].id == reference_sample_id || it[0].irida_id == reference_sample_id || it[0].id_alt == reference_sample_id) && it[1] != null}
                                             .ifEmpty { error("The provided reference sample ID (${reference_sample_id}) is either missing or has no associated reference assembly.") }
                                             .map { it[1] }
                                             .first()
