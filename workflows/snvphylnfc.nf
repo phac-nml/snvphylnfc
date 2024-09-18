@@ -98,7 +98,7 @@ workflow SNVPHYL {
             if (!meta.id) {
                 meta.id = meta.irida_id
             } else {
-                // Replace spaces in 'id' with underscores
+                // Non-alphanumeric characters (excluding _,-,.) will be replaced with "_"
                 meta.id = meta.id.replaceAll(/[^A-Za-z0-9_.\-]/, '_')
             }
             // Ensure ID is unique by appending meta.irida_id if needed
