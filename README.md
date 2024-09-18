@@ -23,6 +23,7 @@ The columns are defined as follows:
 - `metadata_1...8`: (Optional) Permits up to 8 columns for user-defined contextual metadata associated with each `sample`. Refer to [Metadata](#metadata) for more information.
 
 ### When to use `sample` vs `sample_name`
+
 Either can be used to identify the reference assembly with the parameter `--reference_sample_id`.
 
 `sample` is a unique identifier, designed to be used internally or in IRIDA-Next, or when `sample_name` is not provided.
