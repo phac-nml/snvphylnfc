@@ -16,7 +16,7 @@
             },
             "sample_name": {
                 "type": "string",
-                "meta": ["id", "id_alt"],
+                "meta": ["id"],
                 "errorMessage": "Sample name is optional, if provided will replace sample for filenames and outputs"
             },
             "fastq_1": {

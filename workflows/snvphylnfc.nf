@@ -95,7 +95,20 @@ workflow SNVPHYL {
         // or [meta, [fastq_1, fastq_2], reference_assembly] if fastq_2 exists
         // and remove non-alphanumeric characters in sample_names (meta.id), whilst also correcting for duplicate sample_names (meta.id)
         .map { meta, fastq_1, fastq_2, reference_assembly ->
-            if (!meta.id) {
+                fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ], reference_assembly) :
+            tuple(meta, [ file(fastq_1) ], file(reference_assembly))}
+
+    // Channel of read tuples (meta, [fastq_1, fastq_2*]):
+    reads = input.map { meta, reads, reference_assembly -> tuple(meta, reads) }
+
+    // Channel of sample tuples (meta, assembly):
+    sample_assemblies = input.map { meta, reads, reference_assembly -> tuple(meta, reference_assembly ? reference_assembly : null) }
+
+    reference_genome = select_reference(params.refgenome, params.reference_sample_id, sample_assemblies)
+
+    // Ensure that, if 'meta.id' is supplied that follows it is appropriate for the pipeline
+    input = input.map { meta, reads, reference_assembly ->
+        if (!meta.id) {
                 meta.id = meta.irida_id
             } else {
                 // Non-alphanumeric characters (excluding _,-,.) will be replaced with "_"
@@ -108,17 +121,8 @@ workflow SNVPHYL {
             // Add the ID to the set of processed IDs
             processedIDs << meta.id
 
-            fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ], reference_assembly) :
-            tuple(meta, [ file(fastq_1) ], file(reference_assembly))}
-
-
-    // Channel of read tuples (meta, [fastq_1, fastq_2*]):
-    reads = input.map { meta, reads, reference_assembly -> tuple(meta, reads) }
-
-    // Channel of sample tuples (meta, assembly):
-    sample_assemblies = input.map { meta, reads, reference_assembly -> tuple(meta, reference_assembly ? reference_assembly : null) }
-
-    reference_genome = select_reference(params.refgenome, params.reference_sample_id, sample_assemblies)
+            return [meta, reads, reference_assembly]
+    }
 
     INDEXING(
         reference_genome
@@ -262,7 +266,7 @@ def select_reference(refgenome, reference_sample_id, sample_assemblies) {
     }
     else if (reference_sample_id) {
         // Check each meta category (meta.id, meta.id_alt, meta.irida_id) for a match to params.reference_sample_id
-        reference_genome = sample_assemblies.filter { (it[0].id == reference_sample_id || it[0].irida_id == reference_sample_id || it[0].id_alt == reference_sample_id) && it[1] != null}
+        reference_genome = sample_assemblies.filter { (it[0].id == reference_sample_id || it[0].irida_id == reference_sample_id) && it[1] != null}
                                             .ifEmpty { error("The provided reference sample ID (${reference_sample_id}) is either missing or has no associated reference assembly.") }
                                             .map { it[1] }
                                             .first()
