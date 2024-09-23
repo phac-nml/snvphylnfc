@@ -98,6 +98,8 @@ workflow SNVPHYL {
                 fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ], reference_assembly) :
             tuple(meta, [ file(fastq_1) ], file(reference_assembly))}
 
+    // Channel of read tuples (meta, [fastq_1, fastq_2*]):
+    reads = input.map { meta, reads, reference_assembly -> tuple(meta, reads) }
 
     // Channel of sample tuples (meta, assembly):
     sample_assemblies = input.map { meta, reads, reference_assembly -> tuple(meta, reference_assembly ? reference_assembly : null) }
@@ -121,9 +123,6 @@ workflow SNVPHYL {
 
             return [meta, reads, reference_assembly]
     }
-
-     // Channel of read tuples (meta, [fastq_1, fastq_2*]):
-    reads = input.map { meta, reads, reference_assembly -> tuple(meta, reads) }
 
     INDEXING(
         reference_genome
