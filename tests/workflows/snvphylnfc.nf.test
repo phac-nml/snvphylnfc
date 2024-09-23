@@ -8,7 +8,7 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
+                input = "$baseDir/assets/samplesheet.csv"
                 refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
                 outdir = "results"
             }
@@ -29,9 +29,9 @@ nextflow_workflow {
             assert lines.contains("Number of sites filtered: 0")
 
             // check filtered density files:
-            assert path("$launchDir/results/consolidate/SAMPLE1_filtered_density.txt").exists()
-            assert path("$launchDir/results/consolidate/SAMPLE2_filtered_density.txt").exists()
-            assert path("$launchDir/results/consolidate/SAMPLE3_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/A_1__filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/B2_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/B2_SAMPLE3_filtered_density.txt").exists()
 
             lines = path("$launchDir/results/cat/cat_invalid_positions.txt").readLines()
             assert lines.contains("#Calculation and writing of high density regions has completed.")
@@ -47,17 +47,17 @@ nextflow_workflow {
 
             lines = path("$launchDir/results/phyml/phylogeneticTree.newick").readLines()
 
-            assert lines.join("\n").contains("SAMPLE1")
-            assert lines.join("\n").contains("SAMPLE2")
-            assert lines.join("\n").contains("SAMPLE3")
+            assert lines.join("\n").contains("A_1_")
+            assert lines.join("\n").contains("B2")
+            assert lines.join("\n").contains("B2_SAMPLE3")
 
             // check MAKE_SNV output
             lines = path("$launchDir/results/make/snvMatrix.tsv").readLines()
 
-            assert lines[0] == "strain\tSAMPLE2\tSAMPLE3\tSAMPLE1\treference\t"
-            assert lines.contains("SAMPLE1\t1\t1\t0\t0\t")
-            assert lines.contains("SAMPLE2\t0\t2\t1\t1\t")
-            assert lines.contains("SAMPLE3\t2\t0\t1\t1\t")
+            assert lines[0] == "strain\tB2\tB2_SAMPLE3\tA_1_\treference\t"
+            assert lines.contains("A_1_\t1\t1\t0\t0\t")
+            assert lines.contains("B2\t0\t2\t1\t1\t")
+            assert lines.contains("B2_SAMPLE3\t2\t0\t1\t1\t")
 
             // check IRIDA Next JSON file
             lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
@@ -78,8 +78,8 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
-                reference_sample_id = "SAMPLE1"
+                input = "$baseDir/assets/samplesheet.csv"
+                reference_sample_id = "A_1_"
                 outdir = "results"
             }
             workflow {}
@@ -99,9 +99,9 @@ nextflow_workflow {
             assert lines.contains("Number of sites filtered: 0")
 
             // check filtered density files:
-            assert path("$launchDir/results/consolidate/SAMPLE1_filtered_density.txt").exists()
-            assert path("$launchDir/results/consolidate/SAMPLE2_filtered_density.txt").exists()
-            assert path("$launchDir/results/consolidate/SAMPLE3_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/A_1__filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/B2_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/B2_SAMPLE3_filtered_density.txt").exists()
 
             lines = path("$launchDir/results/cat/cat_invalid_positions.txt").readLines()
             assert lines.contains("#Calculation and writing of high density regions has completed.")
@@ -117,17 +117,17 @@ nextflow_workflow {
 
             lines = path("$launchDir/results/phyml/phylogeneticTree.newick").readLines()
 
-            assert lines.join("\n").contains("SAMPLE1")
-            assert lines.join("\n").contains("SAMPLE2")
-            assert lines.join("\n").contains("SAMPLE3")
+            assert lines.join("\n").contains("A_1_")
+            assert lines.join("\n").contains("B2")
+            assert lines.join("\n").contains("B2_SAMPLE3")
 
             // check MAKE_SNV output
             lines = path("$launchDir/results/make/snvMatrix.tsv").readLines()
 
-            assert lines[0] == "strain\tSAMPLE2\tSAMPLE3\tSAMPLE1\treference\t"
-            assert lines.contains("SAMPLE1\t1\t1\t0\t0\t")
-            assert lines.contains("SAMPLE2\t0\t2\t1\t1\t")
-            assert lines.contains("SAMPLE3\t2\t0\t1\t1\t")
+            assert lines[0] == "strain\tB2\tB2_SAMPLE3\tA_1_\treference\t"
+            assert lines.contains("A_1_\t1\t1\t0\t0\t")
+            assert lines.contains("B2\t0\t2\t1\t1\t")
+            assert lines.contains("B2_SAMPLE3\t2\t0\t1\t1\t")
 
             // check IRIDA Next JSON file
             lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
@@ -180,9 +180,9 @@ nextflow_workflow {
             assert path("$launchDir/results").exists()
 
             // check that no "_filtered_density.txt" files exist:
-            assert path("$launchDir/results/consolidate/SAMPLE1_filtered_density.txt").exists() == false
-            assert path("$launchDir/results/consolidate/SAMPLE2_filtered_density.txt").exists() == false
-            assert path("$launchDir/results/consolidate/SAMPLE3_filtered_density.txt").exists() == false
+            assert path("$launchDir/results/consolidate/A_1__filtered_density.txt").exists() == false
+            assert path("$launchDir/results/consolidate/B2_filtered_density.txt").exists() == false
+            assert path("$launchDir/results/consolidate/B2_SAMPLE3_filtered_density.txt").exists() == false
 
             lines = path("$launchDir/results/cat/cat_invalid_positions.bed").readLines()
             assert lines.contains("#Calculation and writing of high density regions has completed.") == false
@@ -194,7 +194,7 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
+                input = "$baseDir/assets/samplesheet.csv"
                 refgenome = "https://github.com/phac-nml/snvphylnfc/raw/dev/tests/data/reference.fasta.gz"
                 outdir = "results"
             }
@@ -215,9 +215,9 @@ nextflow_workflow {
             assert lines.contains("Number of sites filtered: 0")
 
             // check filtered density files:
-            assert path("$launchDir/results/consolidate/SAMPLE1_filtered_density.txt").exists()
-            assert path("$launchDir/results/consolidate/SAMPLE2_filtered_density.txt").exists()
-            assert path("$launchDir/results/consolidate/SAMPLE3_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/A_1__filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/B2_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/B2_SAMPLE3_filtered_density.txt").exists()
 
             lines = path("$launchDir/results/cat/cat_invalid_positions.txt").readLines()
             assert lines.contains("#Calculation and writing of high density regions has completed.")
@@ -233,17 +233,17 @@ nextflow_workflow {
 
             lines = path("$launchDir/results/phyml/phylogeneticTree.newick").readLines()
 
-            assert lines.join("\n").contains("SAMPLE1")
-            assert lines.join("\n").contains("SAMPLE2")
-            assert lines.join("\n").contains("SAMPLE3")
+            assert lines.join("\n").contains("A_1_")
+            assert lines.join("\n").contains("B2")
+            assert lines.join("\n").contains("B2_SAMPLE3")
 
             // check MAKE_SNV output
             lines = path("$launchDir/results/make/snvMatrix.tsv").readLines()
 
-            assert lines[0] == "strain\tSAMPLE2\tSAMPLE3\tSAMPLE1\treference\t"
-            assert lines.contains("SAMPLE1\t1\t1\t0\t0\t")
-            assert lines.contains("SAMPLE2\t0\t2\t1\t1\t")
-            assert lines.contains("SAMPLE3\t2\t0\t1\t1\t")
+            assert lines[0] == "strain\tB2\tB2_SAMPLE3\tA_1_\treference\t"
+            assert lines.contains("A_1_\t1\t1\t0\t0\t")
+            assert lines.contains("B2\t0\t2\t1\t1\t")
+            assert lines.contains("B2_SAMPLE3\t2\t0\t1\t1\t")
 
             // check IRIDA Next JSON file
             lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
