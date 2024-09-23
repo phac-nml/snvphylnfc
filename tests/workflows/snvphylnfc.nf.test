@@ -75,11 +75,11 @@ nextflow_workflow {
     }
 
     test("selecting reference by sample id") {
-        tag "ref_sample_id"
+
         when {
             params {
                 input = "$baseDir/assets/samplesheet.csv"
-                reference_sample_id = "A 1#"
+                reference_sample_id = "A_1_"
                 outdir = "results"
             }
             workflow {}
