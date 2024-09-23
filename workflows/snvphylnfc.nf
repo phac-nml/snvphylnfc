@@ -122,7 +122,7 @@ workflow SNVPHYL {
             return [meta, reads, reference_assembly]
     }
 
-    // Channel of read tuples (meta, [fastq_1, fastq_2*]):
+     // Channel of read tuples (meta, [fastq_1, fastq_2*]):
     reads = input.map { meta, reads, reference_assembly -> tuple(meta, reads) }
 
     INDEXING(
