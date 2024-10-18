@@ -6,6 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.2.0] - 2024/10/18
 
 - Modified the template for input csv file to include a `sample_name` column in addition to `sample` in-line with changes to [IRIDA-Next update] as seen with the [speciesabundance pipeline]
+
   - `sample_name` special characters will be replaced with `"_"`
   - If no `sample_name` is supplied in the column `sample` will be used
   - To avoid repeat values for `sample_name` all `sample_name` values will be suffixed with the unique `sample` value from the input file
