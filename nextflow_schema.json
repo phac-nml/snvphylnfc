@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
+    "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/nextflow_schema.json",
     "title": "phac-nml/snvphylnfc pipeline parameters",
     "description": "SNVPhyl: Whole Genome SNV Phylogenomics Pipeline",
