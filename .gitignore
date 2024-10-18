@@ -6,8 +6,3 @@ results/
 testing/
 testing*
 *.pyc
-*.swp
-.nf-test.log
-.nf-test
-.nf-test.log
-null
