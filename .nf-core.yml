@@ -23,6 +23,7 @@ lint:
     - assets/email_template.txt
     - docs/README.md
     - LICENSE
+    - .gitignore
   pipeline_name_conventions: False
   actions_awsfulltest: False
   multiqc_config:
