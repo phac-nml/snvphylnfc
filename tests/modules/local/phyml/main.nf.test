@@ -31,9 +31,9 @@ nextflow_process {
 
                 lines = path(phylogeneticTree[0]).readLines()
 
-                assert lines.join("\n").contains("SAMPLE1")
-                assert lines.join("\n").contains("SAMPLE2")
-                assert lines.join("\n").contains("SAMPLE3")
+                assert lines.join("\n").contains("A_1_")
+                assert lines.join("\n").contains("B2")
+                assert lines.join("\n").contains("B2_SAMPLE3")
             }
         }
 

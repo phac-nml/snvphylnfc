@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
+    "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/assets/schema_input.json",
     "title": "phac-nml/snvphylnfc pipeline - params.input schema",
     "description": "Schema for the file provided with params.input",
@@ -10,9 +10,14 @@
             "sample": {
                 "type": "string",
                 "pattern": "^\\S+$",
-                "meta": ["id"],
+                "meta": ["irida_id"],
                 "unique": true,
-                "errorMessage": "Sample name must be provided and cannot contain spaces"
+                "errorMessage": "Sample must be provided and cannot contain spaces"
+            },
+            "sample_name": {
+                "type": "string",
+                "meta": ["id", "id_alt"],
+                "errorMessage": "Sample name is optional, if provided will replace sample for filenames and outputs"
             },
             "fastq_1": {
                 "type": "string",

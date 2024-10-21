@@ -1,5 +1,5 @@
 {
-    "$schema": "http://json-schema.org/draft-07/schema",
+    "$schema": "https://json-schema.org/draft-07/schema",
     "$id": "https://raw.githubusercontent.com/phac-nml/snvphylnfc/main/nextflow_schema.json",
     "title": "phac-nml/snvphylnfc pipeline parameters",
     "description": "SNVPhyl: Whole Genome SNV Phylogenomics Pipeline",
@@ -47,8 +47,7 @@
                 "reference_sample_id": {
                     "type": "string",
                     "fa_icon": "fas fa-file",
-                    "description": "The sample ID from which to use the associated FASTA-format assembly as a reference.",
-                    "pattern": "^\\S+$"
+                    "description": "The sample ID from which to use the associated FASTA-format assembly as a reference."
                 },
                 "refgenome": {
                     "type": "string",

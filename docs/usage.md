@@ -14,19 +14,20 @@ You will need to create a samplesheet with information about the samples you wou
 
 ### Full samplesheet
 
-The input samplesheet can contain the following columns: `sample`, `fastq_1`, `fastq_2`, `reference_assembly`, and `metadata_1` - `metadata_8`. The sample IDs within a samplesheet should be unique.
+The input samplesheet can contain the following columns: `sample`, `sample_name`, `fastq_1`, `fastq_2`, `reference_assembly`, and `metadata_1` - `metadata_8`. The sample IDs within a samplesheet should be unique.
 
 A final samplesheet file consisting of both single- and paired-end data may look something like the one below.
 
 ```console
-sample,fastq_1,fastq_2,reference_assembly,metadata_1,metadata_2,metadata_3,metadata_4,metadata_5,metadata_6,metadata_7,metadata_8
-SAMPLE1,/path/to/sample1_fastq1.fq,/path/to/sample1_fastq2.fq,/path/to/sample1_assembly.fa,,,,,,,,
-SAMPLE2,/path/to/sample2_fastq1.fq,,,,,,,,,,
+sample,sample_name,fastq_1,fastq_2,reference_assembly,metadata_1,metadata_2,metadata_3,metadata_4,metadata_5,metadata_6,metadata_7,metadata_8
+SAMPLE1,A1,/path/to/sample1_fastq1.fq,/path/to/sample1_fastq2.fq,/path/to/sample1_assembly.fa,,,,,,,,
+SAMPLE2,B2,/path/to/sample2_fastq1.fq,,,,,,,,,,
 ```
 
 | Column                       | Description                                                                                                                                                                            |
 | ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sample`                     | Custom sample name. Samples should be unique within a samplesheet.                                                                                                                     |
+| `sample_name`                | Sample name used in outputs (filenames and sample names)                                                                                                                               |
 | `fastq_1`                    | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2`                    | (Optional) Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                  |
 | `reference_assembly`         | (Optional) Full path to a FASTA file representing a reference assembly derived from this sample. This field provides a method for selecting a reference genome for the whole pipeline. |

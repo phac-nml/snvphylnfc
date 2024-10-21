@@ -13,7 +13,7 @@ nextflow_process {
             }
             process {
                 """
-                input[0] = new Tuple(["id": "SAMPLE1"], [file("$baseDir/tests/data/SAMPLE1_1.fastq"), file("$baseDir/tests/data/SAMPLE1_2.fastq")])
+                input[0] = new Tuple(["id": "A_1_"], [file("$baseDir/tests/data/A_1__1.fastq"), file("$baseDir/tests/data/A_1__2.fastq")])
                 input[1] = file("$baseDir/tests/data/reference.fasta.fai")
                 input[2] = file("$baseDir/tests/data/reference.sma")
                 input[3] = file("$baseDir/tests/data/reference.smi")
@@ -25,7 +25,7 @@ nextflow_process {
             assert process.success
 
             with(process.out) {
-                assert bams[0][0].id == "SAMPLE1"
+                assert bams[0][0].id == "A_1_"
                 assert path(bams[0][1]).exists()
             }
         }
