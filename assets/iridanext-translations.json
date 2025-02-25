@@ -1,0 +1,30 @@
+{
+    "overrides": {
+        "definitions": {
+            "input_output_options": {
+                "description": {
+                    "en": "Define which data to use with the pipeline.",
+                    "fr": "Définir les données à utiliser avec le pipeline."
+                }
+            },
+            "reference": {
+                "description": {
+                    "en": "The reference to use for analysis. Use only one method for selecting the reference.",
+                    "fr": "La référence à utiliser pour l’analyse. N’utiliser qu’une seule méthode pour sélectionner la référence."
+                }
+            },
+            "metadata": {
+                "description": {
+                    "en": "The column header names of the metadata columns.",
+                    "fr": "Les noms d’en-tête de colonne des colonnes de métadonnées."
+                }
+            },
+            "snvphyl_pipeline_parameters": {
+                "description": {
+                    "en": "Fine-tuning of SNVPhyl's parameters to configure specific pipeline behaviour.",
+                    "fr": "Ajustement des paramètres de SNVPhyl pour configurer un comportement propre au pipeline."
+                }
+            }
+        }
+    }
+}
