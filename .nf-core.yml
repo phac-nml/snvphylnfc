@@ -11,6 +11,8 @@ lint:
     - lib/WorkflowMain.groovy
     - lib/NfcoreTemplate.groovy
     - lib/WorkflowSnvphylnfc.groovy
+    - conf/igenomes_ignored.config
+    - ro-crate-metadata.json
   files_unchanged:
     - assets/sendmail_template.txt
     - assets/email_template.html
