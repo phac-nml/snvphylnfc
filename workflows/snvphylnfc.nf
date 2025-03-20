@@ -60,7 +60,7 @@ include { FILTER_STATS         } from '../modules/local/filterstats/main'
 include { PHYML                } from '../modules/local/phyml/main'
 include { MAKE_SNV             } from '../modules/local/makesnv/main'
 include { WRITE_METADATA      } from '../modules/local/writemetadata/main'
-include { ARBOR_VIEW           } from '../modules/local/arborview.nf'
+include { ARBOR_VIEW           } from '../modules/local/arborview/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

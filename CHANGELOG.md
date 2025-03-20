@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Increased resources for `VERIFYING_MAP_Q` from `process_single` to `process_high` for processing larger numbers of samples. See [PR #29](https://github.com/phac-nml/snvphylnfc/pull/29).
 - Updated `nf-core` lint version to `3.2.0`. See [PR #29](https://github.com/phac-nml/snvphylnfc/pull/29).
+- Fixed some nf-core linting warnings and moved arborview.nf module to subfolders. See [PR #29](https://github.com/phac-nml/snvphylnfc/pull/29).
 
 ## [2.2.0] - 2024/10/21
 
