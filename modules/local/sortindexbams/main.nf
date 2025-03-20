@@ -23,8 +23,8 @@ process SORT_INDEX_BAMS {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    samtools sort --threads ${task.cpus} -O bam -o ${prefix}_sorted.bam ${bams}
-    samtools index --threads ${task.cpus} ${prefix}_sorted.bam
+    samtools sort -@ ${task.cpus} -O bam -o ${prefix}_sorted.bam ${bams}
+    samtools index -@ ${task.cpus} ${prefix}_sorted.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
