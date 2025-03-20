@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2025/03/20
+
+### Changed
+
+- Increased resources for `VERIFYING_MAP_Q` from `process_single` to `process_high` for processing larger numbers of samples. See [PR #29](https://github.com/phac-nml/snvphylnfc/pull/29).
+
 ## [2.2.0] - 2024/10/21
 
 - Modified the template for input csv file to include a `sample_name` column in addition to `sample` in-line with changes to [IRIDA-Next update] as seen with the [speciesabundance pipeline]
@@ -58,6 +64,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Dependencies`
 
+[2.2.1]: https://github.com/phac-nml/snvphylnfc/releases/tag/2.2.1
 [2.2.0]: https://github.com/phac-nml/snvphylnfc/releases/tag/2.2.0
 [2.1.1]: https://github.com/phac-nml/snvphylnfc/releases/tag/2.1.1
 [2.1.0]: https://github.com/phac-nml/snvphylnfc/releases/tag/2.1.0
