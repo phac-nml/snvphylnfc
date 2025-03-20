@@ -9,7 +9,7 @@ Please refer to the README for more information.
 */
 process SORT_INDEX_BAMS {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
     container = "staphb/samtools:1.9"
 
     input:
@@ -23,8 +23,8 @@ process SORT_INDEX_BAMS {
     script:
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
-    samtools sort -O bam -o ${prefix}_sorted.bam ${bams}
-    samtools index ${prefix}_sorted.bam
+    samtools sort -@ ${task.cpus} -O bam -o ${prefix}_sorted.bam ${bams}
+    samtools index -@ ${task.cpus} ${prefix}_sorted.bam
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
