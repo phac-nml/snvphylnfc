@@ -8,7 +8,7 @@ This source file has been adapted to work within our pipeline.
 Please refer to the README for more information.
 */
 process PHYML {
-    label 'process_low'
+    label 'process_medium'
     container = "biocontainers/phyml:3.3.20211231--hee9e358_0"
 
     input:

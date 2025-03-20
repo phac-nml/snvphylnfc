@@ -42,7 +42,6 @@ WorkflowSnvphylnfc.initialise(params, log)
 //
 // SUBWORKFLOW: Consisting of a mix of local and nf-core/modules
 //
-include { INPUT_CHECK          } from '../subworkflows/local/input_check'
 include { INDEXING             } from '../modules/local/indexing/main'
 include { FIND_REPEATS         } from '../modules/local/findrepeats/main'
 include { SMALT_MAP            } from '../modules/local/smaltmap/main'
@@ -60,7 +59,7 @@ include { FILTER_STATS         } from '../modules/local/filterstats/main'
 include { PHYML                } from '../modules/local/phyml/main'
 include { MAKE_SNV             } from '../modules/local/makesnv/main'
 include { WRITE_METADATA      } from '../modules/local/writemetadata/main'
-include { ARBOR_VIEW           } from '../modules/local/arborview.nf'
+include { ARBOR_VIEW           } from '../modules/local/arborview/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
