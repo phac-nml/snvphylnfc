@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Updated`
 
-- Update the `ArborView` version to [0.0.8](https://github.com/phac-nml/ArborView/releases/tag/v0.0.8) (i.e. replace `bin/inline_arborview.py` with `scripts/fillin_data.py`) [PR #31](https://github.com/phac-nml/snvphylnfc/pull/31)
+- Update the `ArborView` version to [0.0.8](https://github.com/phac-nml/ArborView/releases/tag/v0.0.8) (i.e. replace `bin/inline_arborview.py` with `scripts/fillin_data.py` and `assets/ArborView.html` with `html/table.html`) [PR #31](https://github.com/phac-nml/snvphylnfc/pull/31)
 
 ## [2.2.1] - 2025/03/20
 
