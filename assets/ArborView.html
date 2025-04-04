@@ -2453,7 +2453,7 @@
                 let text2copy = text2copyArray.join('\n');
                 navigator.permissions.query({ name: "clipboard-write" }).then((result) => {
                     if (result.state === "granted" || result.state === "prompt") {
-		                navigator.clipboard.writeText(text2copy)
+                      navigator.clipboard.writeText(text2copy)
                         Swal.fire({
                             html: `<p>Successfully copied ${text2copyArray.length} node IDs to the clipboard<br>Generate a text file with the ${text2copyArray.length} IDs?</p>`,
                             icon: "info",
