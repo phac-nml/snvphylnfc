@@ -240,6 +240,7 @@ workflow SNVPHYL {
     tree_html = file("$projectDir/assets/ArborView.html")
 
     ARBOR_VIEW(tree_data, tree_html)
+    ch_versions = ch_versions.mix(ARBOR_VIEW.out.versions)
 
     CUSTOM_DUMPSOFTWAREVERSIONS (
         ch_versions.unique().collectFile(name: 'collated_versions.yml')
