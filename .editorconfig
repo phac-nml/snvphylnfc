@@ -24,7 +24,12 @@ indent_size = unset
 indent_size = unset
 
 [/assets/ArborView.html]
+charset = unset
+end_of_line = unset
+insert_final_newline = unset
 trim_trailing_whitespace = unset
+indent_style = unset
+indent_size = unset
 
 # ignore Readme
 [README.md]

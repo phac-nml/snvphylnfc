@@ -29,7 +29,7 @@ process ARBOR_VIEW {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        ArborView : 0.1.0
+        ArborView : 0.1.2
     END_VERSIONS
     """
 
