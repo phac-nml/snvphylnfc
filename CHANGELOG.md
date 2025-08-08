@@ -7,7 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### `Updated`
 
-- Upgraded ArborView to [v.0.1.2](https://github.com/phac-nml/ArborView/releases/tag/v0.1.2)
+- Upgraded ArborView to [v.0.1.2](https://github.com/phac-nml/ArborView/releases/tag/v0.1.2). [PR #36](https://github.com/phac-nml/snvphylnfc/pull/36)
   - Update `assets/AborView.html` in pipeline with [html/table.html](https://github.com/phac-nml/ArborView/blob/v0.1.2/html/table.html)
 
 ## [2.3.0] - 2025-06-09
