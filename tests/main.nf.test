@@ -10,7 +10,7 @@ nextflow_pipeline {
             params {
                 input = "$baseDir/assets/samplesheet.csv"
                 refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
-                outdir = "results"
+                outdir = "$outputDir"
                 max_samples = 2
             }
         }
@@ -18,15 +18,16 @@ nextflow_pipeline {
         then {
 
             // Check the error-log file
-            def max_sample_log = "$launchDir/results/error/max_samples_exceeded.error.txt"
+            def max_sample_log = "$outputDir/error/max_samples_exceeded.error.txt"
             assert file(max_sample_log).exists()
             assert path(max_sample_log).readLines().contains("3 samples were selected, which exceeds the maximum number of samples: 2")
 
             // Check IRIDA Next JSON output
-            assert path("$launchDir/results/iridanext.output.json.gz").exists()
+            assert path("$outputDir/iridanext.output.json.gz").exists()
             def lines = []
-            lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
+            lines = path("$outputDir/iridanext.output.json.gz").linesGzip.join("\n")
             assert lines.contains("\"path\": \"error/max_samples_exceeded.error.txt\"")
+            assert snapshot(path("${outputDir}/error/versions.yml")).match("versions")
         }
 
     }
