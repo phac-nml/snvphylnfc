@@ -260,4 +260,35 @@ nextflow_workflow {
 
     }
 
+    test("Test max_samples: fails due to limit") {
+    tag "fail_max_samples"
+
+        when {
+            params {
+                input = "$baseDir/assets/samplesheet.csv"
+                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
+                outdir = "results"
+                max_samples = 2
+            }
+            workflow {}
+        }
+
+        then {
+
+            // Check the error-log file
+            def max_sample_log = "$launchDir/results/error/max_samples_exceeded.error.txt"
+            assert file(max_sample_log).exists()
+            assert path(max_sample_log).readLines().contains("3 samples were selected, which exceeds the maximum number of samples: 2")
+
+            // Check IRIDA Next JSON output
+            assert path("$launchDir/results/iridanext.output.json").exists()
+
+            def iridanext_json = path("$launchDir/results/iridanext.output.json").json
+            def iridanext_global = iridanext_json.files.global.path
+
+            assert iridanext_global == ['error/max_samples_exceeded.error.txt']
+        }
+
+    }
+
 }
