@@ -20,7 +20,7 @@ process MAX_SAMPLES_CHECK {
     publishDir "${params.outdir}/error"
 
     input:
-    val sample_count // number of samples provided to mikrokondo
+    val sample_count // number of samples provided to snvphylnfc
 
     output:
     path output_file_path, emit: failure_report
