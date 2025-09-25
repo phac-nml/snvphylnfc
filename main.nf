@@ -36,6 +36,7 @@ process MAX_SAMPLES_CHECK {
     Pipeline maximum sample count threshold should only occur when running in IRIDA Next,
     please submit an issue if you encounter it elsewhere.
 
+    This limit has been added for execution in IRIDA Next to prevent accidental generation of large compute bills.
     If running from command-line make sure that --max_samples 0
     """.stripIndent().trim()
 
