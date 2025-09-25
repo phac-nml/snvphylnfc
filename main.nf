@@ -74,21 +74,21 @@ WorkflowMain.initialise(workflow, params, log)
     as we will not do anything with the limit.
 */
 
-    def number_of_samples = file(params.input).readLines().size() - 1 // Remove 1 for header
-    def unlimited_samples = (params.max_samples == 0) ? true : false
+def number_of_samples = file(params.input).readLines().size() - 1 // Remove 1 for header
+def unlimited_samples = (params.max_samples == 0) ? true : false
 
 //
 // WORKFLOW: Run main phac-nml/snvphylnfc analysis pipeline
 //
 
-    workflow PHACNML_SNVPHYL {
-    if( unlimited_samples || number_of_samples <= params.max_samples){
-        SNVPHYL ()
-    }else{
-        MAX_SAMPLES_CHECK(channel.value(number_of_samples))
-        log.info "Parameter --max_samples was set: See outdir/error/max_samples_exceeded.error.txt for more information."
+workflow PHACNML_SNVPHYL {
+if( unlimited_samples || number_of_samples <= params.max_samples){
+    SNVPHYL ()
+}else{
+    MAX_SAMPLES_CHECK(channel.value(number_of_samples))
+    log.info "Parameter --max_samples was set: See outdir/error/max_samples_exceeded.error.txt for more information."
 
-    }}
+}}
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
