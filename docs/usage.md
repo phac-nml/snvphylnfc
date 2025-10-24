@@ -24,14 +24,14 @@ SAMPLE1,A1,/path/to/sample1_fastq1.fq,/path/to/sample1_fastq2.fq,/path/to/sample
 SAMPLE2,B2,/path/to/sample2_fastq1.fq,,,,,,,,,,,,,,,,,,
 ```
 
-| Column                       | Description                                                                                                                                                                            |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `sample`                     | Custom sample name. Samples should be unique within a samplesheet.                                                                                                                     |
-| `sample_name`                | Sample name used in outputs (filenames and sample names)                                                                                                                               |
-| `fastq_1`                    | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
-| `fastq_2`                    | (Optional) Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                  |
-| `reference_assembly`         | (Optional) Full path to a FASTA file representing a reference assembly derived from this sample. This field provides a method for selecting a reference genome for the whole pipeline. |
-| `metadata_1` to `metadata_16` | (Optional) Permits up to 16 columns for user-defined contextual metadata associated with each `sample`.                                                                                 |
+| Column                        | Description                                                                                                                                                                            |
+| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `sample`                      | Custom sample name. Samples should be unique within a samplesheet.                                                                                                                     |
+| `sample_name`                 | Sample name used in outputs (filenames and sample names)                                                                                                                               |
+| `fastq_1`                     | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
+| `fastq_2`                     | (Optional) Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                  |
+| `reference_assembly`          | (Optional) Full path to a FASTA file representing a reference assembly derived from this sample. This field provides a method for selecting a reference genome for the whole pipeline. |
+| `metadata_1` to `metadata_16` | (Optional) Permits up to 16 columns for user-defined contextual metadata associated with each `sample`.                                                                                |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
