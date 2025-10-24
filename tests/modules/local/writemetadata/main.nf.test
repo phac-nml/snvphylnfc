@@ -1,0 +1,141 @@
+nextflow_process {
+    name "Test Process WRITE_METADATA"
+    script "modules/local/writemetadata/main.nf"
+    process "WRITE_METADATA"
+
+    test("Test dropping of empty metadata columns with default names") {
+        tag "WRITE_METADATA_drop_metadata"
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    "sample",
+                    "metadata_1",
+                    "metadata_2",
+                    "metadata_3",
+                    "metadata_4",
+                    "metadata_5",
+                    "metadata_6",
+                    "metadata_7",
+                    "metadata_8",
+                    "metadata_9",
+                    "metadata_10",
+                    "metadata_11",
+                    "metadata_12",
+                    "metadata_13",
+                    "metadata_14",
+                    "metadata_15",
+                    "metadata_16"
+                ])
+                input[1] = Channel.of([
+                    ["sample1", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "", "", "", "", "", "", "",""],
+                    ["sample2", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "", "", "", "", "", "", "",""],
+                    ["sample3", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "", "", "", "", "", "", "",""]
+                ])
+                """
+            }
+
+            params {
+                outdir = "results"
+            }
+        }
+
+        then {
+            assert process.success
+            // Check that the output drops default metadata fields 9-16
+            def append_file = path("$launchDir/results/write/metadata.tsv")
+            assert append_file.exists()
+            assert append_file.text.contains("sample\tmetadata_1\tmetadata_2\tmetadata_3\tmetadata_4\tmetadata_5\tmetadata_6\tmetadata_7\tmetadata_8\nsample1\t1.1\t1.2\t1.3\t1.4\t1.5\t1.6\t1.7\t1.8\nsample2\t2.1\t2.2\t2.3\t2.4\t2.5\t2.6\t2.7\t2.8\nsample3\t3.1\t3.2\t3.3\t3.4\t3.5\t3.6\t3.7\t3.8\n")
+        }
+    }
+    test("Test keeping empty metadata columns with custom names") {
+        tag "WRITE_METADATA_keep_all_metadata"
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    "sample",
+                    "metadata_a",
+                    "metadata_b",
+                    "metadata_c",
+                    "metadata_d",
+                    "metadata_e",
+                    "metadata_f",
+                    "metadata_g",
+                    "metadata_h",
+                    "metadata_i",
+                    "metadata_j",
+                    "metadata_k",
+                    "metadata_l",
+                    "metadata_m",
+                    "metadata_n",
+                    "metadata_o",
+                    "metadata_p"
+                ])
+                input[1] = Channel.of([
+                    ["sample1", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "", "", "", "", "", "", "",""],
+                    ["sample2", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "", "", "", "", "", "", "",""],
+                    ["sample3", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "", "", "", "", "", "", "",""]
+                ])
+                """
+            }
+
+            params {
+                outdir = "results"
+            }
+        }
+
+        then {
+            assert process.success
+            // Check that the output drops default metadata fields 9-16
+            def append_file = path("$launchDir/results/write/metadata.tsv")
+            assert append_file.exists()
+            assert append_file.text.contains("sample\tmetadata_a\tmetadata_b\tmetadata_c\tmetadata_d\tmetadata_e\tmetadata_f\tmetadata_g\tmetadata_h\tmetadata_i\tmetadata_j\tmetadata_k\tmetadata_l\tmetadata_m\tmetadata_n\tmetadata_o\tmetadata_p\nsample1\t1.1\t1.2\t1.3\t1.4\t1.5\t1.6\t1.7\t1.8\t\t\t\t\t\t\t\t\nsample2\t2.1\t2.2\t2.3\t2.4\t2.5\t2.6\t2.7\t2.8\t\t\t\t\t\t\t\t\nsample3\t3.1\t3.2\t3.3\t3.4\t3.5\t3.6\t3.7\t3.8\t\t\t\t\t\t\t\t\n")
+        }
+    }
+    test("Test keeping of empty metadata columns with non-default numeric names 0 and 17") {
+        tag "WRITE_METADATA_keep_metadata_0_17"
+        when {
+            process {
+                """
+                input[0] = Channel.of([
+                    "sample",
+                    "metadata_1",
+                    "metadata_2",
+                    "metadata_3",
+                    "metadata_4",
+                    "metadata_5",
+                    "metadata_6",
+                    "metadata_7",
+                    "metadata_8",
+                    "metadata_0",
+                    "metadata_10",
+                    "metadata_11",
+                    "metadata_12",
+                    "metadata_13",
+                    "metadata_14",
+                    "metadata_15",
+                    "metadata_17"
+                ])
+                input[1] = Channel.of([
+                    ["sample1", "1.1", "1.2", "1.3", "1.4", "1.5", "1.6", "1.7", "1.8", "", "", "", "", "", "", "",""],
+                    ["sample2", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "2.7", "2.8", "", "", "", "", "", "", "",""],
+                    ["sample3", "3.1", "3.2", "3.3", "3.4", "3.5", "3.6", "3.7", "3.8", "", "", "", "", "", "", "",""]
+                ])
+                """
+            }
+
+            params {
+                outdir = "results"
+            }
+        }
+
+        then {
+            assert process.success
+            // Check that the output drops default metadata fields 9-16
+            def append_file = path("$launchDir/results/write/metadata.tsv")
+            assert append_file.exists()
+            assert append_file.text.contains("sample\tmetadata_1\tmetadata_2\tmetadata_3\tmetadata_4\tmetadata_5\tmetadata_6\tmetadata_7\tmetadata_8\tmetadata_0\tmetadata_17\nsample1\t1.1\t1.2\t1.3\t1.4\t1.5\t1.6\t1.7\t1.8\t\t\nsample2\t2.1\t2.2\t2.3\t2.4\t2.5\t2.6\t2.7\t2.8\t\t\nsample3\t3.1\t3.2\t3.3\t3.4\t3.5\t3.6\t3.7\t3.8\t\t\n")
+        }
+    }
+}
