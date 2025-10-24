@@ -108,6 +108,62 @@
                 "errorMessage": "Metadata associated with the sample (metadata_8).",
                 "default": "",
                 "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_9": {
+                "type": "string",
+                "meta": ["metadata_9"],
+                "errorMessage": "Metadata associated with the sample (metadata_9).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_10": {
+                "type": "string",
+                "meta": ["metadata_10"],
+                "errorMessage": "Metadata associated with the sample (metadata_10).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_11": {
+                "type": "string",
+                "meta": ["metadata_11"],
+                "errorMessage": "Metadata associated with the sample (metadata_11).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_12": {
+                "type": "string",
+                "meta": ["metadata_12"],
+                "errorMessage": "Metadata associated with the sample (metadata_12).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_13": {
+                "type": "string",
+                "meta": ["metadata_13"],
+                "errorMessage": "Metadata associated with the sample (metadata_13).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_14": {
+                "type": "string",
+                "meta": ["metadata_14"],
+                "errorMessage": "Metadata associated with the sample (metadata_14).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_15": {
+                "type": "string",
+                "meta": ["metadata_15"],
+                "errorMessage": "Metadata associated with the sample (metadata_15).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
+            },
+            "metadata_16": {
+                "type": "string",
+                "meta": ["metadata_16"],
+                "errorMessage": "Metadata associated with the sample (metadata_16).",
+                "default": "",
+                "pattern": "^[^\\n\\t\"]+$"
             }
         },
         "required": ["sample", "fastq_1"]

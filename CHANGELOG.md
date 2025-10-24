@@ -9,6 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Adding GitHub CI tests against Nextflow `24.10.3`. [PR #40](https://github.com/phac-nml/snvphylnfc/pull/40)
 
+### `Added`
+
+- Increased the number of metadata columns in the sample sheet from 8 to 16. [PR #41](https://github.com/phac-nml/snvphylnfc/pull/41)
+
 ## [2.3.2] - 2025-09-25
 
 - Added a IRIDA Next specific parameter: `max_samples`. `max_samples` is used to limit the number of samples the pipeline will run with. When the number of samples is >= `max_samples` all processes are skipped an an error file is produced `max_samples_exceeded.error.txt`. [PR 38](https://github.com/phac-nml/snvphylnfc/pull/38)

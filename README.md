@@ -8,10 +8,10 @@ This is the [nf-core](https://nf-co.re/)-based pipeline for [SNVPhyl](https://sn
 
 Input is provided to SNVPhyl in the form of a samplesheet (passed as `--input samplesheet.csv`). This samplesheet is a CSV-formated file, which may be provided as a URI (ex: a file path or web address), and has the following format:
 
-| sample  | sample_name  | fastq_1                    | fastq_2                    | reference_assembly           | metadata_1 | metadata_2 | metadata_3 | metadata_4 | metadata_5 | metadata_6 | metadata_7 | metadata_8 |
-| ------- | ------------ | -------------------------- | -------------------------- | ---------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- |
-| SAMPLE1 | sample_name1 | /path/to/sample1_fastq1.fq | /path/to/sample1_fastq2.fq | /path/to/sample1_assembly.fa | meta1      | meta2      | meta3      | meta4      | meta5      | meta6      | meta7      | meta8      |
-| SAMPLE2 | sample_name2 | /path/to/sample2_fastq1.fq |                            |                              | meta1      | meta2      | meta3      | meta4      | meta5      | meta6      | meta7      | meta8      |
+| sample  | sample_name  | fastq_1                    | fastq_2                    | reference_assembly           | metadata_1 | metadata_2 | metadata_3 | metadata_4 | metadata_5 | metadata_6 | metadata_7 | metadata_8 | metadata_9 | metadata_10 | metadata_11 | metadata_12 | metadata_13 | metadata_14 | metadata_15 | metadata_16 |
+| ------- | ------------ | -------------------------- | -------------------------- | ---------------------------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ---------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- | ----------- |
+| SAMPLE1 | sample_name1 | /path/to/sample1_fastq1.fq | /path/to/sample1_fastq2.fq | /path/to/sample1_assembly.fa | meta1      | meta2      | meta3      | meta4      | meta5      | meta6      | meta7      | meta8      | meta9      | meta10      | meta11      | meta12      | meta13      | meta14      | meta15      | meta16      |
+| SAMPLE2 | sample_name2 | /path/to/sample2_fastq1.fq |                            |                              | meta1      | meta2      | meta3      | meta4      | meta5      | meta6      | meta7      | meta8      | meta9      | meta10      | meta11      | meta12      | meta13      | meta14      | meta15      | meta16      |
 
 The columns are defined as follows:
 
@@ -20,7 +20,7 @@ The columns are defined as follows:
 - `fastq_1`: A URI (ex: a file path or web address) to either single-end FASTQ-formatted reads or one pair of pair-end FASTQ-formatted reads.
 - `fastq_2`: (Optional) If `fastq_1` is paired-end, then this field is a URI to reads that are the other pair of reads associated with `fastq_1`.
 - `reference_assembly`: (Optional) A URI to a reference assembly associated with the sample, so that it may be referenced on the command line by the sample identifier for use as the reference for the whole pipeline. However, it may be easier to leave these fields blank and specify the reference using the `--refgenome` parameter.
-- `metadata_1...8`: (Optional) Permits up to 8 columns for user-defined contextual metadata associated with each `sample`. Refer to [Metadata](#metadata) for more information.
+- `metadata_1...16`: (Optional) Permits up to 16 columns for user-defined contextual metadata associated with each `sample`. Refer to [Metadata](#metadata) for more information.
 
 ### When to use `sample` vs `sample_name`
 
@@ -45,7 +45,7 @@ Additionally, it is mandatory to have one of either `--refgenome` or `--referenc
 
 ## Metadata
 
-In order to customize metadata headers, the parameters `--metadata_1_header` through `--metadata_8_header` may be specified. These parameters are used to re-name the headers in the final metadata table from the defaults (e.g., rename `metadata_1` to `country`).
+In order to customize metadata headers, the parameters `--metadata_1_header` through `--metadata_16_header` may be specified. These parameters are used to re-name the headers in the final metadata table from the defaults (e.g., rename `metadata_1` to `country`).
 
 ## Optional
 

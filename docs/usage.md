@@ -14,14 +14,14 @@ You will need to create a samplesheet with information about the samples you wou
 
 ### Full samplesheet
 
-The input samplesheet can contain the following columns: `sample`, `sample_name`, `fastq_1`, `fastq_2`, `reference_assembly`, and `metadata_1` - `metadata_8`. The sample IDs within a samplesheet should be unique.
+The input samplesheet can contain the following columns: `sample`, `sample_name`, `fastq_1`, `fastq_2`, `reference_assembly`, and `metadata_1` - `metadata_16`. The sample IDs within a samplesheet should be unique.
 
 A final samplesheet file consisting of both single- and paired-end data may look something like the one below.
 
 ```console
-sample,sample_name,fastq_1,fastq_2,reference_assembly,metadata_1,metadata_2,metadata_3,metadata_4,metadata_5,metadata_6,metadata_7,metadata_8
-SAMPLE1,A1,/path/to/sample1_fastq1.fq,/path/to/sample1_fastq2.fq,/path/to/sample1_assembly.fa,,,,,,,,
-SAMPLE2,B2,/path/to/sample2_fastq1.fq,,,,,,,,,,
+sample,sample_name,fastq_1,fastq_2,reference_assembly,metadata_1,metadata_2,metadata_3,metadata_4,metadata_5,metadata_6,metadata_7,metadata_8,metadata_9,metadata_10,metadata_11,metadata_12,metadata_13,metadata_14,metadata_15,metadata_16
+SAMPLE1,A1,/path/to/sample1_fastq1.fq,/path/to/sample1_fastq2.fq,/path/to/sample1_assembly.fa,,,,,,,,,,,,,,,,
+SAMPLE2,B2,/path/to/sample2_fastq1.fq,,,,,,,,,,,,,,,,,,
 ```
 
 | Column                       | Description                                                                                                                                                                            |
@@ -31,7 +31,7 @@ SAMPLE2,B2,/path/to/sample2_fastq1.fq,,,,,,,,,,
 | `fastq_1`                    | Full path to FastQ file for Illumina short reads 1. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                             |
 | `fastq_2`                    | (Optional) Full path to FastQ file for Illumina short reads 2. File has to be gzipped and have the extension ".fastq.gz" or ".fq.gz".                                                  |
 | `reference_assembly`         | (Optional) Full path to a FASTA file representing a reference assembly derived from this sample. This field provides a method for selecting a reference genome for the whole pipeline. |
-| `metadata_1` to `metadata_8` | (Optional) Permits up to 8 columns for user-defined contextual metadata associated with each `sample`.                                                                                 |
+| `metadata_1` to `metadata_16` | (Optional) Permits up to 16 columns for user-defined contextual metadata associated with each `sample`.                                                                                 |
 
 An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
 
