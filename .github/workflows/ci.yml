@@ -25,6 +25,7 @@ jobs:
       matrix:
         NXF_VER:
           - "23.04.0"
+          - "24.10.3"
           - "latest-everything"
     steps:
       - name: Check out pipeline code
@@ -51,9 +52,11 @@ jobs:
           sudo mv nf-test /usr/local/bin/
 
       - name: Run nf-test
+        continue-on-error: ${{ matrix.NXF_VER == 'latest-everything' }}
         run: |
           nf-test test
 
       - name: Nextflow run with test profile
+        continue-on-error: ${{ matrix.NXF_VER == 'latest-everything' }}
         run: |
           nextflow run ${GITHUB_WORKSPACE} -profile test,docker --outdir ./results

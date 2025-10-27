@@ -128,6 +128,62 @@
                     "description": "The header name of metadata column 8.",
                     "fa_icon": "far fa-sticky-note",
                     "pattern": "^[^\\n\\t\"]+$"
+                },
+                "metadata_9_header": {
+                    "type": "string",
+                    "default": "metadata_9",
+                    "description": "The header name of metadata column 9.",
+                    "fa_icon": "far fa-sticky-note",
+                    "pattern": "^[^\\n\\t\"]+$"
+                },
+                "metadata_10_header": {
+                    "type": "string",
+                    "default": "metadata_10",
+                    "description": "The header name of metadata column 10.",
+                    "fa_icon": "far fa-sticky-note",
+                    "pattern": "^[^\\n\\t\"]+$"
+                },
+                "metadata_11_header": {
+                    "type": "string",
+                    "default": "metadata_11",
+                    "description": "The header name of metadata column 11.",
+                    "fa_icon": "far fa-sticky-note",
+                    "pattern": "^[^\\n\\t\"]+$"
+                },
+                "metadata_12_header": {
+                    "type": "string",
+                    "default": "metadata_12",
+                    "description": "The header name of metadata column 12.",
+                    "fa_icon": "far fa-sticky-note",
+                    "pattern": "^[^\\n\\t\"]+$"
+                },
+                "metadata_13_header": {
+                    "type": "string",
+                    "default": "metadata_13",
+                    "description": "The header name of metadata column 13.",
+                    "fa_icon": "far fa-sticky-note",
+                    "pattern": "^[^\\n\\t\"]+$"
+                },
+                "metadata_14_header": {
+                    "type": "string",
+                    "default": "metadata_14",
+                    "description": "The header name of metadata column 14.",
+                    "fa_icon": "far fa-sticky-note",
+                    "pattern": "^[^\\n\\t\"]+$"
+                },
+                "metadata_15_header": {
+                    "type": "string",
+                    "default": "metadata_15",
+                    "description": "The header name of metadata column 15.",
+                    "fa_icon": "far fa-sticky-note",
+                    "pattern": "^[^\\n\\t\"]+$"
+                },
+                "metadata_16_header": {
+                    "type": "string",
+                    "default": "metadata_16",
+                    "description": "The header name of metadata column 16.",
+                    "fa_icon": "far fa-sticky-note",
+                    "pattern": "^[^\\n\\t\"]+$"
                 }
             },
             "fa_icon": "far fa-clipboard"

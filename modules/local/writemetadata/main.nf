@@ -10,10 +10,18 @@ process WRITE_METADATA {
     path("metadata.tsv"), emit: metadata
 
     exec:
-    task.workDir.resolve("metadata.tsv").withWriter { writer ->
-        writer.writeLine("id\t" + metadata_headers.join('\t'))
-        metadata_rows.each { row ->
-            writer.writeLine(row.join('\t'))
+    def merged = [metadata_headers] + metadata_rows
+    def transposed = merged.transpose()
+    def merged_filtered = transposed.findAll { column ->
+            def header = column.head()
+            def dataOnly = column.tail()
+            def isMetadata = (header ==~ /metadata_([1-9]|1[0-6])/) //Checkif the metadata field was modified, if so keep even if empty
+            !isMetadata || dataOnly.any { it != '' } // Keep null values just remove columns with only empty rows
         }
+    def merged_cleaned = merged_filtered.transpose()
+
+    task.workDir.resolve("metadata.tsv").withWriter { writer ->
+        merged_cleaned.each { writer.writeLine it.join("\t")
+    }
     }
 }
