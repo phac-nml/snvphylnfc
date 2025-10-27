@@ -253,15 +253,15 @@ nextflow_pipeline {
             lines = path("$launchDir/results/write/metadata.tsv").readLines()
 
             assert lines.size() == 4
-            assert lines.contains("id\tmetadata_1\tmetadata_2\tmetadata_3\tmetadata_4\tmetadata_5\tmetadata_6\tmetadata_7\tmetadata_8")
-            assert lines.contains("A_1_\t\t\t\t\t\t\t\t")
-            assert lines.contains("B2\t\t\t\t\t\t\t\t")
-            assert lines.contains("B2_SAMPLE3\t\t\t\t\t\t\t\t")
+            assert lines.contains("id")
+            assert lines.contains("A_1_")
+            assert lines.contains("B2")
+            assert lines.contains("B2_SAMPLE3")
 
             // Check that ArborView output is created
             def actual_arborview = path("$launchDir/results/arbor/SNVPhyl_ArborView.html")
             assert actual_arborview.exists()
-            assert actual_arborview.text.contains("id\\tmetadata_1\\tmetadata_2\\tmetadata_3\\tmetadata_4\\tmetadata_5\\tmetadata_6\\tmetadata_7\\tmetadata_8\\nA_1_\\t\\t\\t\\t\\t\\t\\t\\t\\nB2\\t\\t\\t\\t\\t\\t\\t\\t\\nB2_SAMPLE3\\t\\t\\t\\t\\t\\t\\t\\t")
+            assert actual_arborview.text.contains("id\\nA_1_\\nB2\\nB2_SAMPLE3")
 
             // check IRIDA Next JSON file
             lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
@@ -303,15 +303,15 @@ nextflow_pipeline {
             lines = path("$launchDir/results/write/metadata.tsv").readLines()
 
             assert lines.size() == 4
-            assert lines.contains("id\tmyheader_1\tmyheader_2\tmyheader_3\tmetadata_4\tmetadata_5\tmetadata_6\tmetadata_7\tmetadata_8")
-            assert lines.contains("A_1_\t1.1\t2.1\t3.1\t\t\t\t\t")
-            assert lines.contains("B2\t\t2.2\t3.2\t\t\t\t\t")
-            assert lines.contains("B2_SAMPLE3\t1.3\t2.3\t\t\t\t\t\t")
+            assert lines.contains("id\tmyheader_1\tmyheader_2\tmyheader_3")
+            assert lines.contains("A_1_\t1.1\t2.1\t3.1")
+            assert lines.contains("B2\t\t2.2\t3.2")
+            assert lines.contains("B2_SAMPLE3\t1.3\t2.3\t")
 
             // Check that ArborView output is created
             def actual_arborview = path("$launchDir/results/arbor/SNVPhyl_ArborView.html")
             assert actual_arborview.exists()
-            assert actual_arborview.text.contains("id\\tmyheader_1\\tmyheader_2\\tmyheader_3\\tmetadata_4\\tmetadata_5\\tmetadata_6\\tmetadata_7\\tmetadata_8\\nA_1_\\t1.1\\t2.1\\t3.1\\t\\t\\t\\t\\t\\nB2\\t\\t2.2\\t3.2\\t\\t\\t\\t\\t\\nB2_SAMPLE3\\t1.3\\t2.3\\t\\t\\t\\t\\t\\t")
+            assert actual_arborview.text.contains("id\\tmyheader_1\\tmyheader_2\\tmyheader_3\\nA_1_\\t1.1\\t2.1\\t3.1\\nB2\\t\\t2.2\\t3.2\\nB2_SAMPLE3\\t1.3\\t2.3\\t")
 
             // check IRIDA Next JSON file
             lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
