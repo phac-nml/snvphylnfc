@@ -117,7 +117,34 @@ workflow SNVPHYL {
     // Channel of sample tuples (meta, assembly):
     sample_assemblies = input.map { meta, reads, reference_assembly -> tuple(meta, reference_assembly ? reference_assembly : null) }
 
-    reference_genome = select_reference(params.refgenome, params.reference_sample_id, sample_assemblies)
+    // Check to see if a single reference genome was selected
+    def lines = file(params.input).readLines()
+    def num_rows = lines.size()
+    def headers = lines[0].split(',')
+    def num_columns = headers.size()
+    def refIndex = headers.findIndexOf { it == 'reference_assembly' }
+    def number_of_references = 0
+    def reference_to_use = ""
+
+    for (int i = 1; i < num_rows; i++) {
+        ref = lines[i].split(',')[refIndex]
+        if (!(ref.isEmpty())) {
+            ++number_of_references
+            reference_to_use = ref
+        }
+
+        if (number_of_references > 1) {
+            reference_to_use = null
+            break
+        }
+    }
+    // If more than one reference genome is assigned then look to other options.
+    if (reference_to_use.isEmpty()) {
+        reference_genome = select_reference(params.refgenome, params.reference_sample_id, sample_assemblies)
+    }
+    else {
+        reference_genome = reference_to_use
+    }
 
     INDEXING(
         reference_genome
@@ -267,10 +294,21 @@ workflow SNVPHYL {
 */
 
 def select_reference(refgenome, reference_sample_id, sample_assemblies) {
+    def single_ref = null
+    reference_genome_count = sample_assemblies.map { meta, reference_assembly -> reference_assembly }.count() // Used later to check that not more than one reference genome has been selected in the samplesheet
+    single_reference = reference_genome_count.subscribe { count_val ->
+        if (count_val == 1) {
+            single_ref = true
+        }
+    }
 
     if(refgenome) {
         reference_genome = Channel.value(file(refgenome))
         log.debug "Selecting reference genome ${reference_genome} from '--refgenome'."
+    }
+    else if ( single_ref ) {
+        reference_genome = sample_assemblies.map { it[1] }.first()
+        log.debug "Selecting reference genome ${reference_genome} from single reference genome"
     }
     else if (reference_sample_id) {
         // Check each meta category (meta.id, meta.id_alt, meta.irida_id) for a match to params.reference_sample_id
