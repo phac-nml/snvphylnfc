@@ -124,10 +124,11 @@ workflow SNVPHYL {
     def num_columns = headers.size()
     def refIndex = headers.findIndexOf { it == 'reference_assembly' }
     def number_of_references = 0
-    def reference_to_use = ""
+    def reference_to_use = null
 
     for (int i = 1; i < num_rows; i++) {
-        ref = lines[i].split(',')[refIndex]
+        def parts = lines[i].split(',', -1)  // -1 preserves trailing empty strings
+        ref = parts.size() > refIndex ? parts[refIndex] : null
         if (!(ref.isEmpty())) {
             ++number_of_references
             reference_to_use = ref
