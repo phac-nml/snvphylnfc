@@ -148,7 +148,7 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet-no-reference.csv"
                 outdir = "results"
             }
             workflow {}
