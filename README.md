@@ -41,7 +41,7 @@ The mandatory parameters are as follows:
 - `--input`: a URI to the samplesheet
 - `--output`: the directory for pipeline output
 
-Additionally, it is mandatory to have one of either `--refgenome` or `--reference_sample_id` (but not both) to specify the reference. Please see the Reference section for more details.
+Additionally, it is mandatory to select a reference genome. This can be done by either `--refgenome` or in the samplesheet (`--reference_sample_id` if more than one reference genome is found in the samplesheet). Please see the Reference section for more details.
 
 ## Metadata
 

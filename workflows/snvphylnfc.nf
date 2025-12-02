@@ -268,8 +268,6 @@ workflow SNVPHYL {
 
 def select_reference(refgenome, reference_sample_id, sample_assemblies) {
     reference_genome = ""
-    reference_ch = sample_assemblies.filter { it[1] != null }.map { it[1] }
-
     if(refgenome) {
         reference_genome = Channel.value(file(refgenome))
         log.debug "Selecting reference genome ${reference_genome} from '--refgenome'."
@@ -281,6 +279,7 @@ def select_reference(refgenome, reference_sample_id, sample_assemblies) {
                                             .first()
         log.debug "Selecting reference genome ${reference_genome} from '--reference_sample_id'."
     } else {
+        reference_ch = sample_assemblies.filter { it[1] != null }.map { it[1] }
         reference_ch.count().filter { it == 0 }.subscribe { error("Unable to select a reference. Neither '--refgenome' nor reference genome in samplesheet were provided.")}
         reference_ch.count().filter { it >= 2 }.subscribe { error("Multiple reference genomes were provided in samplesheet. Use '--reference_sample_id' to specify reference.")}
         reference_genome = reference_ch.first()
