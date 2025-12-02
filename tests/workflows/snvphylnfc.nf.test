@@ -148,7 +148,7 @@ nextflow_workflow {
 
         when {
             params {
-                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/samplesheet.csv"
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/refs/heads/dev/tests/data/samplesheets/samplesheet-no-reference.csv"
                 outdir = "results"
             }
             workflow {}
@@ -156,9 +156,118 @@ nextflow_workflow {
 
         then {
             assert workflow.failed
-            assert workflow.stdout.contains("Unable to select a reference. Neither '--refgenome' nor '--reference_sample_id' were provided.")
+            assert workflow.stdout.contains("Unable to select a reference. Neither '--refgenome' nor reference genome in samplesheet were provided.")
         }
 
+    }
+
+    test("multiple references without selecting specific sample id (failure)") {
+
+        when {
+            params {
+                input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/refs/heads/dev/tests/data/samplesheets/samplesheet-multiple-references.csv"
+                outdir = "results"
+            }
+            workflow {}
+        }
+
+        then {
+            assert workflow.failed
+            assert workflow.stdout.contains("Multiple reference genomes were provided in samplesheet. Use '--reference_sample_id' to specify reference.")
+        }
+
+    }
+
+    test("Full pipeline runs with one reference in samplesheet") {
+        tag "pipeline_refgenome_samplesheet"
+        // Note: Prior releases <= 2.3.3 would fail without specific sample_id selected
+        when {
+            params {
+                input = "$baseDir/tests/data/samplesheets/samplesheet1.csv"
+                outdir = "results"
+
+                metadata_1_header = "myheader_1"
+                metadata_2_header = "myheader_2"
+                metadata_3_header = "myheader_3"
+                metadata_4_header = "myheader_4"
+                metadata_5_header = "myheader_5"
+                metadata_6_header = "myheader_6"
+                metadata_7_header = "myheader_7"
+                metadata_8_header = "myheader_8"
+            }
+        }
+
+        then {
+            assert workflow.success
+            assert path("$launchDir/results").exists()
+
+            def lines = []
+
+            // check FILTER_STATS output
+            lines = path("$launchDir/results/filter/filterStats.txt").readLines()
+
+            assert lines.contains("Number of sites used to generate phylogeny: 2")
+            assert lines.contains("Total number of sites identified: 2")
+            assert lines.contains("Number of sites filtered: 0")
+
+            // check filtered density files:
+            assert path("$launchDir/results/consolidate/A_1__filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/B2_filtered_density.txt").exists()
+            assert path("$launchDir/results/consolidate/B2_SAMPLE3_filtered_density.txt").exists()
+
+            lines = path("$launchDir/results/cat/cat_invalid_positions.txt").readLines()
+            assert lines.contains("#Calculation and writing of high density regions has completed.")
+
+            // check PHYML output
+            lines = path("$launchDir/results/phyml/phylogeneticTreeStats.txt").readLines()
+
+            assert lines.contains(". Model of nucleotides substitution: \tGTR")
+            assert lines.contains("  - f(A)=  0.75000")
+            assert lines.contains("  - f(C)=  0.12500")
+            assert lines.contains("  - f(G)=  0.01000")
+            assert lines.contains("  - f(T)=  0.12500")
+
+            lines = path("$launchDir/results/phyml/phylogeneticTree.newick").readLines()
+
+            assert lines.join("\n").contains("A_1_")
+            assert lines.join("\n").contains("B2")
+            assert lines.join("\n").contains("B2_SAMPLE3")
+
+            // check WRITE_METADATA file
+            lines = path("$launchDir/results/write/metadata.tsv").readLines()
+
+            assert lines.size() == 4
+            assert lines.contains("id\tmyheader_1\tmyheader_2\tmyheader_3\tmyheader_4\tmyheader_5\tmyheader_6\tmyheader_7\tmyheader_8")
+            assert lines.contains("A_1_\t1.1\t1.2\t1.3\t1.4\t1.5\t1.6\t1.7\t1.8")
+            assert lines.contains("B2\t2.1\t2.2\t2.3\t2.4\t2.5\t2.6\t2.7\t2.8")
+            assert lines.contains("B2_SAMPLE3\t3.1\t3.2\t3.3\t3.4\t3.5\t3.6\t3.7\t3.8")
+
+            // Check that ArborView output is created
+            def actual_arborview = path("$launchDir/results/arbor/SNVPhyl_ArborView.html")
+            assert actual_arborview.exists()
+            assert actual_arborview.text.contains("id\\tmyheader_1\\tmyheader_2\\tmyheader_3\\tmyheader_4\\tmyheader_5\\tmyheader_6\\tmyheader_7\\tmyheader_8\\nA_1_\\t1.1\\t1.2\\t1.3\\t1.4\\t1.5\\t1.6\\t1.7\\t1.8\\nB2\\t2.1\\t2.2\\t2.3\\t2.4\\t2.5\\t2.6\\t2.7\\t2.8\\nB2_SAMPLE3\\t3.1\\t3.2\\t3.3\\t3.4\\t3.5\\t3.6\\t3.7\\t3.8")
+
+            // check MAKE_SNV output
+            lines = path("$launchDir/results/make/snvMatrix.tsv").readLines()
+
+            assert lines[0] == "strain\tB2\tB2_SAMPLE3\tA_1_\treference\t"
+            assert lines.contains("A_1_\t1\t1\t0\t0\t")
+            assert lines.contains("B2\t0\t2\t1\t1\t")
+            assert lines.contains("B2_SAMPLE3\t2\t0\t1\t1\t")
+
+            // check IRIDA Next JSON file
+            lines = path("$launchDir/results/iridanext.output.json.gz").linesGzip.join("\n")
+
+            assert lines.contains("\"path\": \"arbor/SNVPhyl_ArborView.html\"")
+            assert lines.contains("\"path\": \"make/snvMatrix.tsv\"")
+            assert lines.contains("\"path\": \"filter/filterStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTreeStats.txt\"")
+            assert lines.contains("\"path\": \"phyml/phylogeneticTree.newick\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvTable.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/vcf2core.tsv\"")
+            assert lines.contains("\"path\": \"vcf2snv/snvAlignment.phy\"")
+            assert lines.contains("\"path\": \"verifying/mappingQuality.txt\"")
+        }
     }
 
     test("disabling snv density filtering") {
