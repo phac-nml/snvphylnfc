@@ -19,7 +19,7 @@ The columns are defined as follows:
 - `sample_name`: Optional, and overrides `sample` for outputs (filenames and sample names) and reference assembly identification.
 - `fastq_1`: A URI (ex: a file path or web address) to either single-end FASTQ-formatted reads or one pair of pair-end FASTQ-formatted reads.
 - `fastq_2`: (Optional) If `fastq_1` is paired-end, then this field is a URI to reads that are the other pair of reads associated with `fastq_1`.
-- `reference_assembly`: (Optional) A URI to a reference assembly associated with the sample, so that it may be referenced on the command line by the sample identifier for use as the reference for the whole pipeline. However, it may be easier to leave these fields blank and specify the reference using the `--refgenome` parameter.
+- `reference_assembly`: (Optional) A URI to a reference assembly associated with the sample. If left blank requires `--refgenome` parameter to specify the reference genome. If multiple samples have a reference genome then the parameter (`--reference_sample_id`) is required to select the correct reference genome.
 - `metadata_1...16`: (Optional) Permits up to 16 columns for user-defined contextual metadata associated with each `sample`. Refer to [Metadata](#metadata) for more information.
 
 ### When to use `sample` vs `sample_name`
@@ -54,7 +54,7 @@ The optional parameters are as follows:
 ### Reference
 
 - `--refgenome`: a URI to the reference genome to use during pipeline analysis
-- `--reference_sample_id`: the sample identifier of a sample (`sample` or `sample_name`) in the samplesheet that contains a provided `reference_assembly` to use as a reference genome during pipeline analysis
+- `--reference_sample_id`: the sample identifier of a sample (`sample` or `sample_name`) in the samplesheet that contains multiple `reference_assembly` values to use as a reference genome during pipeline analysis.
 
 Please use only one of `--refgenome` or `--reference_sample_id` and not both.
 
