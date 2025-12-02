@@ -117,35 +117,7 @@ workflow SNVPHYL {
     // Channel of sample tuples (meta, assembly):
     sample_assemblies = input.map { meta, reads, reference_assembly -> tuple(meta, reference_assembly ? reference_assembly : null) }
 
-    // Check to see if a single reference genome was selected
-    def lines = file(params.input).readLines()
-    def num_rows = lines.size()
-    def headers = lines[0].split(',')
-    def num_columns = headers.size()
-    def refIndex = headers.findIndexOf { it == 'reference_assembly' }
-    def number_of_references = 0
-    def reference_to_use = null
-
-    for (int i = 1; i < num_rows; i++) {
-        def parts = lines[i].split(',', -1)  // -1 preserves trailing empty strings
-        ref = parts.size() > refIndex ? parts[refIndex] : null
-        if (!(ref.isEmpty())) {
-            ++number_of_references
-            reference_to_use = ref
-        }
-
-        if (number_of_references > 1) {
-            reference_to_use = null
-            break
-        }
-    }
-    // If more than one reference genome is assigned then look to other options.
-    if (reference_to_use.isEmpty()) {
-        reference_genome = select_reference(params.refgenome, params.reference_sample_id, sample_assemblies)
-    }
-    else {
-        reference_genome = reference_to_use
-    }
+    reference_genome = select_reference(params.refgenome, params.reference_sample_id, sample_assemblies)
 
     INDEXING(
         reference_genome
@@ -295,32 +267,23 @@ workflow SNVPHYL {
 */
 
 def select_reference(refgenome, reference_sample_id, sample_assemblies) {
-    def single_ref = null
-    reference_genome_count = sample_assemblies.map { meta, reference_assembly -> reference_assembly }.count() // Used later to check that not more than one reference genome has been selected in the samplesheet
-    single_reference = reference_genome_count.subscribe { count_val ->
-        if (count_val == 1) {
-            single_ref = true
-        }
-    }
+    reference_genome = ""
+    reference_ch = sample_assemblies.filter { it[1] != null }.map { it[1] }
 
     if(refgenome) {
         reference_genome = Channel.value(file(refgenome))
         log.debug "Selecting reference genome ${reference_genome} from '--refgenome'."
-    }
-    else if ( single_ref ) {
-        reference_genome = sample_assemblies.map { it[1] }.first()
-        log.debug "Selecting reference genome ${reference_genome} from single reference genome"
-    }
-    else if (reference_sample_id) {
+    } else if (reference_sample_id) {
         // Check each meta category (meta.id, meta.id_alt, meta.irida_id) for a match to params.reference_sample_id
         reference_genome = sample_assemblies.filter { (it[0].id == reference_sample_id || it[0].irida_id == reference_sample_id || it[0].id_alt == reference_sample_id) && it[1] != null}
                                             .ifEmpty { error("The provided reference sample ID (${reference_sample_id}) is either missing or has no associated reference assembly.") }
                                             .map { it[1] }
                                             .first()
         log.debug "Selecting reference genome ${reference_genome} from '--reference_sample_id'."
-    }
-    else {
-        error("Unable to select a reference. Neither '--refgenome' nor '--reference_sample_id' were provided.")
+    } else {
+        reference_ch.count().filter { it == 0 }.subscribe { error("Unable to select a reference. Neither '--refgenome' nor reference genome in samplesheet were provided.")}
+        reference_ch.count().filter { it >= 2 }.subscribe { error("Multiple reference genomes were provided in samplesheet. Use '--reference_sample_id' to specify reference.")}
+        reference_genome = reference_ch.first()
     }
 
     return reference_genome
