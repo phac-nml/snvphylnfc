@@ -267,21 +267,22 @@ workflow SNVPHYL {
 */
 
 def select_reference(refgenome, reference_sample_id, sample_assemblies) {
-
+    reference_genome = ""
     if(refgenome) {
         reference_genome = Channel.value(file(refgenome))
         log.debug "Selecting reference genome ${reference_genome} from '--refgenome'."
-    }
-    else if (reference_sample_id) {
+    } else if (reference_sample_id) {
         // Check each meta category (meta.id, meta.id_alt, meta.irida_id) for a match to params.reference_sample_id
         reference_genome = sample_assemblies.filter { (it[0].id == reference_sample_id || it[0].irida_id == reference_sample_id || it[0].id_alt == reference_sample_id) && it[1] != null}
                                             .ifEmpty { error("The provided reference sample ID (${reference_sample_id}) is either missing or has no associated reference assembly.") }
                                             .map { it[1] }
                                             .first()
         log.debug "Selecting reference genome ${reference_genome} from '--reference_sample_id'."
-    }
-    else {
-        error("Unable to select a reference. Neither '--refgenome' nor '--reference_sample_id' were provided.")
+    } else {
+        reference_ch = sample_assemblies.filter { it[1] != null }.map { it[1] }
+        reference_ch.count().filter { it == 0 }.subscribe { error("Unable to select a reference. Neither '--refgenome' nor reference genome in samplesheet were provided.")}
+        reference_ch.count().filter { it >= 2 }.subscribe { error("Multiple reference genomes were provided in samplesheet. Use '--reference_sample_id' to specify reference.")}
+        reference_genome = reference_ch.first()
     }
 
     return reference_genome
