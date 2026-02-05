@@ -60,7 +60,7 @@
                     "type": "string",
                     "description": "The file path to the FASTA-format reference genome.",
                     "fa_icon": "fas fa-file",
-                    "pattern": "^\\S+\\.f(ast)?a(\\.gz)?$",
+                    "pattern": "^az:\\/\\/\\S+$|^\\S+\\.f(ast)?a(\\.gz)?$",
                     "exists": true,
                     "format": "file-path"
                 }
