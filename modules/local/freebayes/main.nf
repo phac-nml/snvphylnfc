@@ -10,7 +10,7 @@ Please refer to the README for more information.
 process FREEBAYES {
     tag "$meta.id"
     label 'process_low'
-    container = "staphb/freebayes:1.3.6"
+    container "staphb/freebayes:1.3.6"
 
     input:
     tuple val(meta), path(sorted_bams)

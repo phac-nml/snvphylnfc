@@ -1,4 +1,4 @@
-[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A523.04.3-brightgreen.svg)](https://www.nextflow.io/)
+[![Nextflow](https://img.shields.io/badge/nextflow-%E2%89%A524.10.3-brightgreen.svg)](https://www.nextflow.io/)
 
 # SNVPhyl nf-core Pipeline
 

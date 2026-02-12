@@ -2,8 +2,21 @@
 <html>
 <head>
     <style>
+        body {
+            max-height: 100vh;
+            margin: 0;
+            padding: 0;
+            overflow: hidden; /* Prevents body scrollbars */
+            display: flex;
+            flex-direction: column;
+        }
+        
         .inline-block-child {
             display: inline-block;
+        }
+
+        #control_panel {
+            overflow: visible;
         }
 
         #TreeData {
@@ -17,6 +30,35 @@
           overflow: auto
         }
 
+        
+        #resizer-bar {
+            flex: 0 0 5px !important;
+            min-height: 5px;
+        }
+
+        #metadata_wrapper{
+            width:fit-content;
+        }
+
+        #metadata_filter, #metadata_paginate{ /*Search and clear filters button of metadata table */
+            position: sticky;
+            right: 0;
+        }
+
+        #metadata_length { /*show x entries filter of metadata table */
+            position: sticky;
+            left: 0;  
+        }
+       
+        
+        .tree-svg {
+          height: auto;
+          font: 10px sans-serif;
+          user-select: auto;
+          overflow: visible;
+          margin-left: 1em; 
+
+        }
 
         .row.no-wrap {
             flex-wrap: nowrap; /*prevents the TreeData div with the svg tree to wrap around*/
@@ -47,6 +89,7 @@
         .scale-bar {
             cursor: move;
             visibility: visible;
+            font-family: monospace, monospace;
         }
 
         /*This creates flash effect when the user finishes editing a metadata cell.*/
@@ -109,7 +152,6 @@
     
         .dataTables_filter {
             position: relative;
-            margin-right: 24px;
         }
         .dataTables_wrapper .dataTables_filter input{
             border-radius: 20px !important;
@@ -135,11 +177,29 @@
             opacity: 0;
             transition: opacity 2s ease;
         }
+        
+        .leaf-node {
+          font-family: monospace, monospace;
+          white-space-collapse: preserve;
+        }
+
+        .inner-node {
+          font-family: monospace, monospace;
+          white-space-collapse: preserve;
+        }
+        
+        .leaf-node-label {
+
+          font-family: monospace, monospace;
+          white-space-collapse: preserve;
+      }
 
 
 
     </style>
     <meta charset="UTF-8">
+    <meta name="application-name" content="ArborView">
+    <meta name="version" content="0.1.3"> <!-- Update version as needed -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ArborView</title> 
 
@@ -194,7 +254,9 @@
         const DATA = __DEADFOOD__;
         const DEBUG = false;
         const TREE_OFFSET = 100;
+        const TREE_LEFT_MARGIN_VIEWBOX_OFFSET = 30; //Space to accommodate near the root inner node labels
         var METDATA_TABLE_NON_FULL_SCREEEN_HEIGTH = null; //before changing to full screen mode save the current size of the metadata table
+        var LAST_METADATA_COLUMN_SELECTED = null;   //last metadata column selected for legend rendering. useful for subtree legend generation
         var NEWICK = null;
         var tree_root = null;
         var METADATA = null;
@@ -204,8 +266,8 @@
         var ORIGINAL_DATA = null;
         var ORIGINAL_VIEW_BOX = null;
         var ORIGINAL_WIDTH_SVG = 0;  
-        var LAST_MOVE_X = 0;
-        var LAST_MOVE_Y = 0;
+        var LAST_SCROLL_X = 0; // Store last scroll x-position making legend position updates smarter
+        var LAST_SCROLL_Y = 0; // Store last scroll y-position  making legend position updates smarter
         var SHOW_BRANCH_LENGTHS = true;
         var SHOW_METADATA_IN_NAME = false;
         var LINE_THICKNESS = 2.0;  
@@ -217,6 +279,7 @@
         */
         var TREE_ULTRAMETRIC_P = false; 
 
+        var LABEL_SAFETY_FACTOR = 200
         var collapse_subtree = false; // can think of another way to signal state without our larger refactor 
         var focused_element = null; // Focused element to have its colour reset
         var RADIUS_INCREASED = false;
@@ -233,8 +296,9 @@
         const INNER_NODE_SIZE = 4;
         const LEAF_NODE_SIZE = 6;
         var DECIMAL_PLACES = 1;
-        const DISTANCE_LABEL_OFFSET = 5.2
-
+        const DISTANCE_LABEL_OFFSET = 5.2;
+        
+        var LABEL_TRUNCATE_SIZE = 50; // When a given text label exceed the length of this value it is truncated
         let ORIGINAL_CONTROL_PANEL_HEIGHT=null; //The original dimensions of the left control panel that are needed to bring it back to original size
 
 
@@ -242,6 +306,37 @@
         // These are messy due to the way in which they were created, and there has not been time
         // to refactor them yet sadly.
 
+        // ===== CHANGE: Font Size to Average Width Mapping =====
+            // This table defines average character width multipliers for different font sizes in a typical sans-serif font (like Arial or Helvetica)
+            // E.g. Each character averages 0.62 × 12px = 7.44px wide
+            // We need to do approximate max label width calculation as DOM is not rendered at this stage preventing usage of bbox()
+        const FONT_METRICS = {
+                8:  0.52,  // avg width multiplier for 8px font
+                9:  0.55,
+                10: 0.58,
+                11: 0.60,
+                12: 0.62,  // default size
+                14: 0.65,
+                16: 0.68,
+                18: 0.70
+            };
+
+        /**
+        * Estimates the pixel width of text based on font size and average character width metrics.
+        * Uses predefined font metrics for accurate estimation without DOM measurement.
+        * 
+        * @function estimateTextWidth
+        * @param {string} text - The text string to measure
+        * @param {number} fontSize - Font size in pixels (must match FONT_METRICS keys for best accuracy)
+        * @returns {number} Estimated width in pixels
+        * 
+        **/
+        function estimateTextWidth(text, fontSize) {
+                const AVG_CHAR_WIDTH = FONT_METRICS[fontSize];
+                return text.length * AVG_CHAR_WIDTH * fontSize;
+        }
+        
+        
         function addDisplayDistance(d, rd){
 
             let next_rd = null;
@@ -374,7 +469,10 @@
              * scale bar is slightly difficult to add, as the svg viewport dat only shows up AFTER rendering
              */
             
-             // --- Input Validation ---
+            const padding = { 
+                top: -2,    // Gap above the scale bar text
+            }
+                    // --- Input Validation ---
             try {
                 if (!svg || typeof svg.append !== 'function' || svg.empty()) {
                     throw new Error("Invalid 'svg' parameter: expected a D3 selection.");
@@ -395,7 +493,10 @@
                 console.error("drawScale() failed due to invalid input:", error.message);
                 return; // Exit early to avoid rendering with bad input
             }
-            const scaleBarGroup = svg.append("g").attr("id", "scale-bar-group") //group all svg path elements under single group
+            const scaleBarGroup = svg.append("g")
+                                     .attr("id", "scale-bar-group") //group all svg path elements under single group
+                                    .attr("transform", `translate(0, ${padding.top})`);
+            
             enableVerticalElementDrag(scaleBarGroup); //enables vertical drag of the scale bar
 
             let scale_bar_menu = `<div id="scale-bar-menu" class="d-flex flex-wrap p-1 align-items-center text-left" data-toggle="tooltip" data-placement="top" title="Turn scalebar on/off">
@@ -421,35 +522,6 @@
             .attr("fill-opacity", 1)
             .attr("class", "scale-bar")
 
-            // ===== CHANGE: Font Size to Average Width Mapping =====
-            // This table defines average character width multipliers for different font sizes in a typical sans-serif font (like Arial or Helvetica)
-            // E.g. Each character averages 0.62 × 12px = 7.44px wide
-            // We need to do approximate max label width calculation as DOM is not rendered at this stage preventing usage of bbox()
-            const FONT_METRICS = {
-                8:  0.52,  // avg width multiplier for 8px font
-                9:  0.55,
-                10: 0.58,
-                11: 0.60,
-                12: 0.62,  // default size
-                14: 0.65,
-                16: 0.68,
-                18: 0.70
-            };
-
-            /**
-             * Estimates the pixel width of text based on font size and average character width metrics.
-             * Uses predefined font metrics for accurate estimation without DOM measurement.
-             * 
-             * @function estimateTextWidth
-             * @param {string} text - The text string to measure
-             * @param {number} fontSize - Font size in pixels (must match FONT_METRICS keys for best accuracy)
-             * @returns {number} Estimated width in pixels
-             * 
-             **/
-            function estimateTextWidth(text, fontSize) {
-                const AVG_CHAR_WIDTH = FONT_METRICS[fontSize] || FONT_METRICS[12];
-                return text.length * AVG_CHAR_WIDTH * fontSize;
-            }
             // Estimate maximum label width (using your font size 12px)
             const maxLabel = max_length.toFixed(DECIMAL_PLACES);
             const longestLabelWidth = estimateTextWidth(maxLabel, fontSize);
@@ -597,7 +669,7 @@
                 SHOW_BRANCH_LENGTHS = false;
                 var ele = document.getElementById("TreeData");
                 var ele_style = window.getComputedStyle(ele);
-                const width = parseInt(ele_style.width)-TREE_OFFSET;
+                const width = parseInt(ele_style.width)-TREE_OFFSET+TREE_LEFT_MARGIN_VIEWBOX_OFFSET;
     
                 //var width = window.innerWidth;
                 const marginTop = 40;
@@ -605,8 +677,7 @@
                 const marginBottom = 30; // updated for viewing
                 const marginLeft = 40;
 
-                const label_safety_factor = 300; 
-                const inner_radius = width - label_safety_factor;
+                const inner_radius = width - LABEL_SAFETY_FACTOR;
 
 
                 function maxLength(d) {
@@ -653,7 +724,7 @@
                 const svg = d3.create("svg")
                     .attr("id", "TreeSVG")
                     .attr("width", width) //makes sure all tree nodes are within view
-                    .attr("style", `height: auto; font: 10px sans-serif; user-select: auto;`)
+                    .attr("class", "tree-svg")
                 
                 svg.append("defs").append("style").attr("type", "text/css").text("svg text {cursor: text}"); 
 
@@ -689,11 +760,15 @@
 
                     ORIGINAL_WIDTH_SVG=width
                     const height = right.x - left.x + marginTop + marginBottom;
-                    const transition = svg.transition()
+                    const transition = svg.transition("tree-layout")
                         .duration(duration)
                         .attr("height", height)
-                        .attr("viewBox", [0, left.x - marginTop, width, height])
-                        .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+                        .attr("viewBox", [-TREE_LEFT_MARGIN_VIEWBOX_OFFSET, left.x - marginTop, 
+                                            width, height])
+                        .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"))
+                        .on("end", () => {
+                            svg.dispatch("layout-complete");// This tells the rest of the app "The tree is done rendering!"
+                        });
 
                     // Update the nodes…
                     const node = gNode.selectAll("g:not(#scale-bar-group)")
@@ -733,6 +808,7 @@
                                                 }
                                             }
                                         }
+                                      updateLeafLabelsDisplay();
                                     }
                                 });
                             }
@@ -742,6 +818,7 @@
                         .attr("r", d => !d.data.leaf ? INNER_NODE_SIZE : LEAF_NODE_SIZE) // size 6 for leaf nodes and 4 for inner nodes
                         .attr("fill", d => !d.data.leaf ? "#555" : "#999")               
                         .attr("stroke-width", 10);
+            
                     
                     // Add branch length to all inner nodes
                     nodeEnter.append("text")
@@ -845,15 +922,13 @@
                 // Made with lots of help from: https://observablehq.com/d/6c52fee38fb28b2f
                 var ele = document.getElementById("TreeData");
                 var ele_style = window.getComputedStyle(ele);
-                const width = parseInt(ele_style.width)-TREE_OFFSET;
-                //var width = window.innerWidth;
+                const width = parseInt(ele_style.width)-TREE_OFFSET+TREE_LEFT_MARGIN_VIEWBOX_OFFSET;
                 const marginTop = 40;
                 const marginRight = 10;
                 const marginBottom = 30; // updated for viewing
                 const marginLeft = 40;
 
-                let label_safety_factor = 300; 
-                const inner_radius = width - label_safety_factor;
+                const inner_radius = width - LABEL_SAFETY_FACTOR;
 
                 function setDistance(d, y0, k) {
                     // From the tree of life code
@@ -872,13 +947,11 @@
 
                 const leaves_in_tree = root.leaves();
                 const pixels_per_label = 15;
-                                
                 const dx = 20;
                 const root_node_height = dx * 0.5;
-                //const dy = (width - marginRight - marginLeft) / (1 + root.height);
                 const dy = inner_radius / root.height;
-                // Test Scale drawing
 
+                // Test Scale drawing
                 tree = d3.cluster()
                             .nodeSize([dx, dy])
                             .separation( (a, b) => { return 1;}) // Can pass in a custom function to alter distance between labels, 1 means all labels are spaced the same distance
@@ -888,12 +961,12 @@
                     // https://www.w3.org/TR/SVG/paths.html#PathElement for path movements meanings
                     return `M${d.source.distance},${d.source.x} L${d.source.distance},${d.target.x} L${d.target.distance},${d.target.x}`
                 };
-                
+
                 // Create the SVG container, a layer for the links and a layer for the nodes.
                 const svg = d3.create("svg")
                     .attr("id", "TreeSVG")
                     .attr("width", width) //makes sure all tree nodes are within view
-                    .attr("style", `height: auto; font: 10px sans-serif; user-select: auto;`) 
+                    .attr("class", "tree-svg")
 
                 svg.append("defs").append("style").attr("type", "text/css").text("svg text {cursor: text}");    
                 
@@ -918,7 +991,7 @@
 
                 let below_root = 0; 
                 function update(event, source) {
-                    console.log("Performing tree update")
+                    console.debug("Performing tree update")
                     // Recalculate tree lengths on collapse
                     let max_length = maxLength(root)
                     setDistance(root, root.data.d = 0, (inner_radius / max_length)) // Third value is a scaling factor
@@ -973,11 +1046,15 @@
 
                     ORIGINAL_WIDTH_SVG=width
                     const height = right.x - left.x + marginTop + marginBottom;
-                    const transition = svg.transition()
+                    const transition = svg.transition("tree-layout")
                         .duration(duration)
                         .attr("height", height)
-                        .attr("viewBox", [0, left.x - marginTop, width, height])
-                        .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+                        .attr("viewBox", [-TREE_LEFT_MARGIN_VIEWBOX_OFFSET, left.x - marginTop, 
+                                            width, height])
+                        .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"))
+                        .on("end", () => {
+                            svg.dispatch("layout-complete");// This tells the rest of the app "The tree is done rendering!"
+                        });
 
                     // Update the nodes…
                     const node = gNode.selectAll("g:not(#scale-bar-group)")
@@ -1023,6 +1100,7 @@
                                                 }
                                             }
                                         }
+                                      updateLeafLabelsDisplay();
                                     }
                                 });
                             }
@@ -1037,7 +1115,7 @@
                     nodeEnter.append("text")
                         .text((d) => {
                                 if(!d.data.leaf || !TREE_ULTRAMETRIC_P){
-                                    return Number((d.display_dist).toFixed(DECIMAL_PLACES))
+                                    return Number((d.display_dist).toFixed(DECIMAL_PLACES));
                                 }
                             })
                         .attr("class", "branch-length")
@@ -1070,6 +1148,7 @@
                         .text(d => {
                             // If meta is a string or name is defined for the node
                             return d.data.meta ? d.data.name ? `${d.data.name} | ${d.data.meta}` : d.data.meta : d.data.name
+                            
                         })
                         .clone(true).lower()
                         .attr("stroke", "white");
@@ -1140,7 +1219,13 @@
             }
             //let display_width = parseInt(ele_style.width) - label_safety_factor
             //draw a scale bar
+            
             drawScale(gNode, inner_radius, (dx * leaves_in_tree.length) - (below_root*dx)-5, max_length, root)
+
+            //svg.on("layout-complete", () => {
+            //    console.debug("Layout rendering is complete now and can update the leaf nodes")
+            //    updateLeafLabelsDisplay(); 
+            //});
 
             return svg.node();
         };
@@ -1150,21 +1235,27 @@
             // Made with lots of help from: https://observablehq.com/d/6c52fee38fb28b2f
             var ele = document.getElementById("TreeData");
             var ele_style = window.getComputedStyle(ele);
+            const root = d3.hierarchy(data);
             
-            const width = parseInt(ele_style.width)-TREE_OFFSET;
-            const height = width;
+            const maxLabelCharCount = d3.max(root.leaves(), d => {return d.data.name.length;});
+            const labelBuffer = maxLabelCharCount * 12; //12px per character 
+
+            const width = parseInt(ele_style.width)-TREE_OFFSET + labelBuffer;
+            const height = width; //this plot will have square dimensions with circle inside
             const outerRadius = width / 2; 
-            const innerRadius = outerRadius - 170;
+            const innerRadius = outerRadius;
             const decimal_places = 4;
             const sc_to_radians = Math.PI / 180;
 
-            const root = d3.hierarchy(data);
+           
             root.sort((a, b) => b.height - a.height || d3.ascending(a.id, b.id));
             addTreeDisplayDistance(root)
             
             const dx = 20; 
             const dy = outerRadius;
-    
+
+           
+        
             function linkStep(startAngle, startRadius, endAngle, endRadius) {
                 const c0 = Math.cos(startAngle = (startAngle - 90) / 180 * Math.PI);
                 const s0 = Math.sin(startAngle);
@@ -1209,9 +1300,7 @@
             const svg = d3.create("svg")
                 .attr("id", "TreeSVG")
                 .attr("viewBox", [0, 0, width, height])
-                .attr("font-family", "sans-serif")
-                .attr("font-size", 10)
-                .attr("style", `height: auto; font: 10px sans-serif; user-select: auto;`);
+                .attr("class", "tree-svg")
             
             svg.append("defs").append("style").attr("type", "text/css").text("svg text {cursor: text}");  
 
@@ -1294,11 +1383,14 @@
                 });
 
                 ORIGINAL_WIDTH_SVG=width
-                const transition = svg.transition()
+                const transition = svg.transition("tree-layout")
                     .duration(duration)
                     .attr("height", height)
                     .attr("viewBox", [0, 0, width, height])
-                    .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+                    .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"))
+                    .on("end", () => {
+                            svg.dispatch("layout-complete");// This tells the rest of the app "The tree is done rendering!"
+                        });
 
                 const node = gNode.selectAll("g:not(#scale-bar-group)")
                     .data(nodes, d => d.id);
@@ -1341,6 +1433,7 @@
                                             }
                                         }
                                     }
+                                  updateLeafLabelsDisplay();
                                 }
                             });
                         }
@@ -1481,8 +1574,7 @@
                     .attr("id", "TreeSVG")
                     .attr("width", width + 20) //makes sure all tree nodes are within view
                     .attr("height", dx)
-                    .attr("style", `height: auto; font: 10px sans-serif; user-select: auto;`)
-
+                    .attr("class", "tree-svg")
                 
                 svg.append("defs").append("style").attr("type", "text/css").text("svg text {cursor: text}");   
 
@@ -1517,11 +1609,14 @@
 
                     ORIGINAL_WIDTH_SVG=width
                     const height = right.x - left.x + marginTop + marginBottom;
-                    const transition = svg.transition()
+                    const transition = svg.transition("tree-layout")
                         .duration(duration)
                         .attr("height", height)
                         .attr("viewBox", [0, left.x - marginTop, width, height])
-                        .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"));
+                        .tween("resize", window.ResizeObserver ? null : () => () => svg.dispatch("toggle"))
+                        .on("end", () => {
+                            svg.dispatch("layout-complete");// This event tells the rest of the app "The tree is done rendering!"
+                        });
 
                     // Update the nodes…
                     const node = gNode.selectAll("g:not(#scale-bar-group)")
@@ -1562,6 +1657,7 @@
                                                 }
                                             }
                                         }
+                                        updateLeafLabelsDisplay();
                                     }
                                 });
                             }
@@ -1665,10 +1761,11 @@
 
         }
 
+        const RADIAL_DENDROGRAM = "Radial Dendrogram"
         const TREE_SWITCH = new Map([
             ["Dendrogram", dendrogram_chart], 
             ["TidyTree", tidytree_chart], 
-            ["Radial Dendrogram", dendrogram_circle], 
+            [RADIAL_DENDROGRAM, dendrogram_circle], 
             ["Cladeogram", cladeogram_chart]]); // key value pairs map to switch between tree views
 
 
@@ -1747,11 +1844,10 @@
             param element: a html "g" element to update the colour of
             */        
                 let [parent, circle, text] = SelectedNodes.getNodeData(element.closest(SelectedNodes.#svg_parent));
-
                 //SelectedNodes.nodes is a map where each key is sample_id
                 if(!SelectedNodes.nodes.has(parent.id)){
                     //ensures that <g> node id is used instead of leaf node text as it is more reliable if node text label is changed
-                    //  {'SRR3736595' => g#SRR3736595.tree-node.leaf-node, 'SRR3736593' => g#SRR3736593.tree-node.leaf-node}
+                    //  {'SRR3736595' => g#SRR3736595.tree-node.leaf-node, 'SRR3736593' => g#SRR3736593.tree-node.leaf-node}
                     SelectedNodes.nodes.set(parent.id, parent); 
                     SelectedNodes.setSelectedColours(text, circle);
                 }else{
@@ -1765,7 +1861,7 @@
                 let elm = element.closest(SelectedNodes.#svg_parent)
                 let [parent, circle, text] = SelectedNodes.getNodeData(elm);
                 SelectedNodes.deSelectedColours(text, circle);
-                let dropped = SelectedNodes.nodes.delete(element.id)
+                let dropped = SelectedNodes.nodes.delete(elm.id)
                 console.debug("Dropping values:", text.textContent, dropped);
                 
             }
@@ -2068,7 +2164,14 @@
 
         // Create a subtree from the inner node selected in a tree
         let CustomSubTree = (event, data) => {
-            console.log("Subtree is being rendered")
+            console.debug("Subtree is being rendered")
+            const zoomSlider = document.querySelector('#zoom_slider');
+            const zoomValueLabel = document.querySelector('#zoom_slider_value');
+            zoomSlider.value = 1;
+            zoomValueLabel.textContent = "1";
+
+            const isLegendActive = !$('#colour-legend').hasClass('d-none');
+            console.debug("Legend is active:", isLegendActive);
             $("#legend_toggle").bootstrapToggle('off')
             SelectedNodes.drawSelectedNodes();
             $('#colour-legend').empty()
@@ -2082,9 +2185,9 @@
                 let copy_head_node=structuredClone(data.data)
                 const totalNodes = countNodes(copy_head_node)
                 
-                console.log(`New head node of the tree with ${totalNodes} nodes at distance ${copy_head_node.max_length} and ultrametric=${TREE_ULTRAMETRIC_P}`);
+                console.debug(`New head node of the tree with ${totalNodes} nodes at distance ${copy_head_node.max_length} and ultrametric=${TREE_ULTRAMETRIC_P}`);
                 //if a tree is non-ultrametric then create a subtree with subtracted distances from the head node selected as root now
-                console.log(copy_head_node)
+               
                 if (!TREE_ULTRAMETRIC_P){
                     const distanceToSubtract = copy_head_node.max_length;
                     const subtractDistance = (node, amount) => {
@@ -2101,14 +2204,27 @@
                     // Apply the annotated distance subtraction to the copied head node and all its descendants.
                     subtractDistance(copy_head_node, distanceToSubtract);
                 }
-                console.log(`Head node after subtraction ${copy_head_node.max_length}`);
+                console.debug(`Head node after subtraction ${copy_head_node.max_length}`);
 
-                console.log(copy_head_node)
+                console.debug(copy_head_node)
                 //RENDER tree based on the selected layout function
                 let svg_chart = TREE_SWITCH.get(TREE_VAL)(copy_head_node);
-                svg_chart.style.paddingLeft = svg_chart.style.paddingLeft + TREE_OFFSET;
+
+                d3.select(svg_chart).on("layout-complete", () => {
+                    updateLeafLabelsDisplay(); 
+                });
                 
+                let renderedTreePadding = svg_chart.style.paddingLeft || 0
+                svg_chart.style.paddingLeft = `${renderedTreePadding + TREE_OFFSET}px`
+            
+
                 $("#TreeData").append(svg_chart);
+                
+                if (isLegendActive && LAST_METADATA_COLUMN_SELECTED !== null) {
+                    // Regenerate the legend for the subtree using last selected field
+                    colour_by_element(LAST_METADATA_COLUMN_SELECTED);
+                }
+
                 $(".leaf-node").each((i, elm) => {
                     // Maintain colour of already selected nodes
                     let [parent, circle, text] = SelectedNodes.getNodeData(elm);
@@ -2118,6 +2234,10 @@
                     }
                 });
             }
+    
+            //updateLeafLabelsDisplay();
+
+            
         };
 
         // Helper function to recurse through child nodes
@@ -2173,6 +2293,7 @@
 
         let switchTreeType = (eve) => {
             TREE_VAL = eve.id
+            document.getElementById("dropdown_tree_types").setAttribute("data-current-layout", TREE_VAL);
             $('#colour-legend').empty()
             $('#colour-legend').addClass('d-none')
             $('#TreeSVG').remove();
@@ -2183,6 +2304,9 @@
                 console.debug("Switching chart type via renderer function selected ", TREE_SWITCH.get(TREE_VAL).name);
                 chart_.style.paddingLeft = chart_.style.paddingLeft + TREE_OFFSET;
                 $("#TreeData").append(chart_);
+                d3.select(chart_).on("layout-complete", () => {
+                  updateLeafLabelsDisplay(); 
+                });
                 $(".leaf-node").each((i, elm) => {
                 let [parent, circle, text] = SelectedNodes.getNodeData(elm);
                 if(SelectedNodes.nodes.has(text.textContent)){
@@ -2190,7 +2314,7 @@
                         SelectedNodes.setSelectedColours(text, circle);
                     };
                 });
-                reset_zoom_slider()
+                reset_zoom_slider();
                 return true;
             }
         };
@@ -2214,20 +2338,55 @@
                 console.warn("No selected metadata field indexes specified.");
                 return MetaDataMap;
             }
-
-            // Iterate through the full original data
-            for (const [sampleID, row] of ORIGINAL_DATA.entries()) {
-                if (!row || !Array.isArray(row)) {
+            
+            // Track the lenght of the largest element in the table
+            const maxLabelLengths = new Array(TABLE_HEADERS.length).fill(0); 
+            let maxIDLength = 0;
+            
+            /*
+              labelsUpdate will contain an array of the key and their updated
+              labels to display. The array will not be processed into it's string view 
+              until it is time to update the map as the max length is required to calculate 
+              the required padding for each element
+            */
+            const labelsUpdate = new Array();
+            ORIGINAL_DATA.forEach((row, key, table) => { 
+              if (!row || !Array.isArray(row)) {
                     console.warn(`Invalid row for sampleID ${sampleID}`);
-                    continue;
-                }
+                    return; // Return functions as continue in a for each loop
+              }
+              maxIDLength = Math.max(key.length, maxIDLength);
+              const selectedValues = selected_indexes.map((i) => {
+                                        let row_label = String(row[i] ?? "").trim();  // ?? preserves '0', empty strings, and false. It only replaces null/undefined.
+                                        /** @remarks
+                                          fromCodePoint retrieves the the horizontal unicode elipse so that the charactar is rendered nicely.
+                                        */
+                                        row_label = row_label.length > LABEL_TRUNCATE_SIZE ? 
+                                          `${row_label.slice(0, LABEL_TRUNCATE_SIZE)}${String.fromCodePoint(0x2026)}` 
+                                          : row_label
+                                        let labelLength = row_label.length;
+                                        maxLabelLengths[i] = Math.max(maxLabelLengths[i], labelLength);
+                                        return row_label;
+                                      });
+              labelsUpdate.push([key, selectedValues]);
+            })
 
-                // Get selected metadata fields
-                const selectedValues = selected_indexes.map(i => String(row[i] || "NA").trim());
-                const joinedFields =  selectedValues.join(" | ");    
 
-                MetaDataMap.set(sampleID, joinedFields);
+            for(const item of labelsUpdate){
+              let padded_id = item[0].padEnd(maxIDLength, " ");
+              let labels = [padded_id];
+
+              labels.push(...item[1].map((ele, i) => {
+                // For each selected index, we can get the maxLabelLength
+                let maxLabelLength = maxLabelLengths[selected_indexes[i]];
+                // The padEnd function will pad a given value to be certain length
+                return ele.padEnd(maxLabelLength, " ");
+              }));
+              
+              
+              MetaDataMap.set(item[0], labels.join(" | "))
             }
+
 
             return MetaDataMap;
         }
@@ -2306,7 +2465,7 @@
                 "lengthMenu": [ [10, 25, 50, 100, -1], [10, 25, 50, 100, "All"] ],
                 className: ".editable",
                 initComplete: function (settings, json) {
-                    console.log("DataTables has finished its initialization");
+                    console.debug("DataTables has finished its initialization");
                     //listen to Enter keys
                     $('#metadata').on('keydown', 'td[contenteditable=true]', function (e) {
                         if (e.key === 'Enter') {
@@ -2356,6 +2515,8 @@
                 //icon.id="tree_fullscreen_btn"
                 //icon.onclick="tree_full_screen_mode()"
 
+                $('#metadata_length').addClass('p-1');
+
                 let html=document.createElement("div");
                 html.className = "paginate_button displayAll"
                 html.id = "paginate_button_all"
@@ -2364,38 +2525,29 @@
                     document.querySelector("#metadata_paginate").appendChild(html)
                 }
 
-                let maximize_button_html=document.createElement("i");
-                maximize_button_html.style = "position:absolute; top:0; right: 0; cursor: pointer; color:blue; margin-right:1px"
-                maximize_button_html.className="d-flex fs-5 bi-arrow-up-right-square"
-                maximize_button_html.id = "metadata_fullscreen_btn"
-                maximize_button_html.setAttribute("onclick", "metadata_full_screen_mode()")
-                if(document.querySelector("#metadata_fullscreen_btn") === null){
-                    document.querySelector("#metadata_wrapper").appendChild(maximize_button_html)
-                }    
-            
 
                 $('.paginate_button.displayAll:not(.disabled)', this.api().table().container())          
                 .on('click', function(){
             
                     if(data_table.context[0]._iDisplayLength !== -1){
-                        console.log("Paginate OFF")
+                        console.debug("Paginate OFF")
                         
                         data_table.context[0]._iDisplayLength=-1; //remove pagination
                         data_table.draw();
                         $('#metadata_length select').val(-1); //change "Show X entires" selector to ALL value
                         
                         $('#paginate_button_all').text("First 10")
-                        console.log(this.textContent)
+                        console.debug(this.textContent)
                         
                     }else{
-                        console.log("Paginate ON")
-                        console.log($('#paginate_button_all').text())
+                        console.debug("Paginate ON")
+                        console.debug($('#paginate_button_all').text())
                         data_table.context[0]._iDisplayLength=10;
                         $('#metadata_length select').val(10); //change "Show X entires" selector to ALL value
                         //
                         data_table.draw();
                         $('#paginate_button_all').text("ALL records");
-                        console.log(this.textContent)
+                        console.debug(this.textContent)
                         
                     }    
                 
@@ -2427,14 +2579,37 @@
                     });
 
             $('#metadata_filter').append(clearBtn);
+
+            let maximize_button_html=document.createElement("i");
+                maximize_button_html.style = "cursor: pointer; color:blue; margin-right:1px"
+                maximize_button_html.className="d-inline-flex p-1 fs-5 bi-arrow-up-right-square"
+                maximize_button_html.id = "metadata_fullscreen_btn"
+                maximize_button_html.setAttribute("onclick", "metadata_full_screen_mode()")
+                if(document.querySelector("#metadata_fullscreen_btn") === null){
+                    document.querySelector("#metadata_filter").appendChild(maximize_button_html);
+                }
             
             // TODO initializing table from json object would minimize copies
-            // Saving data as a map, to allow for updating of metadata
+            
+            /**
+             * INITIALIZE ORIGINAL_DATA MAP - Saving data as a map, to allow for updating of metadata
+             * * We iterate through the DataTables API to build a global Map.
+             * Instead of using .data(), we access the DOM nodes directly to extract
+             * .textContent. This prevents symbols like '&' from being stored as '&amp;'.
+             */
             ORIGINAL_DATA = new Map();
-            data_table.rows().data().each((value, index) => {
-                ORIGINAL_DATA.set(value[ID_FIELD], value)
-            });
+            data_table.rows().every(function (rowIdx, tableLoop, rowLoop) {
+                // Get the actual <tr> row DOM element for this row
+                const rowNode = this.node(); 
+    
+                // Extract the textContent from each <td> cell
+                const rawValues = Array.from(rowNode.cells).map(td => td.textContent.trim());
 
+                // Store raw metadata array as a Map based on first column treated as sampleID
+                // Assuming ID_FIELD is the index of your ID column
+                ORIGINAL_DATA.set(rawValues[ID_FIELD], rawValues);
+            });
+       
             
             // TODO This can likely be initialized in the above loop pushing to value 
             for(const [key, value] of ORIGINAL_DATA.entries()){
@@ -2450,7 +2625,8 @@
             const treeData = document.querySelector('#TreeData');
             const menuButtons = document.querySelector('#tree_menu_buttons');
             const selectedNodes = document.querySelector('#SelectedNodes');
-            const metadataTable = document.querySelector('#ClusterInfo')
+            const metadataTable = document.querySelector('#ClusterInfo');
+
             if (!treeData || !menuButtons || !selectedNodes) return;
 
             const availableHeight = Math.abs(treeData.offsetHeight - menuButtons.clientHeight-12);
@@ -2499,7 +2675,7 @@
                 table_body.push("</tr>\n");
             }
 
-            parsed_data = null; // mark old data for GC
+            parsed_data = null; // mark old data for GC and cleanup memory 
             $(table_id).html("<thead>" + table_head + "</thead>" + "<tbody>" + table_body.join() + "</tbody>");
             // ? A bit odd we are making the table with HTML then converting to jquery datatable...
             CreateDataTable();
@@ -2530,17 +2706,26 @@
 
             let node_leg = $("#colour-legend")
             node_leg.empty()
-            node_leg.append(`<div id="drag_legend_button" onmousedown="dragDivByMouse(event)" class="w-100" style="height:5px; background-color:blue; box-shadow: 1px 1px 1px 1px rgba(0,0,0,.8); cursor: all-scroll;"></div>`)
+            //Add the drag handle
+            node_leg.append(`<div id="drag_legend_button" onmousedown="dragDivByMouse(event)" class="w-100" style="height:8px; background-color:blue; box-shadow: 1px 1px 1px 1px rgba(0,0,0,.8); cursor: all-scroll;"></div>`)
+            
+                        
 
-            for(const item of array_tuples){ //[field_value, hex_colour]
+            const columnName = TABLE_HEADERS[column_index] || `Unlabeled (column #${Number(column_index)+1})` //in case no column name is provided
+            node_leg.append(`<div class="p-2 border-bottom bg-light text-center">
+                                <strong>${columnName}</strong>
+                            </div>`);
+
+            for(const item of array_tuples.filter(tuple => tuple[0] !== '')){ //[field_value, hex_colour]
                 let row_legend_node = $(`<div class="d-flex p-1 border-bottom flex-nowrap align-items-center legend-element"></div>`)
                 let field_value=item[0]
-                if(field_value === ''){field_value="Not defined"}
+                let count = (value2samples[field_value] || []).length;
+                //if(field_value === ''){field_value="Not defined"}  
                 row_legend_node.append(`
                 <input type="color" value="${item[1]}" data-sampleID="${value2samples[item[0]].join(',')}"  onchange="changeLegendItemColour(this)" 
                 style="width: 20px; height:20px; padding: 1px; border: 1px solid black"></input>\n
-                <small onclick="select_deselect_nodes_by_field_value(this, ${column_index})" 
-                style="padding-left:5px">${field_value}</small>`)
+                <small data-fieldvalue="${field_value}" onclick="select_deselect_nodes_by_field_value(this, ${column_index})" 
+                style="padding-left:5px">${field_value} (${count})</small>`)
                 node_leg.append(row_legend_node)
             }
             document.querySelector('#colour-legend').classList.remove("d-none");
@@ -2599,14 +2784,29 @@
         };
 
         let SubsetTable = () => {
+            let totalSamples = data_table.rows().count();;
             let filtered = data_table.data().filter((value, idx) => {
                 return SelectedNodes.nodes.has(value[ID_FIELD]);
             });
+            let remainingSamples = filtered.length;
+            let filteredOutSamplesCount = totalSamples - remainingSamples;
       
             data_table.clear();
             data_table.rows.add(filtered).draw();
             $("td").addClass("editable");
             $("td:not(:first-child)").attr("contenteditable", true);
+
+            Swal.fire({
+                title: 'Metadata Table Subsetted based on Selected Nodes',
+                html: `<b>${remainingSamples}</b> samples kept out of <b>${totalSamples}</b>.<br>` + 
+                    `<small class="text-muted"><b>${filteredOutSamplesCount}</b> samples were filtered out.</small>`,
+                icon: 'success',
+                timer: 5000,
+                timerProgressBar: true,
+                showConfirmButton: false,
+                toast: true,
+                position: 'top-end'
+            });
 
         };
 
@@ -2697,10 +2897,15 @@
          * updateLeafNodeLabels(MetaDataMap);
          */
          function updateLeafNodeLabels(MetaDataMap) {
-
+            
             const svg = d3.select("#TreeSVG")
             const treeContainer = svg.select('g[cursor="pointer"][pointer-events="all"]')
+            const treeDataContainer = document.querySelector('#TreeData');
             const svgAttrWidth = svg.attr("width")
+            const oldWidth = treeContainer.node().getBBox().width
+            const currentLayout = document.getElementById("dropdown_tree_types").getAttribute("data-current-layout");
+            const isRadial = currentLayout === "Radial Dendrogram"
+
             
             if (treeContainer.empty()) {
                 console.warn("Main tree container group not found.");
@@ -2714,43 +2919,99 @@
 
             //update leaf nodes update labels
             const isEmpty = !MetaDataMap || MetaDataMap.size === 0;
-            
+
+            const selectedFields = Array.from(document.querySelectorAll('#dropdown_append_metadata2nodes .metadata-field-checkbox:checked'))
+                .map(cb => cb.value);
+
+            console.debug("User selected these fields:", selectedFields);
+                        
+            let missingMetadataNodes = new Set();
             svg.selectAll("g.leaf-node").each(function () {
                 const g = d3.select(this);
                 const nodeId = this.id;
+                
                 if (isEmpty) {
                     newLabel = `${nodeId}`;
                 } else {
                     const joinedFields = MetaDataMap.get(nodeId);
                     const hasValue = typeof joinedFields === "string" && joinedFields.trim() !== "";
-                    newLabel = hasValue ? `${nodeId} | ${joinedFields.trim()}` : nodeId;
+                    if (!hasValue) missingMetadataNodes.add(nodeId);
+                    /** @remarks
+                      Removed the .trim() on joinedFields as the whitespace is required for padding.
+                      trimEnd()  would work, but if we had more options for justifying text in 
+                      the future in may create some problems.
+                    */
+                    
+                    newLabel = hasValue ? `${joinedFields}` : nodeId;
                 }
                 g.selectAll("text")
                     .filter(function () {
                         // Only update text elements that start with the nodeId
                         return d3.select(this).text().startsWith(nodeId);
                     })
-                    .text(newLabel);
+                    .attr("xml:space", "preserve") // Prevents SVG from collapsing your padding spaces
+                    .text(newLabel).attr("class", "leaf-node-label");
             });
+            if (missingMetadataNodes.size > 0) {
+                console.warn(`Metadata missing for ${missingMetadataNodes.size} nodes:`, Array.from(missingMetadataNodes));
+            }
 
-            
-            const newWidth = treeContainer.node().getBBox().width
-
-            // Parse the existing viewBox
+            const bbox = treeContainer.node().getBBox();
+            const newWidth = bbox.width+50 // add some padding as calculates the coordinates of the paths and shapes, but it does not include the width of the strokes
+            //const newHeight = treeContainer.node().getBBox().height+20 // add some padding as calculates the coordinates of the paths and shapes, but it does not include the width of the strokes
+        
             const viewBoxAttr = svg.attr("viewBox")
-            const [minX, minY, width, height] = viewBoxAttr.split(/[\s,]+/).map(Number)
+            if (!viewBoxAttr) {
+                console.warn("viewBox not yet initialized by chart function.");
+                return; 
+            }
+            let [minX, minY, width, height] = viewBoxAttr.split(/[\s,]+/).map(Number)
             // Update the width of the svg element
-            svg.attr("width", newWidth).attr("viewBox", `${minX} ${minY} ${newWidth} ${height}`)
+            //treeDataContainer.scrollLeft = newWidth;
+            if (isRadial) {
+                const fontSize=12;
+                let longestLabel = "";
+                // Prioritize the Metadata Map that is available upon node text addition from metadata
+                if (MetaDataMap.size > 0) {
+                    MetaDataMap.forEach((label) => {
+                        if (label && label.length > longestLabel.length) {
+                            longestLabel = label;
+                        }
+                    });
+                } else {
+                    // Fallback: If no metadata is loaded, check the Node IDs in the DOM
+                    svg.selectAll("g.leaf-node").each(function() {
+                        const nodeId = this.id;
+                        if (nodeId.length > longestLabel.length) {
+                            longestLabel = nodeId;
+                        }
+                    });
+                }
+                maxLabelPixels = estimateTextWidth(longestLabel, fontSize);
+                height = newWidth;
+                minY = -maxLabelPixels-5; // Add padding to account for label height
+                minX = minY; //left margin also needs to be adjusted
+            }
+
+
+            svg.attr("width", newWidth)
+               .attr("height", height)
+               .attr("viewBox", `${minX} ${minY} ${newWidth} ${height}`)
+            svg.style.overflow = "scroll";
+
+            const maxScrollLeft = newWidth - treeDataContainer.clientWidth;
+            treeDataContainer.scrollLeft = maxScrollLeft; //scroll to the right margin
+
+          
         }
 
         /**
          * Attaches event listeners to all metadata checkboxes in the 
-         * "Add metadata to nodes" dropdown menu. This function listens 
+         * "Add metadata to nodes" dropdown menu. This function listens
          * for `change` events (i.e. when checkboxes are selected or deselected) 
          * and logs the selected field and its checked status.
          * **/
         function initializeMetadataFieldListeners() {
-            console.log("initializeMetadataFieldListeners")
             const container = document.querySelector('#dropdown_append_metadata2nodes');
         
             if (!container) {
@@ -2804,8 +3065,6 @@
                     
                     // Extract all metadata already loaded as a map
                     const metadataJoinedMap = extractAllMetadataJoined(checkedFields);
-                    
-        
                     // Append metadata to tree leaf nodes if available
                     if (metadataJoinedMap.size !== 0) {
                         updateLeafNodeLabels(metadataJoinedMap)
@@ -2864,10 +3123,23 @@
                 if (oldMenu) container.removeChild(oldMenu);
 
                 const button = container.querySelector('button');
+                const rect = button.getBoundingClientRect();
+
+                const distanceToTop = rect.top; //Distance from the top of the button to the top of the screen
+                const distanceToBottom = window.innerHeight - rect.bottom;//Distance from the bottom of the button to the bottom of the screen
+                const dynamicMaxHeight = Math.max(distanceToTop, distanceToBottom) - 20;
+
+                if (distanceToTop > distanceToBottom) {
+                    container.classList.add('dropup');
+                } else {
+                    container.classList.remove('dropup');
+                }
+
+
                 const dropdown = document.createElement('div');
                 dropdown.className = 'dropdown-menu';
                 dropdown.style.overflow = 'visible';
-                //dropdown.style.maxHeight = '300px';
+                dropdown.style.maxHeight = `${dynamicMaxHeight}px`;
                 dropdown.style.overflow = 'auto';
                 dropdown.style.whiteSpace = 'nowrap';
                 dropdown.style.marginLeft = '4px';
@@ -2916,6 +3188,7 @@
         
         
         let colour_by_element = (ele) => {
+            LAST_METADATA_COLUMN_SELECTED = ele;
             // Create a legend for the column selected
             if(tree_root === null){
                 // TODO add pop up
@@ -2924,6 +3197,7 @@
             }
 
             let col_index = ele.id;
+            
             $("#legend_toggle").bootstrapToggle('on')
 
             let unq_data = new Set();
@@ -2932,7 +3206,7 @@
             })
 
 
-            // Need to create groupings of the each set of ID's belonging to each value grouping
+            // Need to create GLOBAL TREE groupings of the each set of ID's belonging to each value grouping
             let break_down_values = Array.from(unq_data);
             break_down_values.sort()
             
@@ -2997,67 +3271,128 @@
             //colour each leaf nodes with the selected colour
             let colour_idx = 0;
             colour_legend.length = 0; // clear out old data, so new legend created each time
+            
             for (const nodeId of SelectedNodes.nodes) {
-                console.log(nodeId); // This will log each node ID in the Set
+                console.debug(nodeId); // This will log each node ID in the Set
             }
+            // This local object will hold only the nodes currently in the DOM
+            // Relevant when generating the legend for subtrees 
+            let visible_breakdown = [];
             for(const item in break_down_values){
+                let nodes_found_for_this_category = []; //checks if node exists in DOM now
+                if (item === "" || item === null) continue; //Skip empty field values (leaves them uncoloured/hidden from legend)
+
                 break_down_values[item].forEach((x, i) => {
-                  
-                    try{
-                        let current_item = document.querySelector(`[id='${x}']`);
-                        let [elem, circle, text] = SelectedNodes.getNodeData(current_item);
-                        if(SelectedNodes.nodes.has(x)){
-                            circle.dataset.oldfill = colours[colour_idx];
-                        }else{
-                            if (circle.style.fill !== "") {
-                                circle.dataset.oldfill = circle.style.fill;
-                            }else{
-                                circle.dataset.oldfill = SelectedNodes.getDefaultColour();
-                            }    
+                    
+                    //check if the node exists in the DOM (e.g. subtree case)
+                    if(document.getElementById(x)){
+                    
+                        try{
+                            let current_item = document.querySelector(`[id='${x}']`);
+                            let [elem, circle, text] = SelectedNodes.getNodeData(current_item);
+                            nodes_found_for_this_category.push(x);
+                            circle.dataset.oldfill = circle.style.fill || SelectedNodes.getDefaultColour();
                             circle.style.fill = colours[colour_idx];
+                                
+                        }catch(error){
+                                console.error("Could not find node ", x, " in DOM");
+                                console.error(error); 
                         }
-                        
-                    }catch(error){
-                        console.error("Could not find ", x, " In DOM");
-                        console.error(error); 
                     }
                 });
-                colour_legend.push([item, colours[colour_idx]])
-                colour_idx++;
+
+       
+                if (nodes_found_for_this_category.length > 0) {
+                    colour_legend.push([item, colours[colour_idx]])
+                    visible_breakdown[item] = nodes_found_for_this_category;
+                    colour_idx++;
+                }
             }
-            CreateNodeLegend(colour_legend, col_index, break_down_values);    
+         
+            CreateNodeLegend(colour_legend, col_index, visible_breakdown);    
 
         };
+        
+
+        let updateLeafLabelsDisplay = () => {
+          const checkedBoxes = document.querySelectorAll('#dropdown_append_metadata2nodes .dropdown-menu input[type="checkbox"]:checked');
+          const metadataMap = extractAllMetadataJoined([...checkedBoxes].map(i => i.value)) 
+          if (metadataMap.size !== 0) {
+            updateLeafNodeLabels(metadataMap)
+          }else{
+            console.warn("The metadata table map is empty.");
+            updateLeafNodeLabels(metadataMap)
+          }
+        }
+          
 
         let redrawTree = () => {
+            
 
-                $('#colour-legend').empty()
-                $('#colour-legend').addClass('d-none')
-                $('#TreeSVG').remove();
-                $("#scale-bar-menu").remove()
-                let chart_ = null;
-                if(tree_root !== null){
-                    chart_ = TREE_SWITCH.get(TREE_VAL)(tree_root);
-                    chart_.style.paddingLeft = chart_.style.paddingLeft + TREE_OFFSET;
-                    
-                    $("#TreeData").append(chart_);
-                    $(".leaf-node").each((i, elm) => {
-                        let [parent, circle, text] = SelectedNodes.getNodeData(elm);
-                        if(SelectedNodes.nodes.has(text.textContent)){
-                            SelectedNodes.nodes.set(text.textContent, parent); // reset dom position
-                            SelectedNodes.setSelectedColours(text, circle);
-                    };
+
+
+          $('#colour-legend').empty()
+          $('#colour-legend').addClass('d-none')
+          $("#scale-bar-menu").remove()
+          $('#TreeSVG').remove();
+
+          let tree_drawn = () => {
+            let chart_ = null;
+            if(tree_root !== null){
+                chart_ = TREE_SWITCH.get(TREE_VAL)(tree_root);
+                let renderedTreePadding = chart_.style.paddingLeft || 0
+                chart_.style.paddingLeft = `${renderedTreePadding + TREE_OFFSET}px`
+                
+                $("#TreeData").append(chart_);
+                // This is the listener the layout-complete event (i.e. when the tree is fully rendered)
+                // d3.select(chart_) converts the DOM element into a D3 selection to access D3 methods like .on() event listener
+                
+                d3.select(chart_).on("layout-complete", () => {
+                    /**@remarks
+                    Previously, a `setTimeout` of 500 ms was used inside the updateLeafLabelsDisplay() to wait for the browser to finish rendering labels. 
+                    Without this wait, `getBBox()` would return "stale" old dimensions before the leaf nodes text was 
+                    updated to wider dimensions, causing the labels to be clipped.
+
+                    Specifically, the `setTimeout` function was required as this function executes
+                    before the svg is rendered in the main window resulting in no viewBox
+                    this results in the viewBox width not being increased resulting in cut off
+                    labels. the timeout allows for this function to execute when the svg actually exists.
+
+                    We now use a 0-duration D3 named transition ("tree-layout") to solve this more reliably:
+
+                    1) The named transition ensures our code hooks directly into the D3 rendering events.
+
+                    2) The "layout-complete" event fires only after the browser has finished calculating the new physical sizes 
+                    and positions of the SVG Tree element.
+                    This ensures we always get the accurate width for the viewBox and eliminates artificial lag for 
+                    fast computers and prevents errors on slower hardware where 500ms might not have been enough time to finish rendering.
+                    */
+                    updateLeafLabelsDisplay(); 
                 });
-                    reset_zoom_slider()
-                    return true;
-                }
-                console.error("No tree to redraw");
+                $(".leaf-node").each((i, elm) => {
+                    let [parent, circle, text] = SelectedNodes.getNodeData(elm);
+                    if(SelectedNodes.nodes.has(text.textContent)){
+                        SelectedNodes.nodes.set(text.textContent, parent); // reset dom position
+                        SelectedNodes.setSelectedColours(text, circle);
+                };
+                  });
+            }else{
+              console.error("No tree to redraw");
+            }
+          }
+          tree_drawn();
+          reset_zoom_slider();
+          
+
+
         }
 
         $(() => {
 
 
-            $("#redraw-tree-button").on("click", () => { redrawTree() });
+            $("#redraw-tree-button").on("click", () => { 
+              redrawTree(); 
+            });
 
             initialize_tree_menu();
             lineThickness();
@@ -3083,7 +3418,7 @@
                 let reader = new FileReader();
                 let newick_file = event.target.files[0];
                 reader.readAsText(newick_file, "UTF-8");
-                console.log(`Successfully loaded ${newick_file.name}`)
+                console.debug(`Successfully loaded ${newick_file.name}`)
                 reader.onload = (evt) => {
                     newick = evt.target.result;
                     drawTree(newick);
@@ -3153,6 +3488,7 @@
                 }
                 METADATA = d3.tsvParse(DATA, blankQuitter);
                 TABLE_HEADERS = METADATA.columns;
+                
                 CreateTable(METADATA, "#metadata", TABLE_HEADERS);
                 METADATA = null;
                 initialize_legend_menu();
@@ -3177,6 +3513,7 @@
                     }
                     METADATA = d3.tsvParse(metadata, blankQuitter);
                     TABLE_HEADERS = METADATA.columns;
+
                     CreateTable(METADATA, "#metadata", TABLE_HEADERS);
                     METADATA = null;
                     initialize_legend_menu();
@@ -3256,45 +3593,70 @@
 
         });
 
-        zoom_tree = function(){
 
+        
+        zoom_tree = function(){
+            
             const zoom_times = parseFloat(document.querySelector('#zoom_slider').value)
             const tree_data_elm = document.querySelector('#TreeData')
             const tree_svg = document.querySelector('#TreeSVG')
             document.querySelector('#zoom_slider_value').textContent =  zoom_times 
-        
-            const new_width = ORIGINAL_WIDTH_SVG  * zoom_times //use global value as getBBox() at high zooms gives wrong values
-            const prev_width = parseFloat(document.querySelector('#TreeSVG').style.width)
+
+            const content_bbox = tree_svg.getBBox(); //content bounding box of the Tree SVG
+
+            // Define the base coordinate width (unzoomed) including your offset
+            const base_coordinate_width = Math.max(ORIGINAL_WIDTH_SVG + TREE_LEFT_MARGIN_VIEWBOX_OFFSET + 20,
+                                            content_bbox.width + content_bbox.x + 50); //20 for right margin padding
+            const current_vb = tree_svg.viewBox.baseVal; //current viewBox values
+            const base_coordinate_height = current_vb.height; //the unzoomed height of the tree.
+
+            //Calculate new physical dimensions of width and height as both must be scaled for zoom to work
+            const new_width = base_coordinate_width * zoom_times 
+            const new_height = base_coordinate_height * zoom_times
+
+            //Get the previous physical width before zooming
+            const prev_width = parseFloat(document.querySelector('#TreeSVG').style.width) || base_coordinate_width;
+            const prev_height = parseFloat(document.querySelector('#TreeSVG').style.height) || base_coordinate_height;
 
             //Previous x and y scroll positions before applying a zoom
             const prev_x_scroll_pos = tree_data_elm.scrollLeft
             const prev_y_scroll_pos = tree_data_elm.scrollTop
-            document.querySelector('#TreeSVG').style.width = new_width ; //modify width of SVG tree
 
-            //store new translated x and y coordinates after zooming 
-            let zoom_x_translated = 0 
-            let zoom_y_translated = 0
-            const scaleChange = new_width/prev_width //sometimes the specified zoom factor is not exact, use this value instead
-            
-            //keeping zoom centered on an element
-            if(new_width > prev_width){
-                //get previous scroll position which is the left most x-coordinate position of a view
-                //translate that coordiante to a new zoomed state
-                //add 1/4 view field length scaled to a new zoomed state coordinate
-                zoom_x_translated =  prev_x_scroll_pos*scaleChange + (tree_data_elm.clientWidth/4)*(scaleChange)
-                zoom_y_translated =  prev_y_scroll_pos*scaleChange + (tree_data_elm.clientHeight/4)*(scaleChange)
-            
-            }else{
-                //Zooming out 
-                //Scale current scroll position (previous scroll + 1/4 view field distance) to a new coordinate zoomed out state
-                //Substract the 1/4 offeset/margin that is already in the needed zoomed out state (no adjustments)
-                zoom_x_translated =  prev_x_scroll_pos*scaleChange - (tree_data_elm.clientWidth/4)
-                zoom_y_translated =  prev_y_scroll_pos*scaleChange - (tree_data_elm.clientHeight/4)
-            
-            }
-            document.querySelector('#TreeData').scrollTo(zoom_x_translated,zoom_y_translated)
+            //document.querySelector('#TreeSVG').style.width = new_width ; //modify width of SVG tree
+            // svg width was not being properly set on firfox
+            document.querySelector('#TreeSVG').setAttribute("width", `${new_width}`); //modify width of SVG tree
+            document.querySelector('#TreeSVG').setAttribute("height", `${new_height}`); //modify height of SVG tree
+
+            // This is what makes the tree actually look bigger inside the new width/height
+            tree_svg.setAttribute("viewBox", `${-TREE_LEFT_MARGIN_VIEWBOX_OFFSET} ${current_vb.y} ${base_coordinate_width} ${base_coordinate_height}`);
+
+            // Calculate the scale change factor for width and height
+            const scaleChangeX = new_width / prev_width;
+            const scaleChangeY = new_height / prev_height; 
+
+            // Focus on the center of the current view for a smoother experience
+            // Formula: (Current center point * scale) - half of the window
+            const view_w = tree_data_elm.clientWidth;
+            const view_h = tree_data_elm.clientHeight;
+
+            // Calculate the physical "Boundaries" of the new scaled content.
+            const maxPossibleX = new_width - view_w;
+            const maxPossibleY = new_height - view_h;
+
+            // Calculate the theoretical scroll target that does not care if the result is possible given screen dims
+            let targetX = (prev_x_scroll_pos + view_w / 2) * scaleChangeX - (view_w / 2);
+            let targetY = (prev_y_scroll_pos + view_h / 2) * scaleChangeY - (view_h / 2);
+
+            // This prevents the browser from fighting your scrollTo command
+            zoom_x_translated = Math.round(Math.max(0, Math.min(targetX, maxPossibleX)));
+            zoom_y_translated = Math.round(Math.max(0, Math.min(targetY, maxPossibleY)));
+                    
+            //Apply the final, safe coordinates preventing x-axis sliding effect on zoom out
+            document.querySelector('#TreeData').scrollTo(zoom_x_translated, zoom_y_translated);
+
+
         }
-
+        
         scroll_into_view_treenode = function(id){
             let selectedNode = document.querySelector(`[id='${id}']`)
             if(selectedNode !== null){
@@ -3389,9 +3751,21 @@
 
 
         scroll_legend_into_view = function(node,full_screen_btn, node_TreeData){
+            
             if(node !== null){
-                node.style.left=`${node_TreeData.scrollLeft}px`
-                node.style.top=`${node_TreeData.scrollTop}px`
+                const x = Math.round(node_TreeData.scrollLeft+10);
+                const y = Math.round(node_TreeData.scrollTop+10);
+
+                // Skip if the movement is less than 5px (small)
+                if (Math.abs(x - LAST_SCROLL_X) < 5 && Math.abs(y - LAST_SCROLL_Y) < 2) {
+                    return;
+                }
+
+                LAST_SCROLL_X = x;
+                LAST_SCROLL_Y = y;
+             
+                node.style.left=`${x}px`
+                node.style.top=`${y}px`
                 full_screen_btn.style.right = `-${node_TreeData.scrollLeft}px`
                 full_screen_btn.style.top = `${node_TreeData.scrollTop}px`
 
@@ -3406,25 +3780,54 @@
         }    
 
         let select_deselect_nodes_by_field_value = (legend_node, column_index) => {
-
+            const categoryName = legend_node.getAttribute('data-fieldvalue');
+            const columnName = data_table.column(column_index).header().innerText.trim(); 
             //find indices of filtered data in a metadata table
-            let indexes = data_table.rows( (idx, data, node) => {
-                if(data[column_index] === `${legend_node.textContent}` ){
-                    return true
-                }else{
-                    return false
-                }
-            } ).indexes()
+            let getIndexes = () => {
+                return data_table.rows((idx, data, node) => {
+                    return data[column_index] === `${legend_node.getAttribute('data-fieldvalue')}`;
+                }).indexes();
+            };
+
+            let indexes = getIndexes();
+
             
             let selected = legend_node.classList.contains('fw-bold') ? true : false
             
+            
+
+            let selected_node_ids = data_table.cells(indexes,0).data();
+
+            if (selected_node_ids.length === 0) {
+               
+                Swal.fire({
+                    title: "Selected Nodes Not Found in Metadata",
+                    html: `The selected category <b>${categoryName}</b> in in column <b>${columnName}</b> contains samples are currently hidden.<br><br>Would you like to clear ALL metadata filters to select these nodes?`,
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, clear filters"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        data_table.clear();
+                        data_table.rows.add(Array.from(ORIGINAL_DATA.values())).draw();
+                        $("td").addClass("editable");
+                        $("td:not(:first-child)").attr("contenteditable", true);
+                        
+                        select_deselect_nodes_by_field_value(legend_node, column_index);
+                    }
+                });
+                return; 
+            }
+
             if(!selected){
                 legend_node.classList.add('fw-bold');
             }else{
                 legend_node.classList.remove('fw-bold');
             }
+                
 
-            let selected_node_ids = data_table.cells(indexes,0).data();
             for(var i = 0; i < selected_node_ids.length; i++) {
                 let tree_node = document.querySelector( `[id='${selected_node_ids[i]}']`)
                 let [ele, circle, text] = SelectedNodes.getNodeData(tree_node);
@@ -3439,8 +3842,13 @@
                 }    
             }
             // Bring the terminal node into frame
-            terminal_node = document.querySelector(`[id=${selected_node_ids[selected_node_ids.length-1]}`);
-            terminal_node.scrollIntoView({block: "center", inline: "center"})
+            let lastId = selected_node_ids[selected_node_ids.length-1];
+            terminal_node = document.querySelector(`[id="${lastId}"]`);
+            if (terminal_node) {
+                terminal_node.scrollIntoView({block: "center", inline: "center"})
+            }else{
+                console.warn(`Node with ID ${lastId} not found in DOM. Cannot scroll.`);
+            }    
             SelectedNodes.drawSelectedNodes();
             
         }
@@ -3527,7 +3935,7 @@
             const xmlns = "http://www.w3.org/2000/xmlns/";
             const xlinkns = "http://www.w3.org/1999/xlink";
             const svgns = "http://www.w3.org/2000/svg";
-            svg = svg.cloneNode(true);
+            //svg = svg.cloneNode(true);
                         
             const lgd = document.getElementById("colour-legend");
             const legend_width = lgd.clientWidth;
@@ -3559,65 +3967,193 @@
             tree_svg.style.marginLeft = legend_width + offset_safety_factor;
 
             const serializer = new window.XMLSerializer;
-            const xml_string = serializer.serializeToString(svg);
+            const xml_string = serializer.serializeToString(tree_svg); //we export tree_svg and not svg as pure svg does not support html elements such as legend
             return [new Blob([xml_string], {type: "image/svg+xml"}), xml_string];
         }
 
 
-        export_tree_to_svg = function(){
+
+       
+        export_tree_to_svg = function(event){
+            if (event) {
+                event.preventDefault();
+                event.stopPropagation();
+                event.stopImmediatePropagation();
+            }
+
+            const versionMeta = document.querySelector('meta[name="version"]');
+            const versionNumber = versionMeta.getAttribute('content');
+
             const date = new Date();
             let downloadLink = document.createElement("a");
             downloadLink.download = 'tree_snapshot_'+date.getDate()+'-'+
                 (date.getMonth()+1)+'-'+date.getFullYear()+'_'+date.getHours()+'h.svg';
             let svg =  document.getElementById("TreeData").cloneNode(true)
+            let svgElement = svg.querySelector("#TreeSVG");
+            const currentViewBox = svgElement.getAttribute("viewBox");
+            let [x, y, width, height] = currentViewBox.split(/[\s,]+/).map(Number);
+            svgElement.setAttribute("viewBox", `${x} ${y-20} ${width} ${height}`);
+            svgElement.style.fontFamily = "monospace";
+
+            const versionText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            versionText.textContent = `v${versionNumber}`;
+
+            versionText.setAttribute("x", x + width - 10); // 10px from right edge
+            versionText.setAttribute("y", y - 5);          
+            versionText.setAttribute("fill", "#999999");
+            versionText.setAttribute("font-size", "14px");
+            versionText.setAttribute("font-family", "monospace");
+            versionText.setAttribute("text-anchor", "end"); // Right-aligned sticking to right margin
+
+            svgElement.appendChild(versionText);
+                
+        
             //remove duplicated leaf nodes text duplication for more accurate searches
             svg.querySelectorAll('g .tree-node').forEach(node => {
                 text_nodes_leafs = node.querySelectorAll('text[class=""]')
                 if(text_nodes_leafs.length === 2){
                     text_nodes_leafs[0].remove()
                 }
-            })  
+            })
+
+            svg.querySelector("#TreeSVG").style.overflow = "visible"
             const blob = serialize2svg(svg)[0];
             downloadLink.href = window.URL.createObjectURL(blob);
+            console.log(window.URL.createObjectURL(blob))
             downloadLink.click(); //Trigger a click on the element
             downloadLink.remove();               
         }
 
+        
         /*Adapted from https://gist.github.com/tatsuyasusukida/1261585e3422da5645a1cbb9cf8813d6 and https://zooper.pages.dev/articles/how-to-convert-a-svg-to-png-using-canvas*/
-        export_tree_to_png = function(){
-            let svg =  document.getElementById("TreeSVG")
-            let svg_width = svg.getBoundingClientRect().width;
-            let svg_height = svg.getBoundingClientRect().height;
-            //extract SVG element
-            const svgData = new XMLSerializer().serializeToString(svg);
-
-            //create canvas to the size of the SVG
-            let canvas = document.createElement('canvas')
-            canvas.width = svg_width+svg_width*0.05;
-            canvas.height = svg_height+svg_width*0.15;
+        export_tree_to_png = function(event){
+          if (event) event.preventDefault();
             
-            //create SVG image element
-            let img = new Image();
-            img.src = "data:image/svg+xml;base64," + btoa(svgData);
+          let svg =  document.getElementById("TreeSVG").cloneNode(true); 
+          let legendOrigin = document.getElementById("colour-legend");
+          let hasLegend = legendOrigin && !legendOrigin.classList.contains('d-none');
+          svg.style.fontFamily = "monospace";
 
-            img.onload = function () { //must be inside this image onload event function due to async image load nature
-                //render SVG image onto canvas element
-                let ctx = canvas.getContext('2d');
-                ctx.fillStyle = "white";
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.drawImage(img, 0, 0);
-                //create PNG image from the canvas
-                let pngUrl = canvas.toDataURL('image/png').replace('image/png', 'octet/stream');
-                //create download link
-                let downloadLink = document.createElement("a");
-                downloadLink.download = 'tree_snapshot.png';
-                downloadLink.href = pngUrl;
-                downloadLink.click();
-                downloadLink.remove();
-            }
+          let legendWidth = hasLegend ? legendOrigin.offsetWidth : 0;
+          let legendHeight = hasLegend ? legendOrigin.offsetHeight : 0;
 
+          let {x, y, width, height} = svg.viewBox.baseVal;
+          let svg_width = width;
+          let svg_height = height;
+          
+          let modified_width =  svg_width + (svg_width * 0.15);
+          let modified_height =  svg_height// + (svg_height * 0.15);
+         
+          
+          // Change the width of the svg element allowing for more of the viewbox to show up
+          svg.setAttribute("width", modified_width)
+          
+          /* 
+            Create a temporary svg expanding increasing the size of the final 
+            canvas the elelment is rendered in. Having this seperate wrapper
+            also allows for seperate modifications of the PNG before export allowing
+            for translationst to be performed.
+          */
+          let wrapping_svg = d3.select("body")
+            .append("svg")
+            .attr("id", "temporary_svg")
+            .attr("height", modified_height)
+            .attr("width", modified_width)
+            .append('g')
+            .attr("id", "translation_element")
+            .attr("height", modified_height)
+            .attr("width", modified_width)
+            .attr("viewBox", `${x} ${y} ${modified_width} ${modified_height}`)
+           // .append(() => {
+          //    return svg
+          //})
+          if (hasLegend) { //add legend if it exists to svg
+            let legendClone = legendOrigin.cloneNode(true);
+            const activeStyles = window.getComputedStyle(legendOrigin);
+            legendClone.style.cssText = activeStyles.cssText;
 
-            
+            //replace bootstrap d-flex with classical flex
+            legendClone.querySelectorAll('.d-flex').forEach(el => {
+                el.style.display = "flex";
+                el.style.alignItems = "center";
+                el.style.padding = "4px";
+            });
+
+            legendClone.querySelectorAll('.text-center').forEach(el => {
+                el.style.textAlign = "center";
+                el.style.display = "block"; // Ensure it takes full width to allow centering
+                el.style.width = "100%";
+            });
+
+            legendClone.querySelectorAll('.d-flex').forEach(el => el.style.display = "flex");
+
+            // 3. Replace inputs with solid squares
+            legendClone.querySelectorAll('input').forEach(el => {
+                let square = document.createElement('div');
+                square.style.cssText = "width:20px; height:20px; border:1px solid black; display:inline-block; flex-shrink:0;";
+                square.style.backgroundColor = el.value;
+                el.parentNode.replaceChild(square, el);
+            });
+            const fObject = wrapping_svg.append("foreignObject")
+            .attr("x", 30) // Anchored to the top-left of the viewport
+            .attr("y", 35)
+            .attr("width", legendOrigin.offsetWidth) // Fixed width for the legend area
+            .attr("height", legendOrigin.scrollHeight);
+
+            // Add XHTML wrapper with minimal Bootstrap-mimicking styles
+            const div = fObject.append("xhtml:div")
+                .attr("xmlns", "http://www.w3.org/1999/xhtml")
+                .attr("style", "background-color: white; border: 1px solid #ccc;");
+            div.append(() => legendClone);;
+           
+          }
+
+          wrapping_svg.append('g')
+            .attr("id", "translation_element")
+            .append(() => svg);
+
+          
+          //extract SVG element
+          const svgData = new XMLSerializer().serializeToString(document.getElementById("temporary_svg"));
+       
+          //create canvas to the size of the SVG
+          let canvas = document.createElement('canvas')
+          canvas.width = modified_width;
+          canvas.height = modified_height;
+          
+          //create SVG image element
+          let img = new Image();
+          img.src = "data:image/svg+xml;base64," + btoa(svgData);
+
+          img.onload = function () { //must be inside this image onload event function due to async image load nature
+              //render SVG image onto canvas element
+              const versionMeta = document.querySelector('meta[name="version"]');
+              const versionNumber = versionMeta.getAttribute('content');
+
+              let ctx = canvas.getContext('2d');
+              ctx.fillStyle = "white";
+              ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+              ctx.drawImage(img, 0,  0, modified_width, modified_height);
+
+              ctx.font = "14px monospace";
+              ctx.fillStyle = "#999999"; // Subtle grey
+              ctx.textAlign = "right";   // Align text to the right edge
+              ctx.textBaseline = "top";  // Align text to the top edge
+              ctx.fillText(`v${versionNumber}`, canvas.width - 10, 5);
+             
+              //create PNG image from the canvas
+              let pngUrl = canvas.toDataURL('image/png').replace('image/png', 'octet/stream');
+              //create download link
+              let downloadLink = document.createElement("a");
+              downloadLink.download = 'tree_snapshot.png';
+              downloadLink.href = pngUrl;
+              downloadLink.click();
+              downloadLink.remove();
+          }
+          
+          // Remove temporary elements
+          document.getElementById("temporary_svg").remove();
 
 
         }    
@@ -3642,15 +4178,13 @@
        
             }else{
                 document.exitFullscreen();
-                console.log(METDATA_TABLE_NON_FULL_SCREEEN_HEIGTH);
+                console.debug(METDATA_TABLE_NON_FULL_SCREEEN_HEIGTH);
                 metadata_panel.style.height = METDATA_TABLE_NON_FULL_SCREEEN_HEIGTH;
             }            
         }
 
         
         document.addEventListener("DOMContentLoaded",()=>{
-            let button = document.querySelector('#tree_fullscreen_btn')
-
            /**
              * Handles dynamic layout adjustments when the #ClusterInfo section is shown or hidden.
              *
@@ -3675,9 +4209,12 @@
             document.querySelector('#ClusterInfo').addEventListener('hidden.bs.collapse', function () {
                 let heightMetaDiv = document.querySelector('#ClusterInfo>div').style.height
                 let heightTreeDataDiv = document.querySelector('#TreeData').style.height
+                let resizerHeight = document.querySelector('#resizer-bar').offsetHeight
                 let unitMatchTree = heightTreeDataDiv.match(/.?(\w{1,2})$/)
                 let unitMatchMeta = heightMetaDiv.match(/.?(\w{1,2})$/)
                 let unitTree = unitMatchTree ? unitMatchTree[1] : null;
+                let viewportHeight = window.visualViewport.height;
+                let maxAllowedHeight = window.innerHeight - resizerHeight - 10;
                 /*let unitMeta = unitMatchMeta ? unitMatchMeta[1] : null;
             
                 // Calculate the equivalent pixel value from vh
@@ -3686,11 +4223,15 @@
                     heightMetaDiv = (parseFloat(heightMetaDiv) / 100) * viewportHeight;
                     unitMeta="px"
                 }*/
-               
-                if(unitTree !== null){  
-                    document.querySelector('#TreeData').style.height= parseFloat(heightTreeDataDiv) + parseFloat(heightMetaDiv)+"px"
-                    document.querySelector('#control_panel').style.height = parseFloat(heightTreeDataDiv) + parseFloat(heightMetaDiv)+"px"
+                      
+                if(unitTree !== null){
+                    let calculatedHeight = parseFloat(heightTreeDataDiv) + parseFloat(heightMetaDiv)
+                    let finalHeight = Math.min(calculatedHeight, maxAllowedHeight);
+                    
+                    document.querySelector('#TreeData').style.height= finalHeight +"px"
+                    document.querySelector('#control_panel').style.height = finalHeight +"px"
                 }else{
+                    
                     document.querySelector('#TreeData').style.height=`${window.visualViewport.height-10}px`
                     document.querySelector('#control_panel').style.height=`${window.visualViewport.height-10}px`
                 }
@@ -3733,13 +4274,16 @@
             const controlPanel = document.querySelector('#control_panel');
             const clusterInfo = document.querySelector('#ClusterInfo');
             const ORIGINAL_CONTROL_PANEL_HEIGHT  = controlPanel.getBoundingClientRect().height
+            const versionMeta = document.querySelector('meta[name="version"]');
+    
+            const versionNumber = versionMeta.getAttribute('content');
+            const watermark = document.getElementById('version-watermark');
+            watermark.textContent = `v${versionNumber}`;
 
-            function adjustClusterInfoPanelHeight(controlPanel, clusterInfo) {    
-                console.log(`Window height: ${window.innerHeight}px and upper panel size: ${ORIGINAL_CONTROL_PANEL_HEIGHT}px`);
-
+            function adjustClusterInfoPanelHeight(controlPanel, clusterInfo) { 
+                const resizerHeight = document.querySelector('#resizer-bar').offsetHeight;   
                 // Calculate the desired height for the cluster info panel.
-                let newHeight = window.innerHeight - ORIGINAL_CONTROL_PANEL_HEIGHT;
-
+                let newHeight = window.innerHeight - ORIGINAL_CONTROL_PANEL_HEIGHT - resizerHeight - 4;
                 // Define the minimum height as 10% of the viewport.
                 const minHeightPercentage = 0.10;
                 const tenPercentViewportHeight = window.innerHeight * minHeightPercentage;
@@ -3750,14 +4294,32 @@
                 }
 
                 // Set the height of the cluster info panel's inner div.
-                clusterInfo.querySelector("div").style.height = `${newHeight}px`;
+                clusterInfo.querySelector("div").style.height = `${Math.floor(newHeight)}px`;
             }
 
             adjustClusterInfoPanelHeight(controlPanel, clusterInfo)
 
             const ORIGINAL_METADATA_HIGHT  = clusterInfo.querySelector("div").style.height
             
-            
+            // Ths listener detecta when fullscreen mode ends and restores the layout dimensions to the original values captured on load. This is necessary as exiting fullscreen can cause the layout to resize in unexpected ways, and we want to ensure a consistent user experience by reverting to the known "safe" dimensions.
+            document.addEventListener('fullscreenchange', () => {
+                // If document.fullscreenElement is null, we have just EXITED fullscreen
+                if (!document.fullscreenElement) {
+                    console.debug("Exited fullscreen: Restoring layout dimensions.");
+                    
+                    // Force the layout back to the known "safe" dimensions captured on initial load
+                    if(document.querySelector('#control_panel')){
+                        document.querySelector('#control_panel').style.height = `${ORIGINAL_CONTROL_PANEL_HEIGHT}px`;
+                    }
+                    if(document.querySelector('#TreeData')){
+                        document.querySelector('#TreeData').style.height = `${ORIGINAL_CONTROL_PANEL_HEIGHT}px`;
+                    }
+                    if(document.querySelector('#ClusterInfo>div')){
+                        document.querySelector('#ClusterInfo>div').style.height = ORIGINAL_METADATA_HIGHT;
+                    }
+                    adjustSelectedNodesHeight();
+                }
+            });
 
             if (controlPanel && clusterInfo) {
                 controlPanel.addEventListener('mouseenter', () => {  
@@ -3773,14 +4335,11 @@
                     const overlap = controlPanelRect.height < ORIGINAL_CONTROL_PANEL_HEIGHT;
 
                     if (overlap) {
-                        console.log(`#ClusterInfo is overlapping with #control_panel ${controlPanelRect.height}px vs #ClusterInfo ${ORIGINAL_CONTROL_PANEL_HEIGHT}px.`);
                         document.querySelector('#control_panel').style.height=`${ORIGINAL_CONTROL_PANEL_HEIGHT}px`;
                         document.querySelector('#TreeData').style.height=`${ORIGINAL_CONTROL_PANEL_HEIGHT}px`
                         document.querySelector('#ClusterInfo>div').style.height=ORIGINAL_METADATA_HIGHT;
                         adjustSelectedNodesHeight() 
-                    }else {
-                        console.debug(`#ClusterInfo is NOT overlapping with #control_panel ${controlPanelRect.height}px vs #ClusterInfo ${ORIGINAL_CONTROL_PANEL_HEIGHT}px.`);
-                    } 
+                    }
                        
                 });
             }
@@ -3828,9 +4387,7 @@
                         }).then( (result) => {
                             if (result.isConfirmed) {
                                 let success_msg = `Copied ${text2copyArray.length} sample IDs to the clipboard`
-                                if(DEBUG){
-                                    console.log(text2copy);
-                                }
+                                console.debug(text2copy);
                                 let file = new File(["\ufeff"+text2copy], 'selectedNodes.txt', {type: "text/plain:charset=UTF-8"})
                                 //create a ObjectURL in order to download the created file
                                 url = window.URL.createObjectURL(file);
@@ -3861,24 +4418,36 @@
         vertical_div_resize = function(event){
             event.preventDefault()
             let cursor_pos_init = event.y
+            const clusterInfo = document.querySelector('#ClusterInfo');
             metadata_panel = document.querySelector('#ClusterInfo>div')
             treeData_panel = document.querySelector('#TreeData')
             control_panel = document.querySelector('#control_panel')
+
             let metadata_panel_height_init = metadata_panel.getBoundingClientRect().height
             let treeData_panel_height_init = treeData_panel.getBoundingClientRect().height
             let control_panel_height_init = control_panel.getBoundingClientRect().height
             document.addEventListener('mousemove', resize, false)
             document.addEventListener('mouseup', stop_resize, false)
+
+            //Only uncollapse if it was hidden and do not use bsCollapse.show(), the animation will conflict with the mouse move.
+            if (!clusterInfo.classList.contains('show')) {
+                clusterInfo.classList.add('show'); // Force the class on immediately with no animation
+                metadata_panel.style.height = '0px'; // Ensure element starts at 0 height for correct math
+            }
+
             function resize(event){
                 event.stopPropagation();
                 const dy = event.y - cursor_pos_init  
                 metadata_panel.style.height = metadata_panel_height_init - dy+'px'
-                treeData_panel.style.height  = treeData_panel_height_init + dy+'px'
-                control_panel.style.height = control_panel_height_init + dy+'px'
+                treeData_panel.style.height  = treeData_panel_height_init + dy +'px'
+                control_panel.style.height = control_panel_height_init + dy +'px'
             }
             function stop_resize(event){
                 document.removeEventListener('mousemove', resize)
                 document.querySelector('#SelectedNodes').style.Height = `${document.querySelector('#TreeData').offsetHeight - document.querySelector('#tree_menu_buttons').offsetHeight}px`
+            
+                
+
             }   
             
         }
@@ -3913,6 +4482,12 @@
     dragDivByMouse = function(event) {
         const legend_div = document.querySelector('#colour-legend');
         const control_panel_div = document.querySelector("#control_panel");
+        const treeDataContainer = document.querySelector('#TreeData');
+
+        //Current SVG TreeData scroll positions to adjust for scrolling during drag
+        const scrollY = treeDataContainer.scrollTop;
+        const scrollX = treeDataContainer.scrollLeft;
+        
 
         // Get bounding box of the legend
         const rect = legend_div.getBoundingClientRect();
@@ -3920,6 +4495,9 @@
         // Calculate initial grab offset (mouse position within the div)
         const grabOffsetX = event.clientX - rect.left;
         const grabOffsetY = event.clientY - rect.top;
+
+
+        const tree = document.querySelector('#TreeData');
 
         // Store control panel width
         let controlPanelOffset = control_panel_div.offsetWidth;
@@ -3935,8 +4513,8 @@
             e.preventDefault();
 
             // Calculate new position, accounting for grab offset and control panel width
-            const newLeft = e.clientX - grabOffsetX - controlPanelOffset;
-            const newTop = e.clientY - grabOffsetY;
+            const newLeft = e.clientX - grabOffsetX - controlPanelOffset + scrollX;
+            const newTop = e.clientY - grabOffsetY + scrollY;
 
             legend_div.style.left = newLeft + "px";
             legend_div.style.top = newTop + "px";
@@ -3958,9 +4536,9 @@
     </script>
 </head>
     <body>
-        <div class="container-fluid m-0">
+        <div id="top-section-container" class="container-fluid m-0">
             <div class="row no-wrap"> <!-- id="TreeSelections" style=""-->
-                <div id="control_panel" class="col-2 border border-primary px-1 position-relative overflow-hidden">
+                <div id="control_panel" class="col-2 border border-primary px-1 position-relative">
                     <div id="tree_menu_buttons" class="row m-0">
                                 <div class="d-flex flex-row align-items-stretch p-0 text-left mt-1">
                                     <button class="h-100 flex-grow-1 me-1 mb-1 btn-sm btn-primary text-break" data-toggle="tooltip" data-placement="top" 
@@ -3984,12 +4562,12 @@
                                         title="Copy selected node IDs to your clipboard to paste into another application and optionally generate a text file" onclick="copy_ids_to_clipboard()" name="CopyIDs" id="copy-ids-button">
                                         <i class="bi bi-clipboard m-1"></i>IDs
                                     </button>
-                                    <button class="flex-grow-1 btn-sm btn-primary text-break" data-toggle="tooltip" data-placement="top" 
-                                        title="Export the tree to SVG." onclick="export_tree_to_svg()" id="export-tree-to-svg">
+                                    <button type="button" class="flex-grow-1 btn-sm btn-primary text-break" data-toggle="tooltip" data-placement="top" 
+                                        title="Export the tree to SVG." onclick="export_tree_to_svg(event)" id="export-tree-to-svg">
                                         <i class="bi bi-download m-1"></i> SVG
                                     </button>
-                                    <button class="flex-grow-1 btn-sm btn-primary text-break" data-toggle="tooltip" data-placement="top" 
-                                        title="Export the tree to PNG." onclick="export_tree_to_png()" id="export-tree-to-png">
+                                    <button type="button" class="flex-grow-1 btn-sm btn-primary text-break" data-toggle="tooltip" data-placement="top" 
+                                        title="Export the tree to PNG." onclick="export_tree_to_png(event)" id="export-tree-to-png">
                                         <i class="bi bi-download m-1"></i> PNG
                                     </button>
                                 </div>
@@ -3998,12 +4576,12 @@
                                         <i class="bi bi-download me-1"></i>Export Meta Table
                                     </button>
                                     <ul class="dropdown-menu">
-                                        <li><a id="export-metadata-view" data-toggle="tooltip" data-placement="top" title="Export the currently selected metadata." 
+                                        <li><a id="export-metadata-view" data-toggle="tooltip" data-placement="top" title="Export the currently selected filtered metadata." 
                                         class="dropdown-item text-wrap flex-grow-1 me-1 btn-sm btn-primary text-break mb-1" onclick="export_metadata_table(this)" id="export-metadata-view">
                                             <i class="bi bi-download me-1"></i>Export Filtered Table
                                             </a>
                                         </li>
-                                        <li><a id="export-metadata-table" data-toggle="tooltip" data-placement="top" title="Export the currently selected metadata." 
+                                        <li><a id="export-metadata-table" data-toggle="tooltip" data-placement="top" title="Export the complete unfiltered metadata." 
                                             class="dropdown-item text-wrap flex-grow-1 me-1 btn-sm btn-primary text-break mb-1" onclick="export_metadata_table(this)" id="export-metadata-view">
                                                 <i class="bi bi-download me-1"></i>Export Full Table
                                             </a>
@@ -4082,7 +4660,7 @@
                                 </div>
                                 <div id="dropdown_append_metadata2nodes"  class="d-flex flex-wrap p-0 dropdown mb-1">
                                     <button id="metadata_fields_dropdown_button" class="btn btn-danger btn-sm dropdown-toggle w-100 text-wrap" type="button" data-toggle="tooltip" 
-                                    data-placement="top" data-bs-auto-close="false" title="List of fields to colour nodes by">
+                                    data-placement="top" data-bs-auto-close="outside" title="List of fields to colour nodes by">
                                         Add metadata to nodes</button>
                                 </div>
 
@@ -4128,14 +4706,24 @@
                 <div class="position-relative p-0 bg-white col-10 Tree inline-block-child scrollbar-window" 
                 onscroll="scroll_legend_into_view(document.querySelector('#colour-legend'), document.querySelector('#tree_fullscreen_btn'), this)"
                 id="TreeData">
-
+                        
                         <div id="tree-splash" class="w-100 h-100 fs-2 d-flex justify-content-center align-items-center" style="height:50vh;"><i class="bi bi-tree"></i> Your tree will show up here when loaded!</div>
                         
                         <div id="colour-legend"
                         class="d-none p-1 position-absolute border border-primary text-break Tree inline-block-child scrollbar-window" 
                         style="top:0px; left:0px; resize: both; max-height:100%; background-color: rgba(255, 255, 255, 0.9)">   
                         </div>
-                        
+                        <div id="version-watermark" style="
+                            position: fixed; 
+                            top: 0px; 
+                            margin-right: 30px;
+                            right: 10px; 
+                            z-index: 1000; 
+                            font-family: monospace; 
+                            font-weight: bold;
+                            font-size: 14px; 
+                            color: #999;
+                        "></div>
                         <i style="position:absolute; top:0; right: 0; cursor: pointer; color:blue; margin-right:1px" id="tree_fullscreen_btn" 
                         onclick="tree_full_screen_mode()" class="d-flex fs-5 bi-arrow-up-right-square"></i>
                         
@@ -4146,11 +4734,14 @@
                 
         </div>
         
-        <div class="row m-0" style="height:5px;background-color: #0d6efd; position: relative">
+        <div id="resizer-bar" class="row m-0" style="background-color: #0d6efd; 
+        position: relative;">
                 <a  href="#" data-bs-toggle="collapse" data-bs-target="#ClusterInfo"></a>
                 <div class="p-0" onmousedown="vertical_div_resize(event)" 
-                    style="position:absolute; cursor: ns-resize; box-shadow: 1px 1px 1px 1px rgba(0,0,0,.8); border-radius: 3px; left:50%; 
-                    background-color: #dc3545; width:50px; height:10px; z-index: 2;">
+                    style="position:absolute; cursor: ns-resize; 
+                    box-shadow: 1px 1px 1px 1px rgba(0,0,0,.8); border-radius: 3px; left:50%; 
+                    background-color: #dc3545; width:50px; height:10px; z-index: 2;
+                    left: calc(50% - 25px); top: calc(50% - 5px);">
                 </div>
         </div>
         
@@ -4160,8 +4751,9 @@
                     <table id="metadata" class="w-100 display nowrap overflow-scroll" >
                     </table>
                     </div>    
+
                 </div>            
-                <!-- Need to have the legend be scrollable and situated under the selected nodes-->  
+          <!-- Need to have the legend be scrollable and situated under the selected nodes-->  
         </div> 
         <div id="TestSubTree"></div> 
         

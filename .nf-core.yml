@@ -1,5 +1,5 @@
 repository_type: pipeline
-nf_core_version: "3.3.1"
+nf_core_version: "3.5.2"
 lint:
   files_exist:
     - assets/nf-core-snvphylnfc_logo_light.png
@@ -25,7 +25,6 @@ lint:
     - .github/ISSUE_TEMPLATE/bug_report.yml
     - .github/PULL_REQUEST_TEMPLATE.md
     - .github/workflows/branch.yml
-    - .github/workflows/linting.yml
     - assets/email_template.txt
     - docs/README.md
     - LICENSE
@@ -45,3 +44,6 @@ lint:
     - nextflow_badge
   nf_test_content:
     - nf-test.config
+
+template:
+  prefix: phac-nml

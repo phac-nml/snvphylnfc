@@ -150,6 +150,7 @@ nextflow_workflow {
             params {
                 input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/refs/heads/dev/tests/data/samplesheets/samplesheet-no-reference.csv"
                 outdir = "results"
+                refgenome = null
             }
             workflow {}
         }
@@ -162,11 +163,13 @@ nextflow_workflow {
     }
 
     test("multiple references without selecting specific sample id (failure)") {
+        tag "multiple_no_id"
 
         when {
             params {
                 input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/refs/heads/dev/tests/data/samplesheets/samplesheet-multiple-references.csv"
                 outdir = "results"
+                refgenome = null
             }
             workflow {}
         }

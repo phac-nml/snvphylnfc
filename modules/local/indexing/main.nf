@@ -10,7 +10,7 @@ Please refer to the README for more information.
 process INDEXING {
     tag "${refgenome}"
     label 'process_low'
-    container = "staphb/smalt:0.7.6"
+    container "staphb/smalt:0.7.6"
 
     input:
     path(refgenome)
