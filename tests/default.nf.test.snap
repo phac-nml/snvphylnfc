@@ -1,0 +1,171 @@
+{
+    "-profile test": {
+        "content": [
+            {
+                "ARBOR_VIEW": {
+                    "ArborView": "0.1.3"
+                },
+                "BCFTOOLS_CALL": {
+                    "bcftools": "1.15"
+                },
+                "BGZIP_FREEBAYES_VCF": {
+                    "bgzip (htslib)": "1.15"
+                },
+                "CONSOLIDATE_BCFS": {
+                    "bcftools": "1.9",
+                    "snvphyl-tools": "1.8.2"
+                },
+                "CUSTOM_DUMPSOFTWAREVERSIONS": {
+                    "python": "3.13.1",
+                    "yaml": "6.0.2"
+                },
+                "FILTER_FREEBAYES": {
+                    "perl": "v5.30.0",
+                    "snvphyl-tools": "1.8.2"
+                },
+                "FILTER_STATS": {
+                    "perl": "v5.30.0",
+                    "snvphyl-tools": "1.8.2"
+                },
+                "FIND_REPEATS": {
+                    "perl": "v5.30.0",
+                    "snvphyl-tools": "1.8.2"
+                },
+                "FREEBAYES": {
+                    "freebayes": "1.3.6"
+                },
+                "FREEBAYES_VCF_TO_BCF": {
+                    "bcftools": "1.15"
+                },
+                "INDEXING": {
+                    "samtools": "1.15",
+                    "smalt": "0.7.6"
+                },
+                "MAKE_SNV": {
+                    "perl": "v5.30.0",
+                    "snvphyl-tools": "1.8.2"
+                },
+                "MPILEUP": {
+                    "bcftools": "1.14"
+                },
+                "PHYML": {
+                    "phyml": ""
+                },
+                "SMALT_MAP": {
+                    "smalt": "0.7.6"
+                },
+                "SORT_INDEX_BAMS": {
+                    "samtools": "1.9"
+                },
+                "VCF2SNV_ALIGNMENT": {
+                    "perl": "v5.30.0",
+                    "snvphyl-tools": "1.8.2"
+                },
+                "VERIFYING_MAP_Q": {
+                    "perl": "v5.30.0",
+                    "snvphyl-tools": "1.8.2"
+                },
+                "Workflow": {
+                    "phac-nml/snvphylnfc": "2.3.4"
+                }
+            },
+            [
+                "arbor",
+                "arbor/SNVPhyl_ArborView.html",
+                "bcftools",
+                "bcftools/A_1__mpileup.bcf",
+                "bcftools/B2_SAMPLE3_mpileup.bcf",
+                "bcftools/B2_mpileup.bcf",
+                "bgzip",
+                "bgzip/A_1__freebayes_filtered.vcf.gz",
+                "bgzip/B2_SAMPLE3_freebayes_filtered.vcf.gz",
+                "bgzip/B2_freebayes_filtered.vcf.gz",
+                "cat",
+                "cat/cat_invalid_positions.txt",
+                "consolidate",
+                "consolidate/A_1__consolidated.bcf",
+                "consolidate/A_1__consolidated.bcf.csi",
+                "consolidate/A_1__filtered_density.txt",
+                "consolidate/B2_SAMPLE3_consolidated.bcf",
+                "consolidate/B2_SAMPLE3_consolidated.bcf.csi",
+                "consolidate/B2_SAMPLE3_filtered_density.txt",
+                "consolidate/B2_consolidated.bcf",
+                "consolidate/B2_consolidated.bcf.csi",
+                "consolidate/B2_filtered_density.txt",
+                "filter",
+                "filter/A_1__freebayes_filtered.vcf",
+                "filter/B2_SAMPLE3_freebayes_filtered.vcf",
+                "filter/B2_freebayes_filtered.vcf",
+                "filter/filterStats.txt",
+                "find",
+                "find/invalid_positions.bed",
+                "freebayes",
+                "freebayes/A_1__freebayes.vcf",
+                "freebayes/A_1__freebayes_filtered.bcf",
+                "freebayes/A_1__freebayes_filtered.bcf.csi",
+                "freebayes/B2_SAMPLE3_freebayes.vcf",
+                "freebayes/B2_SAMPLE3_freebayes_filtered.bcf",
+                "freebayes/B2_SAMPLE3_freebayes_filtered.bcf.csi",
+                "freebayes/B2_freebayes.vcf",
+                "freebayes/B2_freebayes_filtered.bcf",
+                "freebayes/B2_freebayes_filtered.bcf.csi",
+                "indexing",
+                "indexing/reference.fasta.fai",
+                "indexing/reference.sma",
+                "indexing/reference.smi",
+                "iridanext.output.json.gz",
+                "make",
+                "make/snvMatrix.tsv",
+                "mpileup",
+                "mpileup/A_1__mpileup.vcf.gz",
+                "mpileup/B2_SAMPLE3_mpileup.vcf.gz",
+                "mpileup/B2_mpileup.vcf.gz",
+                "phyml",
+                "phyml/phylogeneticTree.newick",
+                "phyml/phylogeneticTreeStats.txt",
+                "pipeline_info",
+                "pipeline_info/software_versions.yml",
+                "smalt",
+                "smalt/A_1_.bam",
+                "smalt/B2.bam",
+                "smalt/B2_SAMPLE3.bam",
+                "sort",
+                "sort/A_1__sorted.bam",
+                "sort/B2_SAMPLE3_sorted.bam",
+                "sort/B2_sorted.bam",
+                "vcf2snv",
+                "vcf2snv/snvAlignment.phy",
+                "vcf2snv/snvTable.tsv",
+                "vcf2snv/vcf2core.tsv",
+                "verifying",
+                "verifying/mappingQuality.txt",
+                "write",
+                "write/metadata.tsv"
+            ],
+            [
+                "A_1__freebayes_filtered.vcf.gz:md5,b72f2f7eea0cf4847d5229f61740ed56",
+                "B2_SAMPLE3_freebayes_filtered.vcf.gz:md5,08d9e581886162dd5192c2083ad86212",
+                "B2_freebayes_filtered.vcf.gz:md5,171f5ddf964964f320eae99cc0de0280",
+                "cat_invalid_positions.txt:md5,7e6ba92fb7709783895de61a2f55fc04",
+                "A_1__freebayes_filtered.vcf:md5,b72f2f7eea0cf4847d5229f61740ed56",
+                "B2_SAMPLE3_freebayes_filtered.vcf:md5,08d9e581886162dd5192c2083ad86212",
+                "B2_freebayes_filtered.vcf:md5,171f5ddf964964f320eae99cc0de0280",
+                "filterStats.txt:md5,f56089544972c21875b7639a60ddd0bd",
+                "invalid_positions.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
+                "reference.fasta.fai:md5,b40d59ee09315d109142a1d59a910ad5",
+                "reference.sma:md5,011e71ae626ee7622c02f00c7558d8f8",
+                "reference.smi:md5,432b7acb873e57d71cc714708c3eeae2",
+                "snvMatrix.tsv:md5,607f76f82b326a00959ae8d77c9cc82f",
+                "snvAlignment.phy:md5,46e99d8cc1d7aab3903ce8044cadb219",
+                "snvTable.tsv:md5,f6af8fbdf9aced5735624e71ef06fedc",
+                "vcf2core.tsv:md5,5d3ff3fd0003cd204f77679992de31b8",
+                "metadata.tsv:md5,b75a49c844d87da6f9202f223f4de717"
+            ]
+        ],
+        "meta": {
+            "nf-test": "0.9.3",
+            "nextflow": "25.10.0"
+        },
+        "timestamp": "2026-02-12T13:22:08.829142759"
+    }
+}

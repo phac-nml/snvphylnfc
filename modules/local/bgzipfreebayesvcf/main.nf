@@ -10,7 +10,7 @@ Please refer to the README for more information.
 process BGZIP_FREEBAYES_VCF {
     tag "$meta.id"
     label 'process_low'
-    container = "staphb/htslib:1.15"
+    container "staphb/htslib:1.15"
 
     input:
     tuple val(meta), path(freebayes_filtered_vcf)

@@ -29,7 +29,7 @@ process ARBOR_VIEW {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        ArborView : 0.1.2
+        ArborView : \$(sed -n 's/.*<meta name="version" content="\\([^"]*\\)".*/\\1/p' ${arbor_view})
     END_VERSIONS
     """
 

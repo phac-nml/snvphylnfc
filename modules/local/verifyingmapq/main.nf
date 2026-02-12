@@ -10,7 +10,7 @@ Please refer to the README for more information.
 process VERIFYING_MAP_Q {
     tag ""
     label 'process_high'
-    container = "staphb/snvphyl-tools:1.8.2"
+    container "staphb/snvphyl-tools:1.8.2"
 
     input:
     path(sorted_bams)

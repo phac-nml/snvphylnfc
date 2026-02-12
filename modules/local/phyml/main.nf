@@ -9,7 +9,7 @@ Please refer to the README for more information.
 */
 process PHYML {
     label 'process_medium'
-    container = "biocontainers/phyml:3.3.20211231--hee9e358_0"
+    container "biocontainers/phyml:3.3.20211231--hee9e358_0"
 
     input:
     path(snvAlignment_phy)

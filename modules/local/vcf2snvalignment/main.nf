@@ -11,7 +11,7 @@ def VERSION = '1.8.2' // Version information not provided by tool on CLI
 
 process VCF2SNV_ALIGNMENT {
     label 'process_high'
-    container = "staphb/snvphyl-tools:1.8.2"
+    container "staphb/snvphyl-tools:1.8.2"
 
     input:
     val(bcf_metas)   // list of metas
