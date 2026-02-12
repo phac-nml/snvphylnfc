@@ -156,9 +156,6 @@
                 "reference.sma:md5,011e71ae626ee7622c02f00c7558d8f8",
                 "reference.smi:md5,432b7acb873e57d71cc714708c3eeae2",
                 "snvMatrix.tsv:md5,607f76f82b326a00959ae8d77c9cc82f",
-                "A_1__sorted.bam:md5,e91235ef54e0cb61dff8649b08eda644",
-                "B2_SAMPLE3_sorted.bam:md5,58f31d8163d8a5fbd56b96aeb4bf06bb",
-                "B2_sorted.bam:md5,8b6ccd6174bd5aa554b9e58c4276349e",
                 "snvAlignment.phy:md5,46e99d8cc1d7aab3903ce8044cadb219",
                 "snvTable.tsv:md5,f6af8fbdf9aced5735624e71ef06fedc",
                 "vcf2core.tsv:md5,5d3ff3fd0003cd204f77679992de31b8",
@@ -169,6 +166,6 @@
             "nf-test": "0.9.3",
             "nextflow": "25.10.0"
         },
-        "timestamp": "2026-02-12T13:00:03.501233998"
+        "timestamp": "2026-02-12T13:22:08.829142759"
     }
 }
