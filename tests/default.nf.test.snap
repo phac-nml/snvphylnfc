@@ -66,7 +66,7 @@
                     "snvphyl-tools": "1.8.2"
                 },
                 "Workflow": {
-                    "phac-nml/snvphylnfc": "2.3.4"
+                    "phac-nml/snvphylnfc": "2.4.0"
                 }
             },
             [
@@ -166,6 +166,6 @@
             "nf-test": "0.9.3",
             "nextflow": "25.10.0"
         },
-        "timestamp": "2026-02-12T13:22:08.829142759"
+        "timestamp": "2026-02-12T14:31:09.7196956"
     }
 }
