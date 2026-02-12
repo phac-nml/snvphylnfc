@@ -10,3 +10,6 @@ consolidate/*
 freebayes/*
 phyml/*
 verifying/mappingQuality.txt
+mpileup/*
+smalt/*
+sorted/*
