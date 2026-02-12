@@ -3,6 +3,19 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### Changed
+
+- Updated [ArborView](https://github.com/phac-nml/ArborView) to version `0.1.3`. [PR #47](https://github.com/phac-nml/snvphylnfc/pull/47)
+- Updated version of `nf-core` used for linting pipeline code. [PR #47](https://github.com/phac-nml/snvphylnfc/pull/47)
+- Updated GitHub Actions and nf-test configuration to latest versions provided by `nf-core` pipelines template. [PR #47](https://github.com/phac-nml/snvphylnfc/pull/47)
+- Updated minimum Nextflow version for pipeline to be `24.10.3`. [PR #47](https://github.com/phac-nml/snvphylnfc/pull/47)
+
+### Fixed
+
+- A bug related to Nextflow version 25 containers not being used correctly. [PR #47](https://github.com/phac-nml/snvphylnfc/pull/47)
+
 ## [2.3.4] - 2025-12-02
 
 ### Modified
