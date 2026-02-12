@@ -150,6 +150,7 @@ nextflow_workflow {
             params {
                 input = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/refs/heads/dev/tests/data/samplesheets/samplesheet-no-reference.csv"
                 outdir = "results"
+                refgenome = null
             }
             workflow {}
         }
