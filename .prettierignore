@@ -11,3 +11,4 @@ testing*
 *.pyc
 bin/
 /assets/ArborView.html
+tests/data/**/*.tsv

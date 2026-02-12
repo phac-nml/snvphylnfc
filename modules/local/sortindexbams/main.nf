@@ -10,7 +10,7 @@ Please refer to the README for more information.
 process SORT_INDEX_BAMS {
     tag "$meta.id"
     label 'process_medium'
-    container = "staphb/samtools:1.9"
+    container "staphb/samtools:1.9"
 
     input:
     tuple val(meta), path(bams)

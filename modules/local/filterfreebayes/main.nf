@@ -10,7 +10,7 @@ Please refer to the README for more information.
 process FILTER_FREEBAYES {
     tag "${meta.id}"
     label 'process_low'
-    container = "staphb/snvphyl-tools:1.8.2"
+    container "staphb/snvphyl-tools:1.8.2"
 
     input:
     tuple val(meta), path(freebayes_vcf)

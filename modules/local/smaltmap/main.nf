@@ -10,7 +10,7 @@ Please refer to the README for more information.
 process SMALT_MAP {
     tag "$meta.id"
     label 'process_medium'
-    container = "staphb/smalt:0.7.6"
+    container "staphb/smalt:0.7.6"
 
     input:
     tuple val(meta), path(reads)

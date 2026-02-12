@@ -10,7 +10,7 @@ Please refer to the README for more information.
 process BCFTOOLS_CALL {
     tag "${meta.id}"
     label 'process_low'
-    container = "staphb/bcftools:1.15"
+    container "staphb/bcftools:1.15"
 
     input:
     tuple val(meta), path(mpileup_vcf_gz)

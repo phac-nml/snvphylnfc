@@ -10,7 +10,7 @@ Please refer to the README for more information.
 process CONSOLIDATE_BCFS {
     tag "${meta.id}"
     label 'process_single'
-    container = "staphb/snvphyl-tools:1.8.2"
+    container "staphb/snvphyl-tools:1.8.2"
 
     input:
     tuple val(meta), path(mpileup_bcf), path(freebayes_filtered_bcf), path(freebayes_filtered_csi)

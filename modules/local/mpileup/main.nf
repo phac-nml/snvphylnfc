@@ -10,7 +10,7 @@ Please refer to the README for more information.
 process MPILEUP {
     tag "${meta.id}"
     label 'process_low'
-    container = "staphb/bcftools:1.14"
+    container "staphb/bcftools:1.14"
 
     input:
     tuple val(meta), path(sorted_bams)
