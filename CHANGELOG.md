@@ -3,6 +3,12 @@
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## Unreleased
+
+### `Updated`
+
+- Set nextflow version 25.10.4 to replace 'latest-everything' to confirm compatibility with next IRIDA-Next nextflow version in `.github/workflows` for nf-test. [PR #49](https://github.com/phac-nml/snvphylnfc/pull/49)
+
 ## [2.4.0] - 2026-02-12
 
 ### Changed
@@ -78,6 +84,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.2.0] - 2024/10/21
 
 - Modified the template for input csv file to include a `sample_name` column in addition to `sample` in-line with changes to [IRIDA-Next update] as seen with the [speciesabundance pipeline]
+
   - `sample_name` special characters will be replaced with `"_"`
   - If no `sample_name` is supplied in the column `sample` will be used
   - To avoid repeat values for `sample_name` all `sample_name` values will be suffixed with the unique `sample` value from the input file
