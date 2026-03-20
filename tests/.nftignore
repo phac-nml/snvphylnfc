@@ -11,3 +11,4 @@ verifying/mappingQuality.txt
 mpileup/*
 smalt/*
 sort/*
+freebayes/*
