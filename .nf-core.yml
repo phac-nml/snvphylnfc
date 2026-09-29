@@ -44,6 +44,7 @@ lint:
     - nextflow_badge
   nf_test_content:
     - nf-test.config
+    - tests/schema.nf.test
 
 template:
   prefix: phac-nml
