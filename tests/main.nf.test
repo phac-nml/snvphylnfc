@@ -16,6 +16,8 @@ nextflow_pipeline {
         }
 
         then {
+            def combined_stdout = workflow.stdout.join(",")
+            assert combined_stdout.contains("JSON did not match schema") == false
 
             // Check the error-log file
             def max_sample_log = "${params.outdir}/error/max_samples_exceeded.error.txt"
@@ -45,6 +47,8 @@ nextflow_pipeline {
         }
 
         then {
+            def combined_stdout = workflow.stdout.join(",")
+            assert combined_stdout.contains("JSON did not match schema") == false
 
             // Check the error-log file
             def max_sample_log = "${params.outdir}/error/max_samples_exceeded.error.txt"
@@ -66,6 +70,8 @@ nextflow_pipeline {
         }
 
         then {
+            def combined_stdout = workflow.stdout.join(",")
+            assert combined_stdout.contains("JSON did not match schema") == false
 
             // Check the error-log file
             def max_sample_log = "${params.outdir}/error/max_samples_exceeded.error.txt"
