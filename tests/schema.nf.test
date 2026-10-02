@@ -1,0 +1,27 @@
+nextflow_pipeline {
+
+    name "SNVPhylNFC JSON Output Schema Integration Testing"
+    script "main.nf"
+
+    test("Schema - Bad File") {
+        tag "schema_bad_file"
+        config "${projectDir}/tests/configs/iridanext_bad_file.config"
+
+        when {
+            params {
+                input = "$baseDir/assets/samplesheet.csv"
+                refgenome = "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta"
+                outdir = "$outputDir"
+            }
+        }
+
+        then {
+            assert workflow.success
+
+            def combined_stdout = workflow.stdout.join(",")
+
+            assert combined_stdout.contains("JSON did not match schema")
+            assert combined_stdout.contains('Validation errors: "write/metadata.tsv"')
+        }
+    }
+}
