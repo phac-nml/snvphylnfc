@@ -143,13 +143,13 @@
                 "write/metadata.tsv"
             ],
             [
-                "A_1__freebayes_filtered.vcf.gz:md5,129f627da83af14b2a251ca25ea2d645",
-                "B2_SAMPLE3_freebayes_filtered.vcf.gz:md5,1ebbfc2340bf1954eda88516c2f80c8e",
-                "B2_freebayes_filtered.vcf.gz:md5,410b4820eaf9b6ce9dd090386563f261",
+                "A_1__freebayes_filtered.vcf.gz:md5,5359c6968272b28d7421ff23719bbe4a",
+                "B2_SAMPLE3_freebayes_filtered.vcf.gz:md5,3208ce72433f8c81072b9714e449cd14",
+                "B2_freebayes_filtered.vcf.gz:md5,bc515049976945df4023f883b4a84fb5",
                 "cat_invalid_positions.txt:md5,7e6ba92fb7709783895de61a2f55fc04",
-                "A_1__freebayes_filtered.vcf:md5,129f627da83af14b2a251ca25ea2d645",
-                "B2_SAMPLE3_freebayes_filtered.vcf:md5,1ebbfc2340bf1954eda88516c2f80c8e",
-                "B2_freebayes_filtered.vcf:md5,410b4820eaf9b6ce9dd090386563f261",
+                "A_1__freebayes_filtered.vcf:md5,5359c6968272b28d7421ff23719bbe4a",
+                "B2_SAMPLE3_freebayes_filtered.vcf:md5,3208ce72433f8c81072b9714e449cd14",
+                "B2_freebayes_filtered.vcf:md5,bc515049976945df4023f883b4a84fb5",
                 "filterStats.txt:md5,f56089544972c21875b7639a60ddd0bd",
                 "invalid_positions.bed:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "reference.fasta.fai:md5,b40d59ee09315d109142a1d59a910ad5",
@@ -166,6 +166,6 @@
             "nf-test": "0.9.3",
             "nextflow": "25.10.0"
         },
-        "timestamp": "2026-09-29T11:49:30.648327106"
+        "timestamp": "2026-10-02T14:03:20.263942294"
     }
 }
