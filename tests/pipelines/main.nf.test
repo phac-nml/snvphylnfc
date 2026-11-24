@@ -5,6 +5,7 @@ nextflow_pipeline {
 
     test("Full pipeline with metadata") {
         tag "pipeline_metadata"
+        tag "csv_samplesheet"
 
         when {
             params {
@@ -98,6 +99,7 @@ nextflow_pipeline {
 
     test("Full pipeline without metadata") {
         tag "pipeline_no-metadata"
+        tag "csv_samplesheet"
 
         when {
             params {
@@ -153,6 +155,7 @@ nextflow_pipeline {
 
     test("Full pipeline with little metadata") {
         tag "pipeline_little-metadata"
+        tag "csv_samplesheet"
 
         when {
             params {
@@ -208,6 +211,7 @@ nextflow_pipeline {
 
     test("Pipeline failure from invalid metadata") {
         tag "pipeline_metadata_failure"
+        tag "csv_samplesheet"
 
         when {
             params {
@@ -234,6 +238,7 @@ nextflow_pipeline {
 
     test("Pipeline missing metadata columns") {
         tag "pipeline_no-metadata-columns"
+        tag "csv_samplesheet"
 
         when {
             params {
@@ -280,6 +285,7 @@ nextflow_pipeline {
 
     test("Pipeline with some metadata and some missing metadata columns") {
         tag "pipeline_few-columns-little-metadata"
+        tag "csv_samplesheet"
 
         when {
             params {

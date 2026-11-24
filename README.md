@@ -22,6 +22,43 @@ The columns are defined as follows:
 - `reference_assembly`: (Optional) A URI to a reference assembly associated with the sample. If left blank requires `--refgenome` parameter to specify the reference genome. If multiple samples have a reference genome then the parameter (`--reference_sample_id`) is required to select the correct reference genome.
 - `metadata_1...16`: (Optional) Permits up to 16 columns for user-defined contextual metadata associated with each `sample`. Refer to [Metadata](#metadata) for more information.
 
+Alternatively, a JSON-formatted sample sheet may be provided:
+
+```json
+[
+  {
+    "sample": "SAMPLE1",
+    "sample_name": "sample_1",
+    "fastq_1": "a_1.fastq",
+    "fastq_2": "a_2.fastq",
+    "reference_assembly": "reference.fasta",
+    "metadata_1": 1.1,
+    "metadata_2": 2.1,
+    "metadata_3": 3.1,
+    "metadata_4": 4.1,
+    "metadata_5": 5.1,
+    "metadata_6": 6.1,
+    "metadata_7": 7.1,
+    "metadata_8": 8.1
+  },
+  {
+    "sample": "SAMPLE2",
+    "sample_name": "sample_2",
+    "fastq_1": "b_1.fastq",
+    "fastq_2": "b_2.fastq",
+    "reference_assembly": "",
+    "metadata_1": 1.1,
+    "metadata_2": 2.2,
+    "metadata_3": 3.2,
+    "metadata_4": 4.2,
+    "metadata_5": 5.2,
+    "metadata_6": 6.2,
+    "metadata_7": 7.1,
+    "metadata_8": 8.2
+  }
+]
+```
+
 ### When to use `sample` vs `sample_name`
 
 Either can be used to identify the reference assembly with the parameter `--reference_sample_id`.

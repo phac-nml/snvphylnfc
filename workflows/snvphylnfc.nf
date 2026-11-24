@@ -16,14 +16,13 @@ Please refer to the README for more information.
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { paramsSummaryLog; paramsSummaryMap; fromSamplesheet  } from 'plugin/nf-validation'
+include { samplesheetToList } from 'plugin/nf-schema'
 
 def logo = NfcoreTemplate.logo(workflow, params.monochrome_logs)
 def citation = '\n' + WorkflowMain.citation(workflow) + '\n'
-def summary_params = paramsSummaryMap(workflow)
 
 // Print parameter summary log to screen
-log.info logo + paramsSummaryLog(workflow) + citation
+log.info logo + citation
 
 WorkflowSnvphylnfc.initialise(params, log)
 
@@ -87,8 +86,7 @@ workflow SNVPHYL {
     def processedIDs = [] as Set
 
     // Create a new channel of metadata from a sample sheet
-    // NB: `input` corresponds to `params.input` and associated sample sheet schema
-    input = Channel.fromSamplesheet("input")
+    input = Channel.fromList(samplesheetToList(params.input, "assets/schema_input.json"))
         // Map the inputs so that they conform to the nf-core-expected "reads" format.
         // Either [meta, [fastq_1], reference_assembly]
         // or [meta, [fastq_1, fastq_2], reference_assembly] if fastq_2 exists

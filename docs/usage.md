@@ -24,7 +24,7 @@ SAMPLE1,A1,/path/to/sample1_fastq1.fq,/path/to/sample1_fastq2.fq,/path/to/sample
 SAMPLE2,B2,/path/to/sample2_fastq1.fq,,,,,,,,,,,,,,,,,,
 ```
 
-| Column                        | Description                                                                                                                                                                            |
+| Column / Field                | Description                                                                                                                                                                            |
 | ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `sample`                      | Custom sample name. Samples should be unique within a samplesheet.                                                                                                                     |
 | `sample_name`                 | Sample name used in outputs (filenames and sample names)                                                                                                                               |
@@ -33,7 +33,42 @@ SAMPLE2,B2,/path/to/sample2_fastq1.fq,,,,,,,,,,,,,,,,,,
 | `reference_assembly`          | (Optional) Full path to a FASTA file representing a reference assembly derived from this sample. This field provides a method for selecting a reference genome for the whole pipeline. |
 | `metadata_1` to `metadata_16` | (Optional) Permits up to 16 columns for user-defined contextual metadata associated with each `sample`.                                                                                |
 
-An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline.
+An [example samplesheet](../assets/samplesheet.csv) has been provided with the pipeline. Alternatively, a JSON-formatted sample sheet may be provided:
+
+```json
+[
+  {
+    "sample": "SAMPLE1",
+    "sample_name": "sample_1",
+    "fastq_1": "a_1.fastq",
+    "fastq_2": "a_2.fastq",
+    "reference_assembly": "reference.fasta",
+    "metadata_1": 1.1,
+    "metadata_2": 2.1,
+    "metadata_3": 3.1,
+    "metadata_4": 4.1,
+    "metadata_5": 5.1,
+    "metadata_6": 6.1,
+    "metadata_7": 7.1,
+    "metadata_8": 8.1
+  },
+  {
+    "sample": "SAMPLE2",
+    "sample_name": "sample_2",
+    "fastq_1": "b_1.fastq",
+    "fastq_2": "b_2.fastq",
+    "reference_assembly": "",
+    "metadata_1": 1.1,
+    "metadata_2": 2.2,
+    "metadata_3": 3.2,
+    "metadata_4": 4.2,
+    "metadata_5": 5.2,
+    "metadata_6": 6.2,
+    "metadata_7": 7.1,
+    "metadata_8": 8.2
+  }
+]
+```
 
 ## Running the pipeline
 
