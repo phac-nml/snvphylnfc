@@ -79,11 +79,6 @@ include { CAT_CAT                     } from '../modules/nf-core/cat/cat/main'
 */
 
 workflow SNVPHYL {
-
-    // How many metadata. (ex: metadata1 .. metadata16)
-    METADATA_START = 1
-    METADATA_END = 16
-
     ch_versions = Channel.empty()
 
     // Track processed IDs
@@ -119,8 +114,9 @@ workflow SNVPHYL {
     // expects only strings. We need to allow all data types and then cast
     // all the metadata back to strings before operating on them.
     input = input.map { meta, reads, reference_assembly ->
-        for(int i = METADATA_START; i <= METADATA_END; i++) {
-            meta["metadata_${i}"] = meta["metadata_${i}"].toString()
+
+        meta = meta.collectEntries([:]){ key, value ->
+            key.contains("metadata_") ? [key, value.toString()] : [key, value]
         }
 
         tuple(meta, reads, reference_assembly)
