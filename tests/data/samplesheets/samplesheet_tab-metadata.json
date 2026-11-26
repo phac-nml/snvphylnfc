@@ -1,0 +1,47 @@
+[
+  {
+    "sample": "SAMPLE1",
+    "sample_name": "A 1#",
+    "fastq_1": "https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/a_1.fastq",
+    "fastq_2": "https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/a_2.fastq",
+    "reference_assembly": "https://raw.githubusercontent.com/phac-nml/snvphylnfc/dev/assets/reference.fasta",
+    "metadata_1": "a\tb",
+    "metadata_2": "",
+    "metadata_3": "",
+    "metadata_4": "",
+    "metadata_5": "",
+    "metadata_6": "",
+    "metadata_7": "",
+    "metadata_8": ""
+  },
+  {
+    "sample": "SAMPLE2",
+    "sample_name": "B2",
+    "fastq_1": "https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/b_1.fastq",
+    "fastq_2": "https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/b_2.fastq",
+    "reference_assembly": "",
+    "metadata_1": "",
+    "metadata_2": "",
+    "metadata_3": "",
+    "metadata_4": "",
+    "metadata_5": "a\tb",
+    "metadata_6": "",
+    "metadata_7": "",
+    "metadata_8": ""
+  },
+  {
+    "sample": "SAMPLE3",
+    "sample_name": "B2",
+    "fastq_1": "https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/c_1.fastq",
+    "fastq_2": "https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/c_2.fastq",
+    "reference_assembly": "",
+    "metadata_1": "",
+    "metadata_2": "",
+    "metadata_3": "",
+    "metadata_4": "",
+    "metadata_5": "",
+    "metadata_6": "",
+    "metadata_7": "",
+    "metadata_8": "a\tb"
+  }
+]

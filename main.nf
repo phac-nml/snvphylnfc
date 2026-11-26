@@ -49,7 +49,7 @@ process MAX_SAMPLES_CHECK {
 }
 
 include { SNVPHYL } from './workflows/snvphylnfc'
-include { validateParameters; paramsHelp; paramsSummaryLog; fromSamplesheet } from 'plugin/nf-validation'
+include { validateParameters; paramsHelp } from 'plugin/nf-schema'
 
 // Print help message if needed
 if (params.help) {
