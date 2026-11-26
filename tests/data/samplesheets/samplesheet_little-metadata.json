@@ -8,7 +8,7 @@
     "metadata_1": "",
     "metadata_2": "",
     "metadata_3": "",
-    "metadata_4": 1.4,
+    "metadata_4": "1.4",
     "metadata_5": "",
     "metadata_6": "",
     "metadata_7": "",
@@ -35,13 +35,13 @@
     "fastq_1": "https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/c_1.fastq",
     "fastq_2": "https://raw.githubusercontent.com/phac-nml/snvphyl-galaxy-cli/development/example-data/fastqs/c_2.fastq",
     "reference_assembly": "",
-    "metadata_1": 3.1,
-    "metadata_2": 3.2,
+    "metadata_1": "3.1",
+    "metadata_2": "3.2",
     "metadata_3": "",
     "metadata_4": "",
     "metadata_5": "",
     "metadata_6": "",
     "metadata_7": "",
-    "metadata_8": 3.8
+    "metadata_8": "3.8"
   }
 ]

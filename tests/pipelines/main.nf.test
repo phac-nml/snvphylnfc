@@ -232,7 +232,7 @@ nextflow_pipeline {
 
         then {
             assert workflow.failed
-            assert workflow.stdout.contains("ERROR ~ ERROR: Validation of 'input' file failed!")
+            assert workflow.stdout.contains("ERROR ~ Validation of pipeline parameters failed!")
         }
     }
 

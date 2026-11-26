@@ -80,6 +80,10 @@ include { CAT_CAT                     } from '../modules/nf-core/cat/cat/main'
 
 workflow SNVPHYL {
 
+    // How many metadata. (ex: metadata1 .. metadata16)
+    METADATA_START = 1
+    METADATA_END = 16
+
     ch_versions = Channel.empty()
 
     // Track processed IDs
@@ -108,6 +112,19 @@ workflow SNVPHYL {
             fastq_2 ? tuple(meta, [ file(fastq_1), file(fastq_2) ], reference_assembly) :
             tuple(meta, [ file(fastq_1) ], file(reference_assembly))}
 
+    // Cast all the metadata to strings:
+    // This is to fix a bug with loading CSV sample sheets with nf-schema,
+    // where it will automatically cast individual number-looking metadata
+    // strings (ex: "1.1") into numbers, which will then fail validation that
+    // expects only strings. We need to allow all data types and then cast
+    // all the metadata back to strings before operating on them.
+    input = input.map { meta, reads, reference_assembly ->
+        for(int i = METADATA_START; i <= METADATA_END; i++) {
+            meta["metadata_${i}"] = meta["metadata_${i}"].toString()
+        }
+
+        tuple(meta, reads, reference_assembly)
+    }
 
     // Channel of read tuples (meta, [fastq_1, fastq_2*]):
     reads = input.map { meta, reads, reference_assembly -> tuple(meta, reads) }
